@@ -8,7 +8,7 @@ opyl is a greenfield Go project: a turn-based play-by-email-style game engine. I
 2. For any documentation work, load the [`diataxis`](.agents/skills/diataxis/SKILL.md) skill. **opyl documentation follows Diataxis.** See the [Documentation](#documentation) section below for the concrete rules.
 3. Read this whole file. It records project-specific decisions and constraints that override or extend the unified skills.
 4. When in doubt about placement, prefer the innermost layer that can own the behavior cleanly.
-5. For the **game rules** (not the architecture), the source of truth is [`GAME-DESIGN.md`](GAME-DESIGN.md); open design questions are tracked in [`TODO.md`](TODO.md). Both are working design docs, not part of the published Diataxis site in `docs/`.
+5. For the **game rules** (not the architecture), the authoritative draft is the rulebook at [`docs/content/rules/_index.md`](docs/content/rules/_index.md). It is a **first draft and may contain inconsistencies** — treat it as the design we are converging on, not a settled spec. When it contradicts itself or leaves something open, flag it rather than silently picking an interpretation; do not implement a rule the draft does not clearly establish. Resolved design decisions layered on top of the rulebook are recorded in [`GAME-DESIGN.md`](GAME-DESIGN.md), which in turn feeds the published Diataxis reference pages in `docs/`. The flow is: **rulebook draft → `GAME-DESIGN.md` decisions → reference docs.**
 
 ## Project shape
 
@@ -87,9 +87,16 @@ Whichever choices land, they should affect **only** the relevant `internal/infra
 
 ## Documentation
 
-opyl documentation lives in [`docs/`](docs/) as a Hugo site using the [Hextra](https://imfing.github.io/hextra/) theme (loaded as a Hugo module). Content is organised by the [Diataxis](https://diataxis.fr) framework. Before writing or editing any documentation, load the [`diataxis`](.agents/skills/diataxis/SKILL.md) skill and follow its compass.
+opyl documentation lives in [`docs/`](docs/) as a Hugo site using the [Hextra](https://imfing.github.io/hextra/) theme (loaded as a Hugo module). The **engine documentation** is organised by the [Diataxis](https://diataxis.fr) framework. Before writing or editing any engine documentation, load the [`diataxis`](.agents/skills/diataxis/SKILL.md) skill and follow its compass.
+
+### The rulebook sits outside Diataxis
+
+`docs/content/rules/` holds the **player-facing rulebook** — game-world rules (the subject opyl simulates), not documentation of the engine. It is intentionally **outside** the Diataxis taxonomy: Diataxis organises docs *about the tool*, and the rules describe the game itself. The rulebook is the **primary entry point for players**, surfaced through its own card in [`docs/content/_index.md`](docs/content/_index.md), kept separate from the four-type Diataxis card block below it. Do **not** fold `rules/` into the four sections below or classify its pages by Diataxis type. (For the rulebook's status as the authoritative *design* draft, see item 5 at the top of this file.)
 
 ### The four sections — what goes where
+
+These four sections cover **engine documentation only**. The rulebook (above) is separate.
+
 
 | Section | Path | Purpose | Voice |
 | --- | --- | --- | --- |

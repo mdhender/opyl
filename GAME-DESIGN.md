@@ -1,6 +1,9 @@
 # GAME-DESIGN.md — opyl
 
-The living source of truth for opyl's **game rules** while they are being designed.
+The record of **resolved game-design decisions** layered on top of the draft rulebook
+([`docs/content/rules/_index.md`](docs/content/rules/_index.md)). The rulebook is the
+authoritative draft of the rules; this file captures the decisions we make as we converge
+that draft — where it is silent, contradicts itself, or needs a concrete value chosen.
 
 This file is design, not published documentation. As sections stabilize they feed the
 Diataxis docs in `docs/content/`:

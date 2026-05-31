@@ -1,0 +1,68 @@
+# Hugo site config for opyl documentation.
+# Theme: Hextra (loaded as a Hugo module — see go.mod).
+# Structure follows the Diataxis framework: tutorials, how-to, reference, explanation.
+
+baseURL: https://example.org/opyl/
+locale: en-us
+title: opyl documentation
+enableRobotsTXT: true
+enableGitInfo: false
+hasCJKLanguage: false
+
+# Hextra requires Goldmark with unsafe rendering for some shortcodes.
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    noClasses: false
+
+# Mount Hextra as a theme module. Run `hugo mod get -u` to fetch.
+module:
+  imports:
+    - path: github.com/imfing/hextra
+
+# Navigation. Each entry maps to a content/<section>/ directory.
+menu:
+  main:
+    - name: Tutorials
+      pageRef: /tutorials
+      weight: 1
+    - name: How-to
+      pageRef: /how-to
+      weight: 2
+    - name: Reference
+      pageRef: /reference
+      weight: 3
+    - name: Explanation
+      pageRef: /explanation
+      weight: 4
+    - name: Search
+      weight: 5
+      params:
+        type: search
+    - name: GitHub
+      weight: 6
+      url: https://github.com/mdhender/opyl
+      params:
+        icon: github
+
+params:
+  description: opyl — turn-based game engine documentation
+  navbar:
+    displayTitle: true
+    displayLogo: false
+  page:
+    width: normal
+  theme:
+    default: system
+    displayToggle: true
+  footer:
+    enable: true
+    displayCopyright: true
+    displayPoweredBy: true
+  search:
+    enable: true
+    type: flexsearch
+    flexsearch:
+      index: content

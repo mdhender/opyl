@@ -25,24 +25,27 @@ module:
 # Navigation. Each entry maps to a content/<section>/ directory.
 menu:
   main:
+    - name: Rules
+      pageRef: /rules
+      weight: 1
     - name: Tutorials
       pageRef: /tutorials
-      weight: 1
+      weight: 2
     - name: How-to
       pageRef: /how-to
-      weight: 2
+      weight: 3
     - name: Reference
       pageRef: /reference
-      weight: 3
+      weight: 4
     - name: Explanation
       pageRef: /explanation
-      weight: 4
-    - name: Search
       weight: 5
+    - name: Search
+      weight: 6
       params:
         type: search
     - name: GitHub
-      weight: 6
+      weight: 7
       url: https://github.com/mdhender/opyl
       params:
         icon: github

@@ -18,11 +18,117 @@ Status legend: ✅ decided · 🟡 partially specified · ❓ open question, und
 
 opyl is an **open-ended fantasy game** derived from Skrenta's Olympia. ✅
 
-## 2. The map ❓
+## 2. The map 🟡
 
-### Terrain ❓
+The world is a square grid of **provinces** grouped into named **regions**. Provinces may
+contain **inner locations** (cities, inns, ports, …). This section records the decisions
+that turn the [Geography & Movement](docs/content/rules/geography.md) rulebook draft into a
+buildable model. Spatial flavor (terrain *yields*, special realms) is deferred where noted.
 
-### Movement ❓
+### 2.1 Representation & source ✅
+
+- The map is a **fixed, authored artifact** loaded by the engine — a static province graph,
+  not procedurally generated. Rationale: deterministic, human-inspectable, git-diffable, and
+  consistent with the domain rule "no randomness, no I/O." The world is authored once.
+- Loading the artifact is an **infra concern** (an adapter); `domain` holds the in-memory
+  province-graph type and treats it as immutable input to turn resolution. See
+  [Architectural implications](#29-architectural-implications) — this likely wants a new
+  `MapSource` port; the on-disk **format is undecided** (carry to AGENTS.md's open-decisions
+  table).
+- Map **dimensions are a property of the authored map**, not fixed by the rules.
+
+### 2.2 Coordinates & addressing ✅
+
+- Internally a province is identified by **numeric `(row, col)`**. The bracketed code
+  (`[ae48]`) is **cosmetic display formatting**, not the identity.
+- Display format: **two letters (row) + two digits (column)**. NW corner is `[aa00]`; rows
+  increase **south**, columns increase **east**.
+- Row/column letters are drawn from the 22-letter alphabet **a–z excluding `i`, `j`, `l`,
+  `o`** (they read as `1`/`0`). This **supersedes** the rulebook's stated
+  `abcdfghjkmnpqrstvwxz` exclusion list, which conflicted with its own examples (it excluded
+  `e`, yet `[ae48]` is the rulebook's primary example). Keeping `e` and dropping `i/j/l/o`
+  makes every existing example valid.
+- The 2+2 code caps at 22² = 484 rows × 100 columns. Extend the format only if a larger
+  world is ever authored.
+- Map edges are impassable. Sub-location codes are arbitrary and carry **no** coordinate
+  meaning.
+
+> **Rulebook fixes applied this pass:** the coordinate alphabet above; and the `sail south`
+> direction-comment typo in `geography.md` (was `sail e`, now `sail s`). The ASCII grid in
+> the rulebook still skips `ae` and should be regenerated against the new alphabet — 🟡 TODO.
+
+### 2.3 Terrain ✅ / 🟡
+
+- **Six terrain types**: plains, forest, swamp, mountain, desert, ocean. ✅
+- Terrain affects **movement cost** (§2.4). Other terrain **effects** (resource yield,
+  defense, sighting) are **deferred to the economy/combat passes** — 🟡.
+
+### 2.4 Movement & travel time 🟡
+
+- Movement is in the **four orthogonal directions**; diagonals cost two `MOVE`s. Land travel
+  auto-selects the **fastest available mode** (horseback when the whole party can be mounted;
+  rough terrain may negate the horse benefit). Ocean travel requires a ship. ✅
+- Each route carries a **nominal cost in days** (authored per route). ✅
+- Actual cost = nominal, modified by transport mode, terrain, and **weather**. Per the
+  travel-time decision, this variance is **deterministic given a per-turn seed recorded in
+  the `TurnLedger`** (see §2.7). ✅ *mechanism* — the concrete **variance model**
+  (distributions, per-mode/terrain modifiers, wind for ocean) is ❓ and designed later.
+- `FLY` exists in the command set but its movement rules are unspecified here — cross-ref the
+  Orders pass. ❓
+
+### 2.5 Inner locations, ports & visibility ✅
+
+- Provinces may hold **sub-locations** (cities, inns, ports, islands), entered from the
+  surrounding province; `MOVE IN` enters the first listed when unambiguous.
+- **Visibility**: occupants of a sub-location see the surrounding province; outsiders cannot
+  see *into* a sub-location without entering. Co-located characters interact without travel.
+- **Ocean ports / port cities**: a ship docks into an adjoining land province (1 day); it
+  cannot dock against mountains (ocean↔mountain routes are `impassable`). A **port city**
+  gates ocean access — the surrounding province cannot reach the ocean directly.
+
+### 2.6 Holes & hidden routes ✅
+
+- **Holes**: a province may have no route in a given direction (impassable / undiscovered).
+- **Hidden routes**: discoverable via `EXPLORE`; once found, usable by the **whole owning
+  faction** but by **no other faction** (even one that knows the destination code).
+  Stack-mates crossing a hidden route learn it (prisoners excepted).
+
+### 2.7 Civilization level ✅
+
+- Every province has a civ level; **0 = wilderness**, no upper cap.
+- Per turn: `civ(p) = max( buildings(p), floor( maxNeighborCiv / 2 ) )`, where
+  - `buildings(p)` sums the contribution table (Safe Haven 2; Castle 1.5 + improvement/4;
+    City / Tower / Temple / Inn / Mine each 1), counting only the **first of each type**,
+    fractions dropped after summing;
+  - `maxNeighborCiv` is the max civ among the **four orthogonal neighbors** (off-map and hole
+    neighbors count as 0), **read from the previous turn's values** — a **single pass, no
+    fixpoint**. Civilization therefore spreads **one hop per turn**.
+- "Surrounding provinces" is pinned to the 4 orthogonal neighbors (consistent with movement);
+  this was unspecified in the rulebook. 🟡 confirm the gradual one-hop spread is desired.
+- Initialization: turn-zero civ comes from the authored map; absent an authored value, the
+  first computation uses `buildings(p)` only.
+
+### 2.8 Regions & special realms ❓ (deferred)
+
+- **Regions** are named province groupings; whether a region is a mechanical entity with
+  attributes (vs. a label) is undecided — deferred.
+- **Hades, Faery, the Cloudlands** are lore-specified with partial mechanics (Faery Hunt
+  combat ratings, flight-only Cloudlands). Treated as **later content**, not part of the core
+  map pass.
+- **Safe haven** placement/count and "no combat or magic" enforcement: noted, designed with
+  the combat/realm passes.
+
+### 2.9 Architectural implications
+
+These follow from §2 and belong in AGENTS.md's "Open architectural decisions" table (not yet
+added — offer pending):
+
+- **Map artifact format + loader.** A `MapSource` port read at composition time; the on-disk
+  format (JSON/YAML/custom) is undecided. The province graph is immutable input to the domain.
+- **Turn seed source.** `ProcessTurn` takes a recorded seed as **input** (from the
+  `TurnLedger`); the domain derives all travel-time variance from it via a seeded PRNG.
+  Randomness stays a pure function of recorded state — the domain still imports no entropy
+  source. This is the same discipline the `Clock` port applies to time.
 
 ## 3. Nations and Nobles ❓
 

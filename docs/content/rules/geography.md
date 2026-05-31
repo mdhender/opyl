@@ -27,7 +27,7 @@ From this province, a character may travel north or east on foot or by horse, or
 move north # OR move n OR move ad48
 move east  # OR move e OR move ae49
 
-sail south # OR sail e OR sail af48
+sail south # OR sail s OR sail af48
 sail west  # OR sail w OR sail ae47
 ```
 

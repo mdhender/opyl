@@ -8,10 +8,9 @@ These are the rules of the Olympian world that opyl is built to simulate. They
 describe the game itself, not the engine. For engine documentation, see
 [Reference](../reference) and [How-to](../how-to).
 
-
 ## Introduction
 
-Olympia is an open-ended computer moderated fantasy simulation.  Characters move, battle, explore and study in the Olympian world. Each week, players submit orders for their units. After the turn runs, Olympia sends reports to the players detailing what happened.
+Olympia is an open-ended computer moderated fantasy simulation. Characters move, battle, explore and study in the Olympian world. Each week, players submit orders for their units. After the turn runs, Olympia sends reports to the players detailing what happened.
 
 Olympia is set in a low technology fantasy world. Characters do not have fixed goals. They may study whatever skills they believe will be useful and pursue goals as they find them. Olympia has no victory conditions; no winner is ever declared.
 
@@ -35,7 +34,7 @@ Players should receive their turn reports as soon as email can be delivered. Lat
 
 New player additions are performed when the turn is run.
 
-If for technical reasons the turn cannot be run at the scheduled time, it will be run as soon as the technical issues have been dealt with.  If a long delay is expected, players will be notified by email.
+If for technical reasons the turn cannot be run at the scheduled time, it will be run as soon as the technical issues have been dealt with. If a long delay is expected, players will be notified by email.
 
 ### Olympia Times
 
@@ -59,7 +58,7 @@ Circe's lord isn't identified, so you don't know what player is controlling her.
 
 ```orders
 #forwardto: 2225
-Welcome to my lands! Prepare to die!
+  Welcome to my lands! Prepare to die!
 ```
 
 The message will be forwarded to whatever player is controlling Circe [2225].
@@ -90,11 +89,11 @@ Bug reports should be posted on the forum or emailed to <admin@shadowlandgames.c
 
 ### Cheating
 
-1. A player may not control more than one faction in the game. Also, multiple players from the same account are not allowed. Each player must have their own unique email address.  Exceptionally, a holiday replacement may be assigned in case you will be unavailable to play for a short period of time.  Please send an e-mail to <admin@shadowlandgames.com> to indicate this.
+1. A player may not control more than one faction in the game. Also, multiple players from the same account are not allowed. Each player must have their own unique email address. Exceptionally, a holiday replacement may be assigned in case you will be unavailable to play for a short period of time. Please send an e-mail to <admin@shadowlandgames.com> to indicate this.
 
 2. Players should not send in orders for another player's faction, to ruin that person's turn or otherwise benefit.
 
-3. Players must inform the GM of any game bugs found.  Send an email to <admin@shadowlandgames.com> or post a bug report on the forum.
+3. Players must inform the GM of any game bugs found. Send an email to <admin@shadowlandgames.com> or post a bug report on the forum.
 
 4. Anti-social behavior, including harassing telephone calls, sending obscene/obnoxious unwanted communications, mail bombing, etc. will not be tolerated.
 
@@ -104,10 +103,10 @@ All decisions of the GM are final.
 
 ### Olympian Calendar
 
-The Olympia calendar has two months for each season, for a total of eight months per Olympian year. Each month is 30 game days long. 
+The Olympia calendar has two months for each season, for a total of eight months per Olympian year. Each month is 30 game days long.
 
 | Season | Month | Name             |
-|--------|-------|------------------|
+| ------ | ----- | ---------------- |
 | Spring | 1     | Fierce Winds     |
 | Spring | 2     | Snowmelt         |
 | Summer | 3     | Blossom bloom    |
@@ -133,9 +132,9 @@ The Olympia web site also includes back issues of The Olympia Times, articles ab
 
 ### Definition of Terms
 
-- Entity, Unit:
+#### Entity, Unit:
 
-Nobles, items, locations, and skills
+_Nobles, items, locations, and skills_
 
 Everything in the Olympian world has a unique code. referenced with an "entity number". The code is shown in brackets after the name. Some examples:
 
@@ -146,9 +145,7 @@ Everything in the Olympian world has a unique code. referenced with an "entity n
 - an item: Gold [1]
 - an item: Scroll [yq12]
 
-<!-- -->
-
-- Noble, Character
+#### Noble, Character
 
 Used interchangeably. These are the individuals under the control of players. All player orders are given to characters.
 
@@ -156,19 +153,19 @@ Players start with one character. Others may be hired or persuaded to join the p
 
 Characters may possess items, travel through locations, learn skills, engage in combat, cast magical spells, etc.
 
-- Faction
+#### Faction
 
 All of the units controlled by a player are called the player's faction. A player starts with only one character, but the faction may grow to have many units.
 
-- Player character
+#### Player character
 
 The player character, or PC, is the character the player starts with. The PC begins with a loyalty of oath-2. The PC may later FORM other characters. Nothing is special about the PC other than being the player's first character; if the PC is killed, play continues with the player's other characters.
 
-- Item, possession
+#### Item, possession
 
 Characters may hold items, such as gold, scrolls, weapons, magic potions, jewels, lumber, rugs, etc.
 
-- Men
+#### Men
 
 Characters may also have non-descript men in their employ. These men are represented as possessions for simplicity. They include peasants, workers, sailors, and different kinds of soldiers.
 
@@ -176,19 +173,20 @@ These men may not learn skills, hold any items, or act independently from the no
 
 For example, one might see:
 
-**Seen here:**
-
-**Law Netexus [2020], with three peasants**
+```report
+Seen here:
+  Law Netexus [2020], with three peasants
+```
 
 Law Netexus is a character; the three peasants are non-descript men accompanying him.
 
-Characters obtain peasants with the RECRUIT order.
+Characters obtain peasants with the **RECRUIT** order.
 
 "Men" may also include beast-fighters such as dragons (see the Beastmastery skill), but does not include work-animals such as horses and oxen which have no combat values.
 
-- Skills
+#### Skills
 
-Characters may learn skills, which are used to perform tasks. For instance, *Sailing [601]* must be known in order to sail a ship.
+Characters may learn skills, which are used to perform tasks. For instance, _Sailing [601]_ must be known in order to sail a ship.
 
 Skills are grouped into the following categories:
 
@@ -203,119 +201,119 @@ Skills are grouped into the following categories:
 - Stealth
 - Trade
 
-There are also six schools of magic. See the STUDY and RESEARCH commands for information about learning skills.
+There are also six schools of magic. See the **STUDY** and **RESEARCH** commands for information about learning skills.
 
-- Noble Points
+#### Noble Points
 
-A player starts with a certain amount of Noble Points (NP's). Each player gets an additional NP at fixed turns that are a multiple of eight (so at turns 8, 16, 24, 32, etc...). Players who join the game late, get additional starting NP's, known as Catch-up NP's.  Ideally, all players will have an equal number of NP's at their disposal at any time.  
+A player starts with a certain amount of Noble Points (NP's). Each player gets an additional NP at fixed turns that are a multiple of eight (so at turns 8, 16, 24, 32, etc...). Players who join the game late, get additional starting NP's, known as _Catch-up NP's_. Ideally, all players will have an equal number of NP's at their disposal at any time.
 
-NP's are used to buy nobles with the FORM command. They are also required to learn some advanced skills, and to swear characters to oath loyalty.
+NP's are used to buy nobles with the **FORM** command. They are also required to learn some advanced skills, and to swear characters to oath loyalty.
 
-- Stack
+#### Stack
 
 A group of characters joined such that they move and fight together.
 
-- Province
+#### Province
 
 A location on the map. Provinces may have sub-locations within them, such as cities, bogs, caves, etc. Provinces are either forest, swamp, mountain, desert, plains, or ocean.
 
-- Month
+#### Month
 
 Each turn is a game month, or 30 game days.
 
-- Safe haven
+#### Safe haven
 
 New players start in a Safe Haven city. Combat or magic are not permitted in safe havens. New players may acclimate themselves in safety before venturing out into the world.
 
 ### Command summary
 
-| Command    | Arguments                                 | Time     | Priority |
-|------------|-------------------------------------------|----------|----------|
-| ACCEPT     | \<from-who\> \<item\> [qty]             | 0 days   | 0        |
-| ADMIT      | \<who or what\> [ALL] [units]         | 0 days   | 0        |
-| ATTACK     | \<target\> [flag]                       | 1 day    | 3        |
+| Command    | Arguments                               | Time     | Priority |
+| ---------- | --------------------------------------- | -------- | -------- |
+| ACCEPT     | <from-who> <item> [qty]                 | 0 days   | 0        |
+| ADMIT      | <who or what> [ALL] [units]             | 0 days   | 0        |
+| ATTACK     | <target> [flag]                         | 1 day    | 3        |
 | BANNER     | [unit] "message"                        | 0 days   | 1        |
-| BEHIND     | \<number\>                                | 0 days   | 1        |
-| BOARD      | \<ship\> [maximum fee]                  | 0 days   | 2        |
-| BRIBE      | \<who\> \<amount\> [flag]               | 7 days   | 3        |
-| BUILD      | \<structure\> "Name" [max days] [id]  | varies   | 3        |
-| BUY        | \<item\> \<qty\> \<price\> [have-left]  | 0 days   | 1        |
-| CATCH      | [number of horses] [days]             | as given | 3        |
-| CLAIM      | \<item\> [number]                       | 0 days   | 1        |
-| COLLECT    | \<item\> [number] [days]              | as given | 3        |
-| CONTACT    | \<who\>                                   | 0 days   | 0        |
-| DECREE     | \<decree\>                                | 0 days   | 0        |
-| DEFAULT    | \<who\>                                   | 0 days   | 0        |
-| DEFEND     | \<who\>                                   | 0 days   | 0        |
-| DIE        |                                           | 0 days   | 1        |
-| DROP       | \<item\> \<qty\> [have-left]            | 0 days   | 1        |
-| EMAIL      | \<new email address\>                     |          |          |
+| BEHIND     | <number>                                | 0 days   | 1        |
+| BOARD      | <ship> [maximum fee]                    | 0 days   | 2        |
+| BRIBE      | <who> <amount> [flag]                   | 7 days   | 3        |
+| BUILD      | <structure> "Name" [max days] [id]      | varies   | 3        |
+| BUY        | <item> <qty> <price> [have-left]        | 0 days   | 1        |
+| CATCH      | [number of horses] [days]               | as given | 3        |
+| CLAIM      | <item> [number]                         | 0 days   | 1        |
+| COLLECT    | <item> [number] [days]                  | as given | 3        |
+| CONTACT    | <who>                                   | 0 days   | 0        |
+| DECREE     | <decree>                                | 0 days   | 0        |
+| DEFAULT    | <who>                                   | 0 days   | 0        |
+| DEFEND     | <who>                                   | 0 days   | 0        |
+| DIE        |                                         | 0 days   | 1        |
+| DROP       | <item> <qty> [have-left]                | 0 days   | 1        |
+| EMAIL      | <new email address>                     |          |          |
 | EXECUTE    | [prisoner]                              | 0 days   | 1        |
 | EXHUME     | [body]                                  | 7 days   | 3        |
-| EXPLORE    |                                           | 7 days   | 3        |
+| EXPLORE    |                                         | 7 days   | 3        |
 | FEE        | [gold per 100 wt]                       | 0 days   | 1        |
-| FERRY      |                                           | 0 days   | 1        |
-| FISH       | [number of fish] [days]               | as given | 3        |
-| FLAG       | string                                    | 0 days   | 1        |
-| FLY        | \<direction or destination\> [...]      | varies   | 2        |
-| FORGET     | \<skill\>                                 | 0 days   | 1        |
-| FORM       | \<unit\> "Name of new character"          | 7 days   | 3        |
-| FORMAT     | \<number\>                                |          |          |
-| GARRISON   | \<castle\>                                | 1 day    | 3        |
-| GET        | \<who\> \<item\> [qty] [have-left]    | 0 days   | 1        |
-| GIVE       | \<to-who\> \<item\> [qty] [have-left] | 0 days   | 1        |
-| GUARD      | \<flag\>                                  | 0 days   | 1        |
-| HONOR      | \<amount\>                                | 1 day    | 3        |
-| HOSTILE    | \<who\>                                   | 0 days   | 0        |
+| FERRY      |                                         | 0 days   | 1        |
+| FISH       | [number of fish] [days]                 | as given | 3        |
+| FLAG       | string                                  | 0 days   | 1        |
+| FLY        | <direction or destination> [...]        | varies   | 2        |
+| FORGET     | <skill>                                 | 0 days   | 1        |
+| FORM       | <unit> "Name of new character"          | 7 days   | 3        |
+| FORMAT     | <number>                                |          |          |
+| GARRISON   | <castle>                                | 1 day    | 3        |
+| GET        | <who> <item> [qty] [have-left]          | 0 days   | 1        |
+| GIVE       | <to-who> <item> [qty] [have-left]       | 0 days   | 1        |
+| GUARD      | <flag>                                  | 0 days   | 1        |
+| HONOR      | <amount>                                | 1 day    | 3        |
+| HOSTILE    | <who>                                   | 0 days   | 0        |
 | IMPROVE    | [days]                                  | varies   | 3        |
-| LORE       | \<lore sheet\>                            |          |          |
-| MAKE       | \<item\> [qty]                          | as given | 3        |
-| MESSAGE    | \<# of lines of text\> \<to-who\>         | 1 day    | 3        |
-| MOVE       | \<direction or destination\> [...]      | varies   | 2        |
+| LORE       | <lore sheet>                            |          |          |
+| MAKE       | <item> [qty]                            | as given | 3        |
+| MESSAGE    | <# of lines of text> <to-who>           | 1 day    | 3        |
+| MOVE       | <direction or destination> [...]        | varies   | 2        |
 | NAME       | [unit] "new name for unit"              | 0 days   | 1        |
-| NEUTRAL    | \<who\>                                   | 0 days   | 0        |
-| NOTAB      | \<number\>                                |          |          |
-| OATH       | \<level\>                                 | 1 day    | 3        |
+| NEUTRAL    | <who>                                   | 0 days   | 0        |
+| NOTAB      | <number>                                |          |          |
+| OATH       | <level>                                 | 1 day    | 3        |
 | PASSWORD   | ["password"]                            |          |          |
-| PAY        | \<to-who\> [amount] [have-left]       | 0 days   | 1        |
+| PAY        | <to-who> [amount] [have-left]           | 0 days   | 1        |
 | PILLAGE    | [flag]                                  | 7 days   | 3        |
-| PLAYERS    |                                           |          |          |
-| PLEDGE     | \<who\>                                   | 0 days   | 1        |
-| POST       | \<# of lines of following text\>          | 1 day    | 3        |
-| PRESS      | \<# of lines of text\>                    | 0 days   | 1        |
-| PROMOTE    | \<who\>                                   | 0 days   | 1        |
-| PUBLIC     |                                           |          |          |
-| QUARRY     | [number of stones] [days]             | as given | 3        |
-| QUEST      |                                           | 7 days   | 3        |
-| QUIT       |                                           |          |          |
+| PLAYERS    |                                         |          |          |
+| PLEDGE     | <who>                                   | 0 days   | 1        |
+| POST       | <# of lines of following text>          | 1 day    | 3        |
+| PRESS      | <# of lines of text>                    | 0 days   | 1        |
+| PROMOTE    | <who>                                   | 0 days   | 1        |
+| PUBLIC     |                                         |          |          |
+| QUARRY     | [number of stones] [days]               | as given | 3        |
+| QUEST      |                                         | 7 days   | 3        |
+| QUIT       |                                         |          |          |
 | RAZE       | [building]                              | varies   | 3        |
 | RECRUIT    | [days]                                  | as given | 3        |
 | REPAIR     | [days]                                  | as given | 3        |
-| RESEARCH   | \<skill\>                                 | 7 days   | 3        |
+| RESEARCH   | <skill>                                 | 7 days   | 3        |
 | RESEND     | [turn]                                  |          |          |
-| RUMOR      | \<# lines of text\>                       | 0        | 1        |
-| SAIL       | \<direction or destination\> [...]      | varies   | 4        |
+| RUMOR      | <# lines of text>                       | 0        | 1        |
+| SAIL       | <direction or destination> [...]        | varies   | 4        |
 | SEEK       | [who]                                   | 7 days   | 3        |
-| SELL       | \<item\> \<qty\> \<price\> [have-left]  | 0 days   | 1        |
-| STACK      | \<character\>                             | 0 days   | 1        |
-| STOP       |                                           |          |          |
-| STUDY      | \<skill\>                                 | 7 days   | 3        |
-| SURRENDER  | \<character\>                             | 0 days   | 1        |
-| TAKE       | \<who\> \<item\> \<qty\> [have-left]    | 0 days   | 1        |
-| TERRORIZE  | \<who\> \<severity\>                      | 7 days   | 3        |
-| TRAIN      | \<kind\> \<days\>                         | as given | 3        |
-| UNGARRISON | \<garrison\>                              | 1 day    | 3        |
-| UNLOAD     |                                           | 0 days   | 3        |
-| UNSTACK    | \<who\>                                   | 0 days   | 1        |
-| USE        | \<skill\> [arguments...]                | varies   | 3        |
-| VIS_EMAIL  | \<new email address for the player list\> |          |          |
-| WAIT       | conditions                                | varies   | 1        |
+| SELL       | <item> <qty> <price> [have-left]        | 0 days   | 1        |
+| STACK      | <character>                             | 0 days   | 1        |
+| STOP       |                                         |          |          |
+| STUDY      | <skill>                                 | 7 days   | 3        |
+| SURRENDER  | <character>                             | 0 days   | 1        |
+| TAKE       | <who> <item> <qty> [have-left]          | 0 days   | 1        |
+| TERRORIZE  | <who> <severity>                        | 7 days   | 3        |
+| TRAIN      | <kind> <days>                           | as given | 3        |
+| UNGARRISON | <garrison>                              | 1 day    | 3        |
+| UNLOAD     |                                         | 0 days   | 3        |
+| UNSTACK    | <who>                                   | 0 days   | 1        |
+| USE        | <skill> [arguments...]                  | varies   | 3        |
+| VIS_EMAIL  | <new email address for the player list> |          |          |
+| WAIT       | conditions                              | varies   | 1        |
 
 ## Submitting orders
 
-Orders for Olympia game 4 should be sent to <olympia@shadowlandgames.com>.
+Orders for Olympia game 4 should be sent to _olympia@shadowlandgames.com_.
 
-The 'Reply-To:' header on turn reports is set to this e-mail address, so using the reply feature of your e-mail client should send orders to the right place.
+The **Reply-To:** header on turn reports is set to this e-mail address, so using the reply feature of your e-mail client should send orders to the right place.
 
 Your orders are automatically loaded into the game and queued for your units. The scanner will send a reply as soon as it processes your mail, showing whether or not there were any errors with the orders it received.
 
@@ -323,69 +321,69 @@ Note that the order scanner does not do an exhaustive check of your orders' synt
 
 Orders must be of the following form:
 
+```orders
 begin player-number password
 
 email, lore, password commands
 
 unit player-number
 
-commands for player entity: name, format or quit
+  commands for player entity: name, format or quit
 
 unit unit-number
 
-commands for unit
+  commands for unit
 
 unit unit-number
 
-commands for unit
+  commands for unit
 
 end
+```
 
-The \`Subject:' line on your message is ignored.
+The **Subject:** line on your message is ignored.
 
-The begin keyword tells the order scanner what your player number is. If you have not set a password, you do not need to supply one.
+The **BEGIN** keyword tells the order scanner what your player number is. If you have not set a password, you do not need to supply one.
 
-The unit command replaces a set of orders for a unit. Any pending orders for the unit will be cleared, and the new orders sent in will queue up. Orders that are still executing for the unit will not be interrupted unless the first order queued is the stop order.
+The **UNIT** command replaces a set of orders for a unit. Any pending orders for the unit will be cleared, and the new orders sent in will queue up. Orders that are still executing for the unit will not be interrupted unless the first order queued is the stop order.
 
-Do not match an end for every unit command! There should only be one end, at the end of all of the unit sections. The Olympia order parser will not read beyond the end.
+Do not match an **END** for every unit command! There should only be one `end`, at the end of all of the unit sections. The Olympia order parser will not read beyond the `end`.
 
 For example, here is a set of orders for player Fate [812], who has two characters, Osswid [5499] and Candide [1269]:
 
+```orders
 begin 812
-
-password sneaky
+  password sneaky
 
 unit 5499
-
-explore
-
-move east
-
-explore
-
-study 600
+  explore
+  move east
+  explore
+  study 600
 
 unit 1269
-
-move north
-
-stack 5499
+  move north
+  stack 5499
 
 end
+```
 
 The parser tries to be as flexible as possible. It is case insensitive and is not strict about spaces on a line, so you may use indentation to make your orders more readable.
 
-Orders may be commented with the \`#' character. Everything from a \`#' to the end of the line will be ignored by the parser:
+Orders may be commented with the `#` character. Everything from a `#` to the end of the line will be ignored by the parser:
 
-move north \# Head to Drassa to meet up with Osswid
-
-stack 5499 \# stack with him
+```orders
+move north # Head to Drassa to meet up with Osswid
+stack 5499 # stack with him
+```
 
 No one will read the comments but you. Neither the GM nor the Olympia engine will try to interpret them for any reason.
 
 Note that arguments must be enclosed in quotes if they are more than one word:
 
+```orders
 name "Osswid the Constructor"
+```
 
 The acknowledgement will show any errors that occurred while the orders were being parsed, and list the current pending commands for all of your units.
 
@@ -395,49 +393,48 @@ There is a limit of 250 orders which may be queued per unit. Additional orders w
 
 Suppose the turn report shows the following orders queued:
 
+```orders
 unit 5499
+  # > study 160 (executing for three more days)
+  recruit 10
+  explore
+```
 
-\# \> study 160 (executing for three more days)
-
-recruit 10
-
-explore
-
-Sending in new orders for this unit will not disturb the still-running study command unless the first order is stop.
+Sending in new orders for this unit will not disturb the still-running `STUDY` command unless the first order is **STOP**.
 
 For example: If this were sent in:
 
+```orders
 unit 5499
-
-move south
+  move south
+```
 
 This would be the result:
 
+```orders
 unit 5499
+  # > study 160 (executing for three more days)
+  move south
+```
 
-\# \> study 160 (executing for three more days)
+To interrupt the `STUDY` and get on with the `MOVE` right away, instead send in:
 
-move south
-
-To interrupt the study and get on with the move right away, instead send in:
-
+```orders
 unit 5499
-
-stop
-
-move south
+  stop
+  move south
+```
 
 This will show:
 
+```orders
 unit 5499
+  # > study 160 (executing for three more days)
+  stop
+  move south
+```
 
-\# \> study 160 (executing for three more days)
-
-stop
-
-move south
-
-Note that the stop queues like any other order; it does not actually interrupt the executing command until the turn runs. This means that the stop itself can be replaced by sending in another set of orders later.
+Note that the `STOP` queues like any other order; it does not actually interrupt the executing command until the turn runs. This means that the `STOP` itself can be replaced by sending in another set of orders later.
 
 ## Units not controlled by you (yet)
 
@@ -447,85 +444,76 @@ As soon as the unit comes under your control, the orders queued for it will begi
 
 Orders may also be sent in for new nobles which will be formed during the turn. First choose one of the possible unit numbers from the choices listed near the beginning of the turn report:
 
+```report
 The next five nobles formed will be: 5717 3215 4902 4489 5628
+```
 
 Supply one of these numbers as the first parameter to the form order:
 
+```orders
 form 5628 "Feasel the Wicked"
+```
 
 Then queue some orders for Feasel to execute as soon as he appears:
 
+```orders
 unit 5628
-
-unstack
-
-study 160
-
-move out
-
-recruit
-
-...
+  unstack
+  study 160
+  move out
+  recruit
+```
 
 ## Use the order template
 
-An order template appears at the bottom of the turn report.  This template lists all of the units for a player and shows any pending orders for those units.
+An order template appears at the bottom of the turn report. This template lists all of the units for a player and shows any pending orders for those units.
 
 Order template
 
----------------------
+```orders
+begin 812 # Master Bogomil's Family
 
-begin 812 \# Master Bogomil's Family
+unit 2508 # Tudor
+  # > make 74 (still executing)
 
-unit 2508 \# Tudor
+unit 2947 # Milo
 
-\# \> make 74 (still executing)
+unit 4375 # Beorn
+  # > move s (executing for one more day)
+  pillage
+  recruit
 
-unit 2947 \# Milo
+unit 4763 # Sylvia
 
-unit 4375 \# Beorn
+unit 5977 # Drango
+  # > collect 87 0 0 (still executing)
+  sail e
+  sail s
+  fish
+  explore
 
-\# \> move s (executing for one more day)
-
-pillage
-
-recruit
-
-unit 4763 \# Sylvia
-
-unit 5977 \# Drango
-
-\# \> collect 87 0 0 (still executing)
-
-sail e
-
-sail s
-
-fish
-
-explore
-
-unit 5418 \# Comte de le Sang
+unit 5418 # Comte de le Sang
 
 end
+```
 
-Note that the layout of the order template matches the syntax the order scanner expects. Many players find it convenient to edit this template to add or change commands for their units. Mail everything from the begin to end (inclusive) to the order scanner.  It is wise to save a copy of the orders you submit in case there are errors and they need to be resent.
+Note that the layout of the order template matches the syntax the order scanner expects. Many players find it convenient to edit this template to add or change commands for their units. Mail everything from the `BEGIN` to `END` (inclusive) to the order scanner. It is wise to save a copy of the orders you submit in case there are errors and they need to be resent.
 
-------------------------------------------------------------------------
+---
 
 **Be careful**
 
 Beware of sending in different sets of orders too quickly. Sometimes messages sent within a short time of each other will arrive out of order. This can wreak havoc on your turn if the wrong orders arrive last. Compose your orders offline and review them before mailing. A simple typographical error in your orders could ruin your whole turn!
 
-Some players make clever use of the PASSWORD order to make sure that an order set lingering out in the email system on the network which arrives late won't replace a more recent order set sent in. For example, say you submit some orders on Friday, and they don't show up by Monday. Monday you send an updated set of orders to order scanner and get an instant reply. The Friday orders have not arrived yet, but you're worried that they're out there and will arrive sooner or later, replacing the newer set of orders you just sent in. Solution: issue a PASSWORD order in the newer set, so the Friday orders will fail when they do arrive.
+Some players make clever use of the **PASSWORD** order to make sure that an order set lingering out in the email system on the network which arrives late won't replace a more recent order set sent in. For example, say you submit some orders on Friday, and they don't show up by Monday. Monday you send an updated set of orders to order scanner and get an instant reply. The Friday orders have not arrived yet, but you're worried that they're out there and will arrive sooner or later, replacing the newer set of orders you just sent in. Solution: issue a `PASSWORD` order in the newer set, so the Friday orders will fail when they do arrive.
 
 ## Failed orders
 
 Commands that fail generally take zero time.
 
-For instance, if study is issued for a skill which the location does not offer, it will fail immediately, and take zero time. The failed study order will not take a week, and it will not count toward the limited study time for that month.
+For instance, if `STUDY` is issued for a skill which the location does not offer, it will fail immediately, and take zero time. The failed `STUDY` order will not take a week, and it will not count toward the limited study time for that month.
 
-Production commands fail immediately if none of their input resources are available. For instance, recruit in a location with no peasants will immediately fail, taking zero time. However, resources may sometimes become depleted while the command is being executed. In such cases, the command may fail even after it has spent some time executing. 
+Production commands fail immediately if none of their input resources are available. For instance, `RECRUIT` in a location with no peasants will immediately fail, taking zero time. However, resources may sometimes become depleted while the command is being executed. In such cases, the command may fail even after it has spent some time executing.
 
 ## More order examples
 
@@ -533,29 +521,29 @@ You can replace orders for some units, but leave pending orders for other units 
 
 If you want to see what orders are queued, but not change anything send in:
 
-begin 999 \# whatever your player number is ...
-
+```orders
+begin 999 # whatever your player number is ...
 end
+```
 
 To change your email address, send in:
 
+```orders
 begin 999
-
-email <new@address.com> \# give your new address
-
+email <new@address.com> # give your new address
 end
+```
 
 As a security measure, the confirmation will be sent to both the new and old addresses.
 
-To change the name of your faction, issue the name order for the faction's player entity:
+To change the name of your faction, issue the **NAME** order for the faction's player entity:
 
+```orders
 begin 999
-
 unit 999
-
-name "Seekers of Fame and Power" ...
-
+  name "Seekers of Fame and Power" ...
 end
+```
 
 Important: Don't forget the unit command for the player entity.
 
@@ -569,21 +557,21 @@ Characters, not factions, issue most orders. Do not try to form or recruit with 
 
 The orders a player entity may issue are:
 
-- accept
-- admit
-- default
-- defend
-- format
-- hostile
-- message
-- name
-- neutral
-- notab
-- press
-- realname
-- rumor
-- times
-- quit
+- ACCEPT
+- ADMIT
+- DEFAULT
+- DEFEND
+- FORMAT
+- HOSTILE
+- MESSAGE
+- NAME
+- NEUTRAL
+- NOTAB
+- PRESS
+- REALNAME
+- RUMOR
+- TIMES
+- QUIT
 
 ## Quitting
 
@@ -591,13 +579,12 @@ To drop out of the game, issue the quit order for your player entity.
 
 For instance, player 501 would quit by sending in the following orders:
 
+```orders
 begin 812 password
-
-unit 812 \# don't forget unit for the player unit!
-
-quit
-
+unit 812 # don't forget unit for the player unit!
+  quit
 end
+```
 
 No turn report will be sent for the turn in which a player quits.
 
@@ -609,13 +596,12 @@ If a character leaves a location and later returns, it will be put at the end of
 
 For example:
 
+```report
 Seen here:
-
-Candide [1269]
-
-Osswid [5499]
-
-Feasel the Wicked [1109]
+  Candide [1269]
+  Osswid [5499]
+  Feasel the Wicked [1109]
+```
 
 Candide has been here longest, followed by Osswid, then Feasel. If Candide were to leave and return, he would appear at the end of the list.
 
@@ -623,23 +609,21 @@ If a character unstacks from beneath another unit, the character will appear jus
 
 For example:
 
+```report
 Seen here:
-
-Candide [1269], accompanied by:
-
-Osswid [5499]
-
-Feasel the Wicked [1109]
+  Candide [1269], accompanied by:
+    Osswid [5499]
+    Feasel the Wicked [1109]
+```
 
 Osswid is stacked beneath Candide. If Osswid unstacks, he will appear after Candide, not after Feasel:
 
+```report
 Seen here:
-
-Candide [1269]
-
-Osswid [5499]
-
-Feasel the Wicked [1109]
+  Candide [1269]
+  Osswid [5499]
+  Feasel the Wicked [1109]
+```
 
 Note: new player characters are added to the top of the list of characters in the safe haven in which they join, not the bottom. Additonal characters formed by them will appear at the bottom of the list as usual.
 
@@ -647,93 +631,82 @@ Note: new player characters are added to the top of the list of characters in th
 
 All orders have a priority of 0-4.
 
-- Permission commands (admit, hostile, etc.) are priority 0.
+- Permission commands (`ADMIT`, `HOSTILE`, etc.) are priority 0.
 - Zero-time commands and wait are priority 1.
-- move and fly are priority 2.
-- The sail command is priority 4.
+- `MOVE` and `FLY` are priority 2.
+- The `SAIL` command is priority 4.
 - All other commands are priority 3.
 
 The order scheduler will first try to start all priority 0 orders. Only when no more priority 0 orders are ready to start will a priority 1 order be started.
 
 In other words, the order scheduler will not start an order at a higher priority when an order may be started at a lower priority.
 
-Orders at the same priority are resolved in location order. If two units in a location are both waiting to start a move order, the first unit in the location will go first.
+Orders at the same priority are resolved in location order. If two units in a location are both waiting to start a `MOVE` order, the first unit in the location will go first.
 
-The above description of order priorities may seem complicated, but the intent is to let players ignore same-day synchronization issues in most cases. Rather that needing wait to guarantee that give happens before move, the lower priority of give makes this happen naturally.
+The above description of order priorities may seem complicated, but the intent is to let players ignore same-day synchronization issues in most cases. Rather that needing `WAIT` to guarantee that give happens before move, the lower priority of `GIVE` makes this happen naturally.
 
 For example, consider three units stacked together, top, mid and bot:
 
+```
 top:
-
-move ec69
-
-yew
+  move ec69
+  yew
 
 mid:
-
-unstack
-
-recruit
+  unstack
+  recruit
 
 bot:
-
-recruit
+  recruit
+```
 
 These should be executed in the following order:
 
-mid: unstack \# unstack is prio-1
+1. _mid_: unstack # unstack is prio-1
+2. _top_: move ec69 # move is prio-2
+3. _mid_: recruit # recruit is prio-3 (_top_ and _bot_ arrive at ec69)
+4. _top_: yew # yew is prio-3
+5. _bot_: recruit # recruit is prio-3
 
-top: move ec69 \# move is prio-2
+The `UNSTACK` happened first since it's a priority 1 command. The `MOVE` went second. When _top_ and _bot_ finished moving, there were only priority three commands left, so they ran in location order.
 
-mid: recruit \# recruit is prio-3 [top and bot arrive at ec69]
+### Command precedence within a location
 
-top: yew \# yew is prio-3
-
-bot: recruit \# recruit is prio-3
-
-The unstack happened first since it's a priority 1 command. The move went second. When top and bot finished moving, there were only priority three commands left, so they ran in location order.
-
-------------------------------------------------------------------------
-
-**Command precedence within a location**
-
+```report
 Seen here:
+  Candide [1269]
+  Osswid [5499]
+  Feasel the Wicked [1109]
+```
 
-Candide [1269]
+Order precedence within a location is an advantage for commands or skill uses which obtain resources from the location. For instance, if Candide and Osswid both attempted to `HARVEST` all of the lumber available in their location, Candide would have precedence, since his `HARVEST` order would finish before Osswid's, if they were started on the same day.
 
-Osswid [5499]
-
-Feasel the Wicked [1109]
-
-Order precedence within a location is an advantage for commands or skill uses which obtain resources from the location. For instance, if Candide and Osswid both attempted to harvest all of the lumber available in their location, Candide would have precedence, since his harvest order would finish before Osswid's, if they were started on the same day.
-
-------------------------------------------------------------------------
-
-**At the same time ...**
+### At the same time
 
 No two things ever happen at exactly the same instant in Olympia. Someone always goes first.
 
 Suppose two characters were outside of a building (which nobody is inside), and both wanted to enter, to claim it:
 
+```report
 Seen here:
-
-Osswid [5499]
-
-Candide [1269]
+  Osswid [5499]
+  Candide [1269]
 
 Inner locations:
+  Hooting Own Inn [ep76], inn
+```
 
-Hooting Own Inn [ep76], inn
-
-Both Osswid and Candid issue \`move ep76' as their first order on day 1 of the month. What happens?
+Both Osswid and Candid issue `move ep76` as their first order on day 1 of the month. What happens?
 
 Osswid's command begins before Candide's, since Osswid appears before Candid in the location list. Therefore, Osswid will enter the inn first.
 
-    Osswid             ?            Candide
-    ------- 8 days -------- 8 days --------
-    city A          city B          city C
+```
+Osswid             ?            Candide
+------- 8 days -------- 8 days --------
+city A          city B          city C
+```
 
-If Osswid and Candide both leave for city B on the same day, we cannot predict who will get their first.
+If Osswid and Candide both leave for city `B` on the same day, we cannot predict who will get their first.
 
 ## Olympian geography
 
@@ -741,29 +714,26 @@ Olympia's map is a large grid of locations called provinces. Groups of provinces
 
 A province's description will include a list of the directions in which a character may travel:
 
+```report
 Plain [ae48], plain, in region Tollus
-
-Routes leaving Plain [ae48]:
-
-North, to Plain [ad48], 7 days
-
-East, to Plain [ae49], 7 days
-
-South, to Ocean [af48], Tymaerian Sea, 1 day
-
-West, to Ocean [ae47], Tymaerian Sea, 1 day
+  Routes leaving Plain [ae48]:
+    North, to Plain [ad48], 7 days
+    East, to Plain [ae49], 7 days
+    South, to Ocean [af48], Tymaerian Sea, 1 day
+    West, to Ocean [ae47], Tymaerian Sea, 1 day
+```
 
 This is a non-descript province in the Tollus region.
 
 From this province, a character may travel north or east on foot or by horse, or may sail by ship to the south or west.
 
-move north -or- move n -or- move ad48
+```
+move north # OR move n OR move ad48
+move east  # OR move e OR move ae49
 
-move east -or- move e -or- move ae49
-
-sail south -or- sail e -or- sail af48
-
-sail west -or- sail w -or- sail ae47
+sail south # OR sail e OR sail af48
+sail west  # OR sail w OR sail ae47
+```
 
 Land movement will automatically use the fastest available mode. For example, if a character has enough horses for all of the members in the party to ride, then the travelers will go on horseback.
 
@@ -777,33 +747,34 @@ Actual travel times may differ from times given in the route listing. Land dista
 
 A province may contain sub-locations within its borders. Sub-locations may usually only be entered from the surrounding province. They will be listed separately in the location description:
 
+```report
 Inner locations:
+  Carim [em28], city, 1 day
+```
 
-Carim [em28], city, 1 day
+The city Carim may be entered with the `MOVE em28` order. Travel into a city requires one day.
 
-The city Carim may be entered with the \`move em28' order. Travel into a city requires one day.
-
-*Note: move in may be used to enter a sub-location, although this order may be ambiguous if the location contains more than one sub-location. In such a case, the first sub-location in the Inner locations list will be entered. Using move in is not recommended if the entity number of the sub-location is known.*
+**Note**: _`MOVE IN` may be used to enter a sub-location, although this order may be ambiguous if the location contains more than one sub-location. In such a case, the first sub-location in the Inner locations list will be entered. Using `MOVE IN` is not recommended if the entity number of the sub-location is known._
 
 Characters in a sub-location will receive a report for the surrounding province. However, characters in the outer province will not normally be able to see into an inner location without entering it.
 
 ### Inside a City
 
+```report
 Carim [em28], city, in province Plain [ae48]
-
-Routes leaving Carim [em28]:
-
-Out, to Plain [ae48], 1 day
+  Routes leaving Carim [em28]:
+    Out, to Plain [ae48], 1 day
 
 Inner locations:
+  Hooting Own Inn [ep76], inn
+```
 
-Hooting Own Inn [ep76], inn
+Characters in the city Carim may move out (or `MOVE ae48`) to the surrounding province. They may also attempt to enter the inn, which is a sub-location of the city. Notice that no travel time rating is listed for the inn; entering it takes no time (zero days).
 
-Characters in the city Carim may move out (or \`move ae48') to the surrounding province. They may also attempt to enter the inn, which is a sub-location of the city. Notice that no travel time rating is listed for the inn; entering it takes no time (zero days).
-
-move out -or- move ae48
-
+```orders
+move out # OR move ae48
 move ep76
+```
 
 A character in Carim will receive a location report both for the city as well as the surrounding province Plain [ae48]. Characters in the Hooting Own Inn will receive a location report for the inn and one for Carim, but will not get a report for Plain [ae48]. A character in the city may not see inside the inn without entering.
 
@@ -811,21 +782,19 @@ Characters in a sub-location receive a report for the immediate surrounding loca
 
 Characters are not able to see into inner locations without going into them.
 
-------------------------------------------------------------------------
+#### City default garrisons
 
-**City default garrisons**
-
-Every non-safe-haven city in the regular world (except safe havens) has an initial default garrison with 25-150 pikemen. Each garrison is set to *admit all* and *defend all*. Each noble stacked with the garrison will earn 2gp/day for aiding the city's defenses.
+Every non-safe-haven city in the regular world (except safe havens) has an initial default garrison with 25-150 pikemen. Each garrison is set to _ADMIT all_ and _DEFEND all_. Each noble stacked with the garrison will earn 2gp/day for aiding the city's defenses.
 
 ### Who else is here?
 
 Characters spotted will be listed in the location report:
 
+```report
 Seen here:
-
-Fighters of Pelenth [2019], "carrying a gold banner"
-
-Osswid the Constructor [5499]
+  Fighters of Pelenth [2019], "carrying a gold banner"
+  Osswid the Constructor [5499]
+```
 
 All characters listed as being seen in the location may interact without requiring any travel. Thus, the Fighters of Pelenth and Osswid are considered to be in essentially the same place.
 
@@ -835,22 +804,24 @@ However, a character in a sub-location may not interact with characters in the s
 
 ### More about geography
 
-Olympian provinces are arranged in a square grid. Travel is possible in the four main compass points. Thus, to move diagonally, two move orders are required. To move northwest, for instance, one would first need to \`move n', then \`move w'.
+Olympian provinces are arranged in a square grid. Travel is possible in the four main compass points. Thus, to move diagonally, two move orders are required. To move northwest, for instance, one would first need to `MOVE n`, then `MOVE w`.
 
 The map coordinates for a province may be read from the province's entity number. The row is represented by the leading two letters, the column by the two digits. The northwest corner is [aa00], with rows increasing to the south, and columns increasing to the east.
 
-        00   01   02  ... 79
-      +----------------------
-    aa|
-    ab|          ab02
-    ac|    ac01  ac02    ac99
-    ad|          ad02
-    af|
-    ...  
-    ...
-    dz|          dz02
+```
+    00  01    02  ... 79
+  +----------------------
+aa|
+ab|          ab02
+ac|    ac01  ac02    ac99
+ad|          ad02
+af|
+...
+...
+dz|          dz02
+```
 
-Row sequence is: "abcdfghjkmnpqrstvwxz"
+Row sequence is: "abcdfghjkmnpqrstvwxz" (some letters are purposely excluded).
 
 Entity numbers for sub-locations do not correspond to any coordinate system.
 
@@ -860,13 +831,12 @@ The edges of the map are not passable, so for example it is not possible to trav
 
 The map may have some holes, representing impassable provinces. Routes into some provinces may also be hidden.
 
+```report
 Plain [cd21], plain, in region Tollus Routes leaving Plain [cd21]:
-
-North, to Plain [cc21], 7 days
-
-East, to Plain [cd22], 7 days
-
-West, to Plain [cd20], 7 days
+  North, to Plain [cc21], 7 days
+  East, to Plain [cd22], 7 days
+  West, to Plain [cd20], 7 days
+```
 
 Notice the lack of a southern exit. This means that there is no known southern route from Plain [cd21], into what should be Plain [ce21]. Exploration may find a southern route, but it is possible that none may ever be found, and the terrain to the south is completely impassable.
 
@@ -874,25 +844,22 @@ Notice the lack of a southern exit. This means that there is no known southern r
 
 If exploration finds a hidden route, any noble in the player's faction will be able to use it.
 
-\> explore
-
-A hidden route has been found!
-
-South, to Plain [ce21], 7 days
+```report
+> explore
+  A hidden route has been found!
+  South, to Plain [ce21], 7 days
+```
 
 The location description for this place will now include the hidden route:
 
+```report
 Plain [cd21], plain, in region Tollus
-
-Routes leaving Plain [cd21]:
-
-North, to Plain [cc21], 7 days
-
-South, to Plain [ce21], 7 days, hidden
-
-East, to Plain [cd22], 7 days
-
-West, to Plain [cd20], 7 days
+  Routes leaving Plain [cd21]:
+    North, to Plain [cc21], 7 days
+    South, to Plain [ce21], 7 days, hidden
+    East, to Plain [cd22], 7 days
+    West, to Plain [cd20], 7 days
+```
 
 However, units from other factions, even if they know that the hidden route's entity number is [ce21], will not be able to travel across it.
 
@@ -902,116 +869,93 @@ All factions with units in a stack traveling across a hidden route, with the exc
 
 A ship in an ocean province may sail into an adjoining land province.
 
+```report
 Ocean [cw12], ocean, in South Sea
-
-Routes leaving Ocean [cw12]:
-
-North, to Ocean [cv12], Atnos Sea, 4 days
-
-East, to Mountain [cw13], West Camaris, impassable
-
-South, to Plain [cx12], West Camaris, 1 day
-
-West, to Ocean [cw11], 4 days
+  Routes leaving Ocean [cw12]:
+    North, to Ocean [cv12], Atnos Sea, 4 days
+    East, to Mountain [cw13], West Camaris, impassable
+    South, to Plain [cx12], West Camaris, 1 day
+    West, to Ocean [cw11], 4 days
 
 Inner locations:
-
-Island [eb97], island, 1 day
+  Island [eb97], island, 1 day
+```
 
 A ship sailing in this ocean province may dock by sailing to Plain [cx12] or Island [eb97].
 
-Ships may not dock in mountain provinces, as the rocky cliffs are too dangerous to approach. Routes between ocean and mountain provinces are marked \`impassable'.
+Ships may not dock in mountain provinces, as the rocky cliffs are too dangerous to approach. Routes between ocean and mountain provinces are marked `impassable`.
 
 ### Port Cities
 
 A city in a province adjoining an ocean will have been founded on the best spot for an ocean port. The ocean will only be accessible through the port city in this case, and not through the surrounding region.
 
+```report
 Plain [ae48], plain, in region Tollus
-
-Routes leaving Plain [ae48]:
-
-...
-
-West, to Ocean [ae47], Tymaerian Sea, impassable
+  Routes leaving Plain [ae48]:
+    West, to Ocean [ae47], Tymaerian Sea, impassable
 
 Inner locations:
-
-Carim [em28], port city, 1 day
+  Carim [em28], port city, 1 day
+```
 
 Note that from the province surrounding the port city, access to the ocean is not possible.
 
+```report
 Carim [em28], port city, in province Plain [ae48]
-
-Routes leaving Carim [em28]:
-
-West, to Ocean [ae47], Tymaerian Sea, 1 day
-
-Out, to Plain [ae48], 1 day
+  Routes leaving Carim [em28]:
+    West, to Ocean [ae47], Tymaerian Sea, 1 day
+    Out, to Plain [ae48], 1 day
+```
 
 However, ships may sail into and out of the port city itself. From the Tymaerian Sea, this looks like:
 
+```report
 Ocean [af48], ocean, in Tymaerian
+  Sea Routes leaving Ocean [af48]:
+    North, city, to Carim [em28], Tollus, 1 day
+    South, to Ocean [ag48], 3 days
+```
 
-Sea Routes leaving Ocean [af48]:
+#### An example city description
 
-North, city, to Carim [em28], Tollus, 1 day
-
-South, to Ocean [ag48], 3 days
-
-### An example city description
-
+```report
 Drassa [ew66], port city, in province Forest [cu26], safe haven
-
-Routes leaving Drassa [ew66]:
-
-East, to Ocean [cu27], Atnos Sea, 1 day
-
-South, to Ocean [cv26], Atnos Sea, 1 day
-
-Out, to Forest [cu26], 1 day
-
-Skills taught here:
-
-Shipcraft [600]
-
-Combat [610]
-
-Construction [680]
-
-Seen here:
-
-Kosar the Indefectible [2022], with six peasants, one archer, two soldiers, accompanied by:
-
-Dr. Pangloss [3682]
-
-Law Netexus [2020], prisoner
-
-Alion Krysaka [2785], prisoner
-
-Ships docked at port:
-
-HMS Pinafore [ib18], galley, owner:
-
-Captain McCook [2019], with five workers
-
-Market report:
-
-No goods offered for trade.
+  Routes leaving Drassa [ew66]:
+    East, to Ocean [cu27], Atnos Sea, 1 day
+    South, to Ocean [cv26], Atnos Sea, 1 day
+    Out, to Forest [cu26], 1 day
+  Skills taught here:
+    Shipcraft [600]
+    Combat [610]
+    Construction [680]
+  Seen here:
+    Kosar the Indefectible [2022], with six peasants, one archer, two soldiers, accompanied by:
+    Dr. Pangloss [3682]
+    Law Netexus [2020], prisoner
+    Alion Krysaka [2785], prisoner
+  Ships docked at port:
+    HMS Pinafore [ib18], galley, owner:
+    Captain McCook [2019], with five workers
+  Market report:
+    No goods offered for trade.
+```
 
 ### Wilderness and civilization
 
 Every province has a civilization level. Provinces with no civilization (a level of zero) are considered wilderness. Civilization levels for provinces are shown in the turn report:
 
+```report
 Mountain [cq24], mountain, in Lesser Atnos, civ-1
 
 Forest [ac35], forest, in Torba Bacor, wilderness
+```
 
 The civilization level of a province is determined by the presence of cities and buildings, or half of the maximum civilization level of its surrounding provinces, whichever is higher.
 
-There is no fixed civ level cap. However, only the first building of each type counts towards the civ level in a location. 
+There is no fixed civ level cap. However, only the first building of each type counts towards the civ level in a location.
 
 | Feature    | Contribution                |
-|------------|-----------------------------|
+| ---------- | --------------------------- |
 | Safe Haven | 2                           |
 | Castle     | 1.5 + improvement level / 4 |
 | City       | 1                           |
@@ -1028,19 +972,21 @@ Only the first building or feature of each type counts toward the civilization l
 
 Players should take care when exploring the Olympian world. There are many dangers, both from non-player characters (NPC's) as well as from other players. While the threat of death to nobles is always present, the following dangerous areas warrant extra caution.
 
-- Hades
+#### Hades
 
 Hades, also known as The Land of the Dead, is a subterranean world populated with demons, ghouls and spirits thirsty for the blood of the living. Only the bravest warriors should consider walking these dark paths.
 
-- Faery
+#### Faery
 
 The Faery world lies in a nearby, but separate reality. Occasionally a Faery hill will exist simultaneously in both Faery and the outside world. During this time, mortals may cross between the two worlds. Faery is protected by the Faery Hunt, a tough band of elves armed with magical bows. Each hunt group consists of 10-50 elves, each with a combat rating of (50,50,100). Rumors speak of a magical talisman, the elfstone, which allows mortals to pass unharmed in Faery, and to summon Faery hills to the mortal world.
 
-- The Cloudlands
+#### The Cloudlands
 
 The Cloudlands is a small region which floats over Mt. Olympus and the Imperial City. It is generally only accessible by flight. The Cloudlands is home to three cities: Nimbus, Stratos and Aerovia. Weather magic is taught in these three cities.
 
 ### The Map
+
+    TODO: insert ASCII image of map here
 
 ## Health
 
@@ -1050,19 +996,25 @@ Health is shown in the turn report for each noble that the player controls.
 
 This is a noble in perfect health:
 
+```report
 Health: 100%
+```
 
 This is a rather sick noble:
 
+```report
 Health: 38% (getting worse)
+```
 
 If the noble were cured of illness, this would instead show:
 
+```report
 Health: 38% (getting better)
+```
 
 Medical technology is rather crude in the age of Olympia. Sanitation and hygiene are not the best. Even a minor wound runs a risk of developing into a serious, possibly life-threatening problem.
 
-When a noble receives a new injury, their health is reduced by the amount of the injury, and a check is made to see whether they get sick. The chance that a character falls ill is (100 - health). Thus, the more seriously the noble is wounded, the greater the probability that infection will set in.
+When a noble receives a new injury, their health is reduced by the amount of the injury, and a check is made to see whether they get sick. The chance that a character falls ill is _(100 - health)_. Thus, the more seriously the noble is wounded, the greater the probability that infection will set in.
 
 Health is updated at the end of each game week (on days 7, 14, 21 and 28). Sick nobles lose 3-15 health each week. Healthy but wounded nobles recover by a like amount. Each week sick nobles have a 5% chance of fighting off their illness.
 
@@ -1080,7 +1032,7 @@ Notes:
 
 ## Death
 
-When a noble is killed in battle or dies, the body is moved into the province as an item which may be found with EXPLORE. An executed noble's body is given to the character who performed the execution.
+When a noble is killed in battle or dies, the body is moved into the province as an item which may be found with **EXPLORE**. An executed noble's body is given to the character who performed the execution.
 
 A dead body exists for one and one half game years, at which point it fully decomposes, and the dead noble's spirit passes on.
 
@@ -1090,7 +1042,7 @@ The bodies of nobles lost at sea will wash ashore somewhere.
 
 Bodies decompose after one and one half years regardless of whether they remain in the province or are possesions of another.
 
-Priests may learn a skill Lay to rest, hastening the passing of the dead noble's spirit. Some exceptionally skilled priests possess the ability to resurrect dead characters.
+Priests may learn a skill **LAY TO REST**, hastening the passing of the dead noble's spirit. Some exceptionally skilled priests possess the ability to resurrect dead characters.
 
 In general, NP's invested in characters are returned to the character's player if the character deserts or his body decomposes.
 
@@ -1100,9 +1052,9 @@ When a body decomposes, the number of NP's which were invested in the character 
 
 ## Markets
 
-Characters issue buy and sell commands to indicate their desire to trade goods. Every trade must be between a buyer and a seller. Whenever a compatible buy and sell request are found, the trade will be executed.
+Characters issue BUY and SELL commands to indicate their desire to trade goods. Every trade must be between a buyer and a seller. Whenever a compatible BUY and SELL request are found, the trade will be executed.
 
-Trades are only matched in cities, where merchants gather at the local bazaar to swap goods. (Note that characters are always free to use the give command to exchange items, regardless of where they are. But buy and sell orders are only matched in cities.)
+Trades are only matched in cities, where merchants gather at the local bazaar to swap goods. (Note that characters are always free to use the give command to exchange items, regardless of where they are. But BUY and SELL orders are only matched in cities.)
 
 A buyer indicates what he wants to buy, how much of it he wants, and the most he is willing to pay. A seller indicates what item is being sold, how much of it is to be sold, and the per-item price.
 
@@ -1112,25 +1064,33 @@ If the buyer is willing to pay more than the seller is asking, the trade takes p
 
 Example: A noble who wants to buy five iron [79] at no more than 10 gold each issues:
 
-\> buy 79 5 10
+```report
+> buy 79 5 10
 
 Try to buy five iron [79] for 10 gold each.
+```
 
 If someone who had iron issues a sell order which matches this buyer's request, the trade would be executed:
 
-\> sell 79 5 10
+```report
+> sell 79 5 10
 
 Sold five iron [79] for 50 gold.
+```
 
 The buyer would see:
 
+```report
 Bought five iron [79] for 50 gold.
+```
 
 Either the buy or the sell order could have been issued first. If the order can't be matched with pending trades from other units in the city, it will become a standing order and remain in effect until executed or canceled.
 
-\> buy 79 0
+```report
+> buy 79 0
 
 Cleared pending buy for iron [79].
+```
 
 Note that the buyer and seller can't specify what character they will deal with. They will trade with any unit that has a matching buy or sell order.
 
@@ -1138,14 +1098,16 @@ Note that the buyer and seller can't specify what character they will deal with.
 
 The location report for each city includes a market report listing pending trades.
 
-| trade | who  | price | qty | item               |
-|-------|------|-------|-----|--------------------|
+```report
+| trade | who  | price | qty | item             |
+| ----- | ---- | ----- | --- | ---------------- |
 | buy   | 2019 | 100   | 1   | peasant [10]     |
 | buy   | 4274 | 74    | 3   | iron [79]        |
 | sell  | 3682 | 12    | 11  | sailor [19]      |
 | sell  | 2019 | 50    | 1   | elite guard [15] |
+```
 
-A trade will not be listed unless it could be executed. For instance, a unit might issue an order to sell iron [79], even though the unit doesn't possess any. (Perhaps the character plans to get some iron later in the month, and wants the buy order to be in place when the iron arrives). This order will not be shown in the market report, because the seller doesn't have any iron to sell.
+A trade will not be listed unless it could be executed. For instance, a unit might issue an order to SELL iron [79], even though the unit doesn't possess any. (Perhaps the character plans to get some iron later in the month, and wants the buy order to be in place when the iron arrives). This order will not be shown in the market report, because the seller doesn't have any iron to sell.
 
 Similarly, the buyer must have enough gold to buy at least one of the item. No buy order would be listed for a penniless unit that wanted to buy five iron at 10 gold each. If the unit later obtained 10 gold, enough to buy one of the five desired units of iron, the order would be listed in the market report for one iron, not five.
 
@@ -1155,7 +1117,7 @@ Even sneakier traders may have their pending trades omitted from the market repo
 
 ### City purchasing
 
-Some cities will issue buy or sell orders on their own behalf for certain goods. Cities trade orders are identity to those submitted by players when participating in markets.
+Some cities will issue BUY or SELL orders on their own behalf for certain goods. Cities trade orders are identity to those submitted by players when participating in markets.
 
 Enterprising characters may turn a profit by using skills under the Trade [730] category to find new tradegoods for sale in city markets, and buyers for those tradegoods in other city markets.
 
@@ -1169,33 +1131,41 @@ However, consumption or production by the city itself will always have lowest pr
 
 The location market report is ordered according to how multiple trades will resolve.
 
-| trade | who  | price | qty | item        |
-|-------|------|-------|-----|-------------|
+```report
+| trade | who  | price | qty | item      |
+| ----- | ---- | ----- | --- | --------- |
 | sell  | 3682 | 10    | 1   | iron [79] |
 | sell  | 2019 | 12    | 1   | iron [79] |
+```
 
 A buyer would get 3682's iron, since the price is lower.
 
-| trade | who  | price | qty | item        |
-|-------|------|-------|-----|-------------|
+```report
+| trade | who  | price | qty | item      |
+| ----- | ---- | ----- | --- | --------- |
 | sell  | 2019 | 10    | 1   | iron [79] |
 | sell  | 3682 | 10    | 1   | iron [79] |
+```
 
- A buyer would get 2019's iron. 2019 must appear before 3682 in the location character list.
+A buyer would get 2019's iron. 2019 must appear before 3682 in the location character list.
 
-| trade | who  | price | qty | item        |
-|-------|------|-------|-----|-------------|
+```report
+| trade | who  | price | qty | item      |
+| ----- | ---- | ----- | --- | --------- |
 | buy   | 4846 | 10    | 1   | iron [79] |
 | buy   | 1783 | 12    | 1   | iron [79] |
+```
 
 4846 would win the buy from a lone seller. 1783 must come after 4846 in the location character list.
 
-| trade | who  | price | qty | item        |
-|-------|------|-------|-----|-------------|
+```report
+| trade | who  | price | qty | item      |
+| ----- | ---- | ----- | --- | --------- |
 | buy   | 4846 | 10    | 1   | iron [79] |
 | buy   | 1783 | 11    | 1   | iron [79] |
+```
 
-sell 79 1 10 will match 4846. sell 79 1 11 will match 1783.
+`sell 79 1 10` will match 4846. `sell 79 1 11` will match 1783.
 
 ### Partial trades
 
@@ -1205,25 +1175,33 @@ Partial trades are executed, if possible. If a buyer wants 100 iron, but only 25
 
 A buyer who desires three iron at no more than five gold each orders:
 
-\> buy 79 3 5
+```report
+> buy 79 3 5
 
 Try to buy three iron [79] for 5 gold each.
+```
 
 Suppose the only seller of iron in this city had ordered:
 
-\> sell 79 5 6
+```report
+> sell 79 5 6
 
 Try to sell five iron [79] for 6 gold each.
+```
 
 The trade will not take place, because the seller's price exceeds the buyer's. Later, the buyer travels to a different city, where another seller has previously issued:
 
-\> sell 79 10 4
+```report
+> sell 79 10 4
 
 Try to sell ten iron [79] for 4 gold each.
+```
 
 As soon as the buyer enters the city, the trade will be matched:
 
+```report
 Bought three iron [79] for 12 gold.
+```
 
 Note that the trade takes place at the seller's price, and that the seller will still be offering seven iron at four gold each.
 
@@ -1233,33 +1211,21 @@ If the seller had only one unit of iron for sale, the trade would have executed,
 
 Nobles are bound to their lords by one of three kinds of loyalty:
 
-*contract*
+- _contract_ - The noble is being paid for his service
 
-The noble is being paid for his service
+- _oath_ - The noble has taken an oath to serve his master
 
- 
-
-*oath*
-
-The noble has taken an oath to serve his master
-
- 
-
-*fear*
-
-The noble serves out of fear
-
- 
+- _fear_ - The noble serves out of fear
 
 The loyalty bond is rated. For example, a character's loyalty could be oath-1, contract-500, or fear-50.
 
 A player's initial character has oath-2 loyalty.
 
-Newly hired nobles have loyalty contract-500. Nobles are paid for their service with the `honor` command. A noble who issues \``honor`` 50`' will spend 50 gold to raise his own contract loyalty rating by 50 points.
+Newly hired nobles have loyalty contract-500. Nobles are paid for their service with the **HONOR** command. A noble who issues `honor 50` will spend 50 gold to raise his own contract loyalty rating by 50 points.
 
-A noble may take an oath of loyalty, pledging one or two Noble Points to secure it. This would yield loyalty oath-1 or oath-2. The `oath` order secures an oath of loyalty for a noble.
+A noble may take an oath of loyalty, pledging one or two Noble Points to secure it. This would yield loyalty oath-1 or oath-2. The **OATH** order secures an oath of loyalty for a noble.
 
-Nobles may be terrorized by their masters. The severity of their treatment accumulates in the loyalty rating: fear-10, for instance. Fear loyalty is maintained with the `terrorize` order.
+Nobles may be terrorized by their masters. The severity of their treatment accumulates in the loyalty rating: fear-10, for instance. Fear loyalty is maintained with the **TERRORIZE** order.
 
 Only one kind of loyalty may be active at a time.
 
@@ -1267,7 +1233,7 @@ Contract and fear loyalty decay over time. Contract loyalty loses the greater of
 
 Units which fall to contract-0 or fear-0 have a 50% chance of deserting each month.
 
-Nobles serving through contract or fear are susceptible to bribes, which may induce them to renounce loyalty to their lord, and pledge their service to the bribing faction. For details on bribing characters, see the `bribe` order.
+Nobles serving through contract or fear are susceptible to bribes, which may induce them to renounce loyalty to their lord, and pledge their service to the bribing faction. For details on bribing characters, see the `BRIBE` order.
 
 Oath-1 nobles ignore all bribes. There is a persuasion skill which may cause an oath-1 noble to defect, although its use is difficult and rarely succeeds. Oath-1 nobles may reveal their factional affiliation if tortured.
 
@@ -1275,45 +1241,34 @@ Oath-2 nobles will not renounce loyalty to their lord under any circumstances, n
 
 Summary:
 
-*contract*
+- _contract_ - Amount of gold invested in noble.
+  Decays by max(50, 10% of current rating) each month.
 
-Amount of gold invested in noble
+- _fear_ - Severity of `terrorize` used on noble.
+  Decays 1-2 points each month.
 
-Decays by max(50, 10% of current rating) each month
-
-*fear*
-
-Severity of `terrorize` used on noble
-
-Decays 1-2 points each month
-
- 
-
-*oath*
-
-1 or 2 NPs may be invested in an oath bond
-
-Does not decay
+- _oath_ - 1 or 2 NPs may be invested in an oath bond.
+  Does not decay.
 
 Commands dealing with loyalty bonds:
 
-- `bribe`
-- `honor`
-- `oath`
-- `terrorize`
+- `BRIBE`
+- `HONOR`
+- `OATH`
+- `TERRORIZE`
 
 ## Stacking
 
-One unit may `stack` under another unit. Two or more units grouped in this way are referred to as a *stack*.
+One unit may `STACK` under another unit. Two or more units grouped in this way are referred to as a _stack_.
 
 Stacks move together and fight together. Here is a stack of four units:
 
-    Law Netexus [2020], accompanied by:
-      Feasel the Wicked [1109]
-      Drakkar the Trader [1752]
-      Alion Krysaka [2785]
-
- 
+```report
+Law Netexus [2020], accompanied by:
+  Feasel the Wicked [1109]
+  Drakkar the Trader [1752]
+  Alion Krysaka [2785]
+```
 
 Law Netexus is the stack leader, the top-most unit in the stack.
 
@@ -1323,9 +1278,9 @@ Feasel might be stacked under Law Netexus, with Drakkar and Alion under Feasel. 
 
 Generally, such internal arrangements are only important when the stack breaks up. If Drakkar is stacked beneath Feasel, he will stick with Feasel if Feasel drops out of the stack. But if Drakkar were stacked beneath Law Netexus, he would not follow Feasel if Feasel unstacked.
 
-If Law Netexus issues a `move` order, the entire stack will move. If, however, Feasel issues a `move` order, he will first drop out of the stack before moving.
+If Law Netexus issues a `MOVE` order, the entire stack will move. If, however, Feasel issues a `MOVE` order, he will first drop out of the stack before moving.
 
-Similarly, if Law Netexus engages combat with the `attack` order, all characters in the stack will fight together. If one member of the stack is attacked, the entire stack will respond in defense.
+Similarly, if Law Netexus engages combat with the `ATTACK` order, all characters in the stack will fight together. If one member of the stack is attacked, the entire stack will respond in defense.
 
 Multiple levels of internal stacking can be useful if one wants several stacks to join together for a while, but then split apart later into their old arrangements.
 
@@ -1335,50 +1290,30 @@ Ocean ships may not be stacked together. There is no way to cluster ships into a
 
 Carrying capacity: Men and items are rated for how much they weigh, and how much they can carry, walking, riding or flying.
 
-|              |        |         |        |        |
-|--------------|--------|---------|--------|--------|
 | Name         | Weight | Walking | Riding | Flying |
-| Man          | 100    | 100     | \-     | \-     |
-| Riding Horse | 1000   | 150     | 150    | \-     |
-| Wild Horse   | 300    | self    | self   | \-     |
-| Warmount     | 300    | 150     | 150    | \-     |
-| Knight       | 400    | 100     | 100    | \-     |
-| Elite Guard  | 400    | 100     | 100    | \-     |
-| Ox           | 1000   | 1500    | self   | \-     |
+| ------------ | ------ | ------- | ------ | ------ |
+| Man          | 100    | 100     | -      | -      |
+| Riding Horse | 1000   | 150     | 150    | -      |
+| Wild Horse   | 300    | self    | self   | -      |
+| Warmount     | 300    | 150     | 150    | -      |
+| Knight       | 400    | 100     | 100    | -      |
+| Elite Guard  | 400    | 100     | 100    | -      |
+| Ox           | 1000   | 1500    | self   | -      |
 | Winged Horse | 300    | 150     | 150    | 150    |
 
-Carrying capacitiy {border="1" cellpadding="1" cellspacing="1"}
-
-\``man`' includes all of the varieties of men, including peasants, sailors, workers, etc. as well as nobles. A knight includes both the man and the horse, hence the 400 weight.
+_Man_ includes all of the varieties of men, including peasants, sailors, workers, etc. as well as nobles. A _knight_ includes both the man and the horse, hence the 400 weight.
 
 In order to ride, the total riding capacity must cover the weights of all the units that may not ride themselves.
 
 Examples:
 
-*man + riding horse*
+- _man + riding horse_ - ride capacity is 150 - 100 = 50; walk capacity is 250
 
-    ride capacity is 150 - 100 = 50
-    walk capacity is 250
+- _man + riding horse + wild horse_ - ride capacity is 150 - 100 = 50; walk capacity is 250
 
- 
+- _wild horse_ - ride capacity is 150 - 100 = 50; walk capacity is 1750; can walk or ride on its own, but will not carry anything
 
-*man + riding horse + wild horse*
-
-    ride capacity is 150 - 100 = 50
-    walk capacity is 250
-
- 
-
-The wild horse can walk or ride on its own, but will not carry anything.
-
-    ride capacity is 150 - 100 = 50
-    walk capacity is 1750
-
- 
-
-The ox may be driven alongside the horse, but will not carry anything when moving so quickly.
-
-*man + riding horse + ox*
+- _man + riding horse + ox_ - the ox may be driven alongside the horse, but will not carry anything when moving so quickly
 
 A stack will ride if there is enough riding capacity to carry all of the non-riders. Otherwise, the stack will walk.
 
@@ -1410,17 +1345,17 @@ The different kinds of men:
 
 A peasant may be trained into a soldier, sailor, worker, or crossbowman. Soldiers may be given further training to become pikemen, swordsmen, or archers. More advanced fighters may be trained from swordsmen and archers.
 
-         +--- sailor ------- pirate
-        +---- worker
-       +----- crossbowman
-      /
-    peasant ------ soldier ------ swordsman --- knight ----- elite guard
-                      \
-                       +---- archer ------ elite archer
-                        +--- pikeman
-                         +-- blessed soldier
-
- 
+```text
+     +--- sailor ------- pirate
+    +---- worker
+   +----- crossbowman
+  /
+peasant ------ soldier ------ swordsman --- knight ----- elite guard
+                 \
+                  +---- archer ------ elite archer
+                   +--- pikeman
+                    +-- blessed soldier
+```
 
 Training a man may require that the noble have a certain skill, or possess some item. For instance, training soldiers into swordsmen requires a longsword [74] for each swordsman produced. The training character must also know Combat [610].
 
@@ -1428,30 +1363,27 @@ Some men may only be trained in certain kinds of locations. Elite guard and elit
 
 Training takes one day per man. Training five archers into five elite archers would take five days, for example. Training ten peasants into ten crossbowmen would take 10 days.
 
-    num  kind            skill  input man       input item        
-    where
-    ---  -----------     -----  --------------  ----------------  ------
-     11  worker           none  peasant [10]
-     12  soldier           610  peasant [10]
-     13  archer            615  soldier [12]    longbow [72]
-     14  knight            616  swordsman [20]  warmount [53]
-     15  elite guard       616  knight [14]     plate armor [73]  castle
-     16  pikeman           610  soldier [12]    pike [75]
-     17  blessed soldier   750  soldier [12]                      temple
-     19  sailor            601  peasant [10]
-     20  swordsman         616  soldier [12]    longsword [74]
-     21  crossbowman       610  peasant [10]    crossbow [85]
-     22  elite archer      615  archer [13]                       castle
-     24  pirate            616  sailor [19]     longsword [74]    ship
-
- 
+| num | kind            | skill | input man      | input item       | where  |
+| --- | --------------- | ----- | -------------- | ---------------- | ------ |
+| 11  | worker          | none  | peasant [10]   |                  |        |
+| 12  | soldier         | 610   | peasant [10]   |                  |        |
+| 13  | archer          | 615   | soldier [12]   | longbow [72]     |        |
+| 14  | knight          | 616   | swordsman [20] | warmount [53]    |        |
+| 15  | elite guard     | 616   | knight [14]    | plate armor [73] | castle |
+| 16  | pikeman         | 610   | soldier [12]   | pike [75]        |        |
+| 17  | blessed soldier | 750   | soldier [12]   |                  | temple |
+| 19  | sailor          | 601   | peasant [10]   |                  |        |
+| 20  | swordsman       | 616   | soldier [12]   | longsword [74]   |        |
+| 21  | crossbowman     | 610   | peasant [10]   | crossbow [85]    |        |
+| 22  | elite archer    | 615   | archer [13]    |                  | castle |
+| 24  | pirate          | 616   | sailor [19]    | longsword [74]   | ship.  |
 
 - A character needs no skills to train a worker.
 - To train a sailor requires Sailing [601], a subskill of Shipcraft [600].
 - Training archers and elite archers requires Archery [615], a subskill of Combat [610].
 - Training swordsmen, knights and elite guard requires Swordplay [616], a subskill of Combat [610].
 
-For more information and examples, see the `train` order.
+For more information and examples, see the `TRAIN` order.
 
 ## Maintenance cost
 
@@ -1461,43 +1393,39 @@ If the noble does not have enough gold to pay his men, he will ask other nobles 
 
 If the noble can only afford to pay some of his men, one-third of those not paid will leave service at the end of the month. The computer chooses which men remain and which leave or starve.
 
-    num   kind            cost
-    ---   -----------     ----
-     10   peasant          1
-     11   worker           2
-     19   sailor           2
-     21   crossbowman      2
-     12   soldier          2
-     13   archer           3
-     16   pikeman          3
-     17   blessed soldier  3
-     20   swordsman        3
-     24   pirate           3
-     14   knight           4
-     22   elite archer     4
-     15   elite guard      5
+| num | kind            | cost |
+| --- | --------------- | ---- |
+| 10  | peasant         | 1    |
+| 11  | worker          | 2    |
+| 19  | sailor          | 2    |
+| 21  | crossbowman     | 2    |
+| 12  | soldier         | 2    |
+| 13  | archer          | 3    |
+| 16  | pikeman         | 3    |
+| 17  | blessed soldier | 3    |
+| 20  | swordsman       | 3    |
+| 24  | pirate          | 3    |
+| 14  | knight          | 4    |
+| 22  | elite archer    | 4    |
+| 15  | elite guard     | 5    |
 
- 
-
-Note that nobles may `drop` men to release them from service deliberately.
+Note that nobles may `DROP` men to release them from service deliberately.
 
 ## Making weapons and armor
 
 Weapons and armor are required for the training of some kinds of fighters. Archers require longbows, for instance, elite guard require plate armor, etc.
 
-Weapons and armor are made with the `make` command. The Weaponsmithing [617] subskill of Combat [610] is required to make weapons and armor.
+Weapons and armor are made with the `MAKE` command. The Weaponsmithing [617] subskill of Combat [610] is required to make weapons and armor.
 
-    num   item           material
-    ---   ----           --------
-     72   longbow        yew [68]
-     73   plate armor    iron [79]
-     74   longsword      iron [79]
-     75   pike           wood [77]
-     85   crossbow       wood [77]
+| num | item        | material  |
+| --- | ----------- | --------- |
+| 72  | longbow     | yew [68]  |
+| 73  | plate armor | iron [79] |
+| 74  | longsword   | iron [79] |
+| 75  | pike        | wood [77] |
+| 85  | crossbow    | wood [77] |
 
- 
-
-One unit of the input material may turned into one of the desired items each day. For example, `make` 72 2 would spend two days turning two yew [68] into two longbows [72].
+One unit of the input material may turned into one of the desired items each day. For example, `MAKE` 72 2 would spend two days turning two yew [68] into two longbows [72].
 
 ## Skills
 
@@ -1505,40 +1433,38 @@ Skills represent knowledge that Olympian characters may know. Shipbuilding, thie
 
 Skills are divided into category skills and sub-skills within those categories. The skill categories are:
 
-    num  name                      time to learn
-    ---  ----                      -------------
-    600  Shipcraft                 three weeks
-    610  Combat                    three weeks
-    630  Stealth                   four weeks
-    650  Beastmastery              four weeks, 1 NP req'd
-    670  Persuasion                four weeks
-    680  Construction              three weeks
-    690  Alchemy                   four weeks
-    700  Forestry                  three weeks
-    720  Mining                    three weeks
-    730  Trade                     three weeks
+| num | name         | time to learn          |
+| --- | ------------ | ---------------------- |
+| 600 | Shipcraft    | three weeks            |
+| 610 | Combat       | three weeks            |
+| 630 | Stealth      | four weeks             |
+| 650 | Beastmastery | four weeks, 1 NP req'd |
+| 670 | Persuasion   | four weeks             |
+| 680 | Construction | three weeks            |
+| 690 | Alchemy      | four weeks             |
+| 700 | Forestry     | three weeks            |
+| 720 | Mining       | three weeks            |
+| 730 | Trade        | three weeks            |
 
- 
-
-There are also six schools of magic. For more details on learning and casting magical spells, see the *Magical Arts* section.
+There are also six schools of magic. For more details on learning and casting magical spells, see the _Magical Arts_ section.
 
 The category skill must be learned before any of the sub-skills within the category may be known.
 
-With each skill learned, the player will receive a lore sheet describing background information about the skill and how it may be used. Most skills are invoked with the \``use`` ``skill`' order. The skill lore sheets will give specific information about arguments to `use` and and requirements or limitations for using the skill.
+With each skill learned, the player will receive a lore sheet describing background information about the skill and how it may be used. Most skills are invoked with the `use skill` order. The skill lore sheets will give specific information about arguments to `use` and and requirements or limitations for using the skill.
 
-The lore sheets for the skill categories list some of the skills available for study within the category.
+The _lore sheets_ for the skill categories list some of the skills available for study within the category.
 
-For instance, a noble wishing to undertake the study of Shipcraft would first learn the category skill with the `study` command:
+For instance, a noble wishing to undertake the study of Shipcraft would first learn the category skill with the `STUDY` command:
 
-    study 600
-
- 
+```orders
+study 600 # study Shipcraft
+```
 
 The Shipcraft lore sheet lists some of the sub-skills available for building and sailing ships. One of these is Sailing [601], the skill required to control a ship on the ocean. The aspiring captain could then order:
 
-    study 601
-
- 
+```orders
+study 601 # study Sailing
+```
 
 Once Sailing [601] is known, the lore sheet describing its usage will appear in the player's turn report.
 
@@ -1554,37 +1480,37 @@ The source of instruction may be one of the following:
 
 - The skill is commonly known, and may be studied anywhere once the category skill is known. When a category skill is learned, the player receives a lore sheet for the category in the turn report. The lore sheet lists the commonly known sub-skills which may be studied anywhere once the category skill is known.
 
-  Some sub-skills within a category may not be listed in the category lore sheet. These are not directly studyable, even once the parent skill is known. They must either be learned from a scroll, a rare book, or through research.
+Some sub-skills within a category may not be listed in the category lore sheet. These are not directly studyable, even once the parent skill is known. They must either be learned from a scroll, a rare book, or through research.
 
 - The character is in a city which teaches the skill.
 
-  Many cities offer instruction in skills. Shipcraft [600], for example, is commonly taught in port cities.
+Many cities offer instruction in skills. Shipcraft [600], for example, is commonly taught in port cities.
 
-  The turn report lists skills taught by the location:
+The turn report lists skills taught by the location:
 
-      Skills taught here:
-         Alchemy [690]
+```report
+Skills taught here:
+    Alchemy [690]
+```
 
-   
+- The skill was discovered through `RESEARCH`, and is listed as `Partially known` in the turn report.
 
-- The skill was discovered through `research`, and is listed as \``Partially known`' in the turn report.\
+```report
+Partially known skills:
+    Improve ship rigging [9999], 0/7
+```
 
-      Partially known skills:
-         Improve ship rigging [9999], 0/7
+- The player has a book which teaches the skill. Items which teach skills are shown in the inventory listing:
 
-   
+```report
+Inventory:
+  qty  name
+  ---  ----
+    1  Old book [6001]
 
-- The player has a book which teaches the skill. Items which teach skills are shown in the inventory listing:\
-
-      Inventory:
-                   qty  name
-                   ---  ----
-                     1  Old book [6001]
-
-      Old book [6001] permits study of the following skills:
-         Alchemy [690]
-
-   
+Old book [6001] permits study of the following skills:
+  Alchemy [690]
+```
 
 ### Fee to begin study
 
@@ -1604,7 +1530,7 @@ Characters may STUDY up to 14 days per turn. Fast study days dont count towards 
 
 All new players are given 200+ "fast study" points. Each fast study point may be applied to a skill being studied in lieu of actually spending a day studying.
 
-For example, the order `study 600 7`` would apply 7 fast study days to learning Shipcraft. This study order would take 0 days to execute. `
+For example, the order `study 600 7` would apply 7 fast study days to learning Shipcraft. This study order would take 0 days to execute.
 
 ### Skill Experience
 
@@ -1612,15 +1538,15 @@ Experience is counted for each turn that a skill use is successfully completed. 
 
 Projects which take multiple turns to complete, such as shipbuilding or castle construction, only count towards experience when the project is finished.
 
-    use             level
-    -----           -----
-     0-4            apprentice
-     5-11           journeyman
-    12-20           adept
-    21-34           master
-     35+            grand master
+| use   | level        |
+| ----- | ------------ |
+| 0-4   | apprentice   |
+| 5-11  | journeyman   |
+| 12-20 | adept        |
+| 21-34 | master       |
+| 35+   | grand master |
 
- Experience will speed work with some skills. For example, a master shipbuilder will be able to construct a galley somewhat faster than an apprentice. Some skill uses benefit more from experience than others.
+Experience will speed work with some skills. For example, a master shipbuilder will be able to construct a galley somewhat faster than an apprentice. Some skill uses benefit more from experience than others.
 
 ### Skills not rated for experience
 
@@ -1628,36 +1554,35 @@ A few skills are not rated for experience. These may be skills which are not dir
 
 For instance:
 
-    Skills known:
-         Shipcraft [600]
-               Sailing [601], apprentice
-               Shipbuilding [602], apprentice
-               Fishing [603], apprentice
-         Combat [610]
-               Survive fatal wound [611]
-               Fight to the death [612]
-
- 
+```report
+Skills known:
+  Shipcraft [600]
+    Sailing [601], apprentice
+    Shipbuilding [602], apprentice
+    Fishing [603], apprentice
+  Combat [610]
+    Survive fatal wound [611]
+    Fight to the death [612]
+```
 
 Since experience is not applicable to Survive fatal wound [611] and Fight to the death [612], its levels are not shown.
 
 ### Summary of studying
 
-The category skill must be learned before a sub-skill within the category may be studied.
+- The category skill must be learned before a sub-skill within the category may be studied.
 
-Beginning study of any skill costs 100 gold.
+- Beginning study of any skill costs 100 gold.
 
-Payment of Noble Points may be required to begin learning some advanced skills.
+- Payment of Noble Points may be required to begin learning some advanced skills.
 
-A source of instruction must be available the first time `study` is issued:
+- A source of instruction must be available the first time `STUDY` is issued:
+  - The skill is taught by the location.
+  - Characters may `STUDY` up to 14 days per month.
+  - The skill is commonly known, so it may be studied anywhere once its category skill is known.
+  - The skill was discovered through `RESEARCH`, so it may now be studied.
+  - The skill is taught by a book or a scroll.
 
-- The skill is taught by the location.
-- Characters may `study` up to 14 days per month.
-- The skill is commonly known, so it may be studied anywhere once its category skill is known.
-- The skill was discovered through `research`, so it may now be studied.
-- The skill is taught by a book or a scroll.
-
-Once a skill is known, further `study` of that skill has no effect.
+- Once a skill is known, further `STUDY` of that skill has no effect.
 
 ### Teaching
 
@@ -1669,83 +1594,82 @@ This is a rough, heavily edited example of how some study commands might look in
 
 Turn one:
 
-    Skills taught here:
-       Shipcraft [600]
+```report
+Skills taught here:
+    Shipcraft [600]
 
-     1: > study 600
-     1: Paid 100 gold to begin study.
-     1: Will study Shipcraft for seven days.
-     7: Learned Shipcraft [600].
+  1: > study 600
+    1: Paid 100 gold to begin study.
+    1: Will study Shipcraft for seven days.
+    7: Learned Shipcraft [600].
 
-    Lore for Shipcraft [600]
-    ------------------------
-    All skills concerning ocean travel fall under this category.
-    Shipcraft encompasses the building and repair of ships,
-    training of sailors, and navigation at sea.
+Lore for Shipcraft [600]
+------------------------
+All skills concerning ocean travel fall under this category.
+Shipcraft encompasses the building and repair of ships,
+training of sailors, and navigation at sea.
 
-    The following skills may be studied directly once Shipcraft
-    is known:
+The following skills may be studied directly once Shipcraft
+is known:
 
-       num   skill                              time to learn
-       ---   -----                              -------------
-       601   Sailing                            one week
-       ...
-
- 
+    num   skill                              time to learn
+    ---   -----                              -------------
+    601   Sailing                            one week
+```
 
 Further skills may be found through research.
 
 Turn two:
 
-    1: > study 601
-     1: Paid 100 gold to begin study.
-     1: Will study Sailing for seven days.
-     7: Learned Sailing [601].
-
- 
+```report
+1: > study 601
+  1: Paid 100 gold to begin study.
+  1: Will study Sailing for seven days.
+  7: Learned Sailing [601].
+```
 
 (It doesn't matter where 601 is studied, since 600 offers it directly.)
 
 Turn three:
 
-    1: > study 690
-     1: Instruction in [690] is not available here.
-
- 
+```report
+1: > study 690
+  1: Instruction in [690] is not available here.
+```
 
 (Need to find a location or book that offers instruction in Alchemy)
 
 Turn four:
 
-    1: enter xxxx
-     1: Arrival at City of Alchemists [xxxx]
+```report
+1: enter xxxx
+  1: Arrival at City of Alchemists [xxxx]
 
-    Skills taught here:
-       Alchemy [690]
+Skills taught here:
+    Alchemy [690]
 
-     1: > study 690
-     1: Paid 100 gold to begin study.
-     1: Will study Alchemy for seven days.
+  1: > study 690
+  1: Paid 100 gold to begin study.
+  1: Will study Alchemy for seven days.
 
-    Partially known skills:
-       690  Alchemy, 7/14
-
- 
+Partially known skills:
+    690  Alchemy, 7/14
+```
 
 (Alchemy requires 14 days of study to learn, seven of which we have completed.)
 
 Turn five:
 
-    1: > study 690
-     1: Continue studying Alchemy.
-     7: Learned Alchemy [690].
+```report
+1: > study 690
+  1: Continue studying Alchemy.
+  7: Learned Alchemy [690].
 
-    Skills known:
-       600  Shipcraft
-            601  Sailing, apprentice
-       690  Alchemy
-
- 
+Skills known:
+  600  Shipcraft
+    601  Sailing, apprentice
+  690  Alchemy
+```
 
 ## Research
 
@@ -1753,7 +1677,7 @@ Research attempts to discover sub-skills which are not commonly known or made av
 
 Research is mostly used to discover new magical spells, as few spells are granted when a magic school is learned. However, even common skills such as Shipcraft, Combat and Construction may have hidden sub-skills which can be found through research.
 
-Research for all skill categories except Religion [750] must be performed in a tower, by the tower's owner (the first character inside the tower). Towers make good laboratories for scholarly investigations, and minimize distractions. Other occupants of the tower may not use `research`.
+Research for all skill categories except Religion [750] must be performed in a tower, by the tower's owner (the first character inside the tower). Towers make good laboratories for scholarly investigations, and minimize distractions. Other occupants of the tower may not use `RESEARCH`.
 
 Research into Religion [750] must be performed in a temple, by the temple's owner.
 
@@ -1763,25 +1687,25 @@ When a category skill is learned, its lore sheet appears in the player's turn re
 
 An example:
 
-    Lore for Shipcraft [600]
-    ------------------------
-    All skills concerning ocean travel fall under this category.
-    Shipcraft encompasses the building and repair of ships,
-    training of sailors, and navigation at sea.
+```report
+Lore for Shipcraft [600]
+------------------------
+All skills concerning ocean travel fall under this category.
+Shipcraft encompasses the building and repair of ships,
+training of sailors, and navigation at sea.
 
-    The following skills may be studied directly once Shipcraft
-    is known:
+The following skills may be studied directly once Shipcraft
+is known:
 
-       num   skill                              time to learn
-       ---   -----                              -------------
-       601   Sailing                            one week
-       ...
+    num   skill                              time to learn
+    ---   -----                              -------------
+    601   Sailing                            one week
+    ...
 
-    Further skills may be found through research.
+Further skills may be found through research.
+```
 
- 
-
-The last line (\``Further skills ...`') indicates that there are sub-skills of Shipcraft which are not mentioned in the lore sheet. These hidden skills may represent rare or hard-to-learn knowledge, or perhaps technology which has not yet been discovered.
+The last line (`Further skills ...`) indicates that there are sub-skills of Shipcraft which are not mentioned in the lore sheet. These hidden skills may represent rare or hard-to-learn knowledge, or perhaps technology which has not yet been discovered.
 
 Study of these skills is not possible based simply on knowledge of the parent skill. Sailing [601] can be learned by a character, no matter where he is, once Shipcraft is known. Hidden Shipcraft skills, however, must be learned in other ways, even if the character has learned their entity numbers from other players.
 
@@ -1800,35 +1724,37 @@ If research is successful, the new sub-skill will be added to the character's pa
 
 For example:
 
-    1: > research 600
-    1: Will research Shipcraft for seven days.
-    7: Research uncovers a new skill:  Improve ship rigging [9999].
-    7: To begin learning this skill, order 'study 9999'.
+```research
+1: > research 600
+  1: Will research Shipcraft for seven days.
+  7: Research uncovers a new skill:  Improve ship rigging [9999].
+  7: To begin learning this skill, order 'study 9999'.
 
-    Partially known skills:
-       9999  Improve ship rigging, 0/7
+Partially known skills:
+  9999  Improve ship rigging, 0/7
+```
 
- 
+The `0/7` qualifying the new sub-skill in the partially known skill list indicates that seven full days of study are required to learn the skill, and none of them have yet been completed.
 
-The \``0/7`' qualifying the new sub-skill in the partially known skill list indicates that seven full days of study are required to learn the skill, and none of them have yet been completed.
+```research
+1: > study 9999
+  1: Paid 100 gold to begin study.
+  1: Will study Improve ship rigging for seven days.
+  7: Learned Improve ship rigging [9999].
+```
 
-    1: > study 9999
-    1: Paid 100 gold to begin study.
-    1: Will study Improve ship rigging for seven days.
-    7: Learned Improve ship rigging [9999].
-
- 
-
-The `research` order is no longer used on the new skill once it becomes partially known. Research may continue to be used on Shipcraft [600], however, to seek out more hidden sub-skills.
+The `RESEARCH` order is no longer used on the new skill once it becomes partially known. Research may continue to be used on Shipcraft [600], however, to seek out more hidden sub-skills.
 
 Category skills may not be learned through research.
 
 ## Magic
 
-Magic is a dead cat in an oil-stained burlap bag.\
-Magic is a smelly old man, despised but feared by his neighbors.\
-Magic is what the king turns to, when his soldiers fail.\
-        --- a long-dead wise man of Areth Pirn
+```text
+Magic is a dead cat in an oil-stained burlap bag.
+Magic is a smelly old man, despised but feared by his neighbors.
+Magic is what the king turns to, when his soldiers fail.
+  --- a long-dead wise man of Areth Pirn
+```
 
 Magic is the dark art by which events are influenced outside of the normal boundaries of cause-and-effect. Rather than the glamorous ideal of shining wizards casting powerful fireballs at wicked foes, the reality of magic instead tends to be base, tedious work which earns few friends.
 
@@ -1848,21 +1774,19 @@ Spells are rated on the amount of aura which the casting mage must possess. Mino
 
 Characters receive a rating in the turn reports based on their magical abiliity:
 
-    maximum aura            label
-    ------------            -----
-       6-10                 conjurer
-      11-15                 mage
-      16-20                 wizard
-      21-30                 sorcerer
-      30+                   ??
-
- 
+| maximum aura | label    |
+| ------------ | -------- |
+| 6-10         | conjurer |
+| 11-15        | mage     |
+| 16-20        | wizard   |
+| 21-30        | sorcerer |
+| 30+          | ??       |
 
 For example:
 
-    Osswid the Brave [5639], wizard, with three workers
-
- 
+```report
+Osswid the Brave [5639], wizard, with three workers
+```
 
 The Basic magic [800] spell Appear common [803] allows magicians to prevent this label from displaying.
 
@@ -1874,74 +1798,68 @@ Many spells will require the magician to possess a rare or obscure item in order
 
 Magic is divided into six schools of study:
 
-    num  name                       time to learn
-    ---  ----                       -------------
-    800  Magic                      four weeks, 1 NP req'd
-    820  Weather magic              five weeks, 1 NP req'd
-    840  Scrying                    five weeks, 1 NP req'd
-    860  Gatecraft                  five weeks, 1 NP req'd
-    880  Artifact construction      six weeks, 1 NP req'd
-    900  Necromancy                 six weeks, 2 NP req'd
-
- 
+| num | name                  | time to learn          |
+| --- | --------------------- | ---------------------- |
+| 800 | Magic                 | four weeks, 1 NP req'd |
+| 820 | Weather magic         | five weeks, 1 NP req'd |
+| 840 | Scrying               | five weeks, 1 NP req'd |
+| 860 | Gatecraft             | five weeks, 1 NP req'd |
+| 880 | Artifact construction | six weeks, 1 NP req'd  |
+| 900 | Necromancy            | six weeks, 2 NP req'd  |
 
 Magical spells are simply sub-skills of one of the magical skill categories.
 
-An aspiring mage will issue the `study` order to learn the basics of a particular school of magic, known as the category skill. For example, one wishing to pursue knowledge of Magic [800] would order:
+An aspiring mage will issue the `STUDY` order to learn the basics of a particular school of magic, known as the category skill. For example, one wishing to pursue knowledge of Magic [800] would order:
 
-    study 800
-
- 
+```orders
+study 800
+```
 
 Once the category skill has been learned, the mage will receive a lore sheet listing some of the known spells of that school. The magician may then attempt to learn these spells through study.
 
 A character must know the category skill for a school of magic before a spell in that school can be known.
 
-Only some of the spells in the each school are commonly known. The more rare, obscure or powerful spells will need to be discovered via `research` or by finding magic scrolls describing them.
+Only some of the spells in the each school are commonly known. The more rare, obscure or powerful spells will need to be discovered via `RESEARCH` or by finding magic scrolls describing them.
 
 Knowledge of individual spells in a school of magic is not possible without having learned the category skill.
 
 ### Schools of Magic
 
-*Magic [800]*
+#### Magic [800]
 
 The most common and well-known of the magical schools, Magic nonetheless has many useful and powerful spells.
 
 Since most cities offer instruction in Magic, and several useful spells may be learned quickly, apprentice mages often begin their studies here.
 
-*Weather magic [820]*
+#### Weather magic [820]
 
 The study of spells to control the elements. Advanced weather magicians are said to research forgotten elf-lore in the hopes of finding tools to battle evil.
 
 Weather magic is taught in Nimbus, Stratos and Aerovia, the three cities of the Cloudlands and randomly in non safe haven cities.
 
-*Scrying [840]*
+#### Scrying [840]
 
 Scrying is the study of magical far-seeing, the ability to view images or learn information at a distance.
 
 Scrying is taught in the Faery Cities, and randomly in non safe haven cities.
 
-*Gatecraft [860]*
+#### Gatecraft [860]
 
 The study of ancient portals of teleportation which long ago connected distant regions of the land.
 
 Knowledge of this art is taught in all safe haven cities, and in random non safe haven cities.
 
-*Artifact construction [880]*
+#### Artifact construction [880]
 
 The realm of very advanced sorcerers, artifact construction concerns the making of physical items to focus, amplify or otherwise enhance a mage's power. Most spells in this school require the magician to possess high levels of aura.
 
 Knowledge of this art is taught in random non safe haven cities and in some cities in Hades.
 
-*Necromancy [900]*
+#### Necromancy [900]
 
-The darkest of the Dark Arts, necromancy involves trafficking with undead or demon spirits to gain knowledge. Hated by civilized men, feared by other magicians, the necromancer seeks power and domination over the physical world.  
-
- 
+The darkest of the Dark Arts, necromancy involves trafficking with undead or demon spirits to gain knowledge. Hated by civilized men, feared by other magicians, the necromancer seeks power and domination over the physical world.
 
 Necromancy is taught in the City of the Dead, in Hades and randomly in non safe haven cities.
-
- 
 
 Monsters may sometimes be found guarding ancient books which teach the rare magical skill categories.
 
@@ -1957,9 +1875,9 @@ Research into Religion [750] must be performed in a temple rather than a tower.
 
 Combat in Olympia occurs when one stack attacks another stack.
 
-A unit will be defended by any other characters it is stacked with. Thus, a unit which is part of a stack cannot be attacked alone. No matter which unit is specified in the `attack` order, the entire stack containing the unit will respond.
+A unit will be defended by any other characters it is stacked with. Thus, a unit which is part of a stack cannot be attacked alone. No matter which unit is specified in the `ATTACK` order, the entire stack containing the unit will respond.
 
-Only the leader of a stack may initiate combat. If another unit in a stack wants to issue `attack`, it must first drop out of the stack.
+Only the leader of a stack may initiate combat. If another unit in a stack wants to issue `ATTACK`, it must first drop out of the stack.
 
 Combat involves nobles, who possess strong heroic fighting abilities, and fighters who may accompany them. Fighters include soldiers, pikemen, swordsmen, knights, elite guard, crossbowmen, archers, and elite archers.
 
@@ -1967,22 +1885,20 @@ Combat involves nobles, who possess strong heroic fighting abilities, and fighte
 
 Each kind of fighter has an attack and defense rating:
 
-                     attack    defense    missile
-                    +----------------------------
-    peasant         |   1         1
-    worker          |   1         1
-    sailor          |   1         1
-    soldier         |   5         5
-    pikeman         |   5        30
-    swordsman       |  15        15
-    pirate          |   5 (15)    5 (15)
-    knight          |  45 (20)   45 (20)
-    elite guard     |  90 (65)   90 (65)
-    crossbowman     |   1         1         25
-    archer          |   5         5         50
-    elite archer    |  10        10         75
-
- 
+|              | attack | attack (shipboard) | defense | defense (shipboard) | missile |
+| ------------ | ------ | ------------------ | ------- | ------------------- | ------- |
+| peasant      | 1      |                    | 1       |                     |         |
+| worker       | 1      |                    | 1       |                     |         |
+| sailor       | 1      |                    | 1       |                     |         |
+| soldier      | 5      |                    | 5       |                     |         |
+| pikeman      | 5      |                    | 30      |                     |         |
+| swordsman    | 15     |                    | 15      |                     |         |
+| pirate       | 5      | (15)               | 5       | (15)                |         |
+| knight       | 45     | (20)               | 45      | (20)                |         |
+| elite guard  | 90     | (65)               | 90      | (65)                |         |
+| crossbowman  | 1      |                    | 1       |                     | 25      |
+| archer       | 5      |                    | 5       |                     | 50      |
+| elite archer | 10     |                    | 10      |                     | 75      |
 
 - Numbers in parenthesis are for shipboard combat.
 - Nobles have strong innate heroic abilities, and so even an unarmed, untrained noble is a formidable opponent on the battlefield.
@@ -2004,30 +1920,26 @@ Combat is resolved as follows:
 
 5.  Repeat until a side breaks. A side breaks when its total offensive plus defensive value falls by 50%.
 
-    For instance, a noble plus two pikemen has an offensive value of (80+80) + (5+30) + (5+30) = 230 with a break point of 115.
+For instance, a noble plus two pikemen has an offensive value of (80+80) + (5+30) + (5+30) = 230 with a break point of 115.
 
-    A noble plus two knights has an offensive value of (80+80) + (45+45) + (45+45) = 340 with a break point of 170.
+A noble plus two knights has an offensive value of (80+80) + (45+45) + (45+45) = 340 with a break point of 170.
 
-    Therefore, a noble with two pikemen will continue to fight if the pikemen are killed. However, a noble with two knights will be declared the loser if both knights are killed.
+Therefore, a noble with two pikemen will continue to fight if the pikemen are killed. However, a noble with two knights will be declared the loser if both knights are killed.
 
-    The offensive value used is either the attack or the effective missile rating, whichever is higher.
+The offensive value used is either the attack or the effective missile rating, whichever is higher.
 
-The chance that the attacker will score a hit against the target is:
+The chance that an attacker with attack rating `Ar` will score a hit against a defender with defense rating `Dr` is:
 
-    A = attacker's attack rating
-    B = target's defense rating
-
-    A / (A + B)
-
- 
+```
+Ar / (Ar + Br)
+```
 
 For example:
 
-    A(attack=90) vs B(defense=45)     A has a 2/3 chance of 
-    killing B
-    A(attack=90) vs B(defense=90)     A has a 1/2 chance of killing B
-
- 
+| Attack Rating | Defense Rating | Chance to Hit                  |
+| ------------- | -------------- | ------------------------------ |
+| Ar = 90       | Dr = 45        | 2/3 chance of hitting defender |
+| Ar = 90       | Dr = 90        | 1/2 chance of hitting defender |
 
 If the attacker scores a hit against a noble, the noble will receive a random wound of 1-100 health points. Note that there is a 1% chance that a perfectly healthy noble will be instantly killed, and a greater chance that a previously wounded noble will die.
 
@@ -2041,27 +1953,27 @@ The winner in combat will attempt to take prisoners. The chance that a given def
 
 (Taking prisoners in battle and claiming loot requires many soldiers to run after the fleeing enemy. Thus, the chance of success is based on numerical advantage rather than combat skill.)
 
-    1:1     25%
-    2:1     50%
-    3:1     75%
-
- 
+| Advantage | Chance of success |
+| --------- | ----------------- |
+| 1:1       | 25%               |
+| 2:1       | 50%               |
+| 3:1       | 75%               |
 
 If the winning side outnumbers the defeated force by 2:1, there is a 50% chance that a given defeated unit will be captured. Defeated units which are not captured retreat from battle. If they are occupying a building or are located in a city, they may flee into the outlying province.
 
 The victor always has at least a 25% chance of taking a unit prisoner, but no better than a 75% chance.
 
-The victor will claim the defender's position in the location list if it is better, or will move into the defender's structure, ejecting the losing force. (The attacker may specify a flag to the `attack` order to inhibit this behavior.)
+The victor will claim the defender's position in the location list if it is better, or will move into the defender's structure, ejecting the losing force. (The attacker may specify a flag to the `ATTACK` order to inhibit this behavior.)
 
 Prisoners are stripped of their belongings by the victor, including any men accompanying the prisoners, such as workers or peasants. The stack leader of the winning force receives all of the loot from the battle.
 
-When a noble is taken prisoner (including via SURRENDER), a portion of the prisoner's items will always be lost. If a unique item is lost, it will have to have found by exploration of the province. <span id="Front and rear"></span>
+When a noble is taken prisoner (including via `SURRENDER`), a portion of the prisoner's items will always be lost. If a unique item is lost, it will have to have found by exploration of the province.
 
 ### Front and rear
 
-Units may issue the `behind` command to declare whether they will line the front or the rear in battle. Rear units do not become targets for the enemy until all of the units in the rows in front of them have been killed. Only missile fighters, such as archers, may attack from the rear.
+Units may issue the `BEHIND` command to declare whether they will line the front or the rear in battle. Rear units do not become targets for the enemy until all of the units in the rows in front of them have been killed. Only missile fighters, such as archers, may attack from the rear.
 
-The leader of each stack (the top-most unit in the stack) will be the last unit to receive hits, regardless of its `behind` status.
+The leader of each stack (the top-most unit in the stack) will be the last unit to receive hits, regardless of its `BEHIND` status.
 
 ### Missile Attacks
 
@@ -2080,20 +1992,18 @@ If a fighter's missile rating is zero, it can not attack from the rear. In this 
 
 Structures which may aid fighters in battle are rated for their defensive bonus.
 
-    Castle Imperius [gx56], castle, defense 25
-
- 
+```report
+Castle Imperius [gx56], castle, defense 25
+```
 
 During battle, the fortification rating is added to the defense number for the men who fit inside the structure.
 
-    structure               men protected
-    ---------               -------------
-    Castle                  first 500
-    Tower                   first 100
-    Galley or roundship     first 50
-    Other structures        first 50
-
- 
+| structure           | men protected |
+| ------------------- | ------------- |
+| Castle              | first 500     |
+| Tower               | first 100     |
+| Galley or roundship | first 50      |
+| Other structures    | first 50      |
 
 Attacking fighters may randomly select the structure instead of an enemy fighter. The attack is resolved in the same way as for two fighters, using the attacker's attack rating and the structure's defense rating. If the attacker is successful the structure's defense rating will be lowered by one point.
 
@@ -2101,13 +2011,11 @@ Once the defense rating reaches zero, further hits will cause the building to be
 
 Siege engines always select the structure as a target.
 
-    engine          attack  defense   missile
-    ------          ------  -------   -------
-    catapult          25      200       25
-    battering ram     30      250
-    siege tower       30      250
-
- 
+| engine        | attack | defense | missile |
+| ------------- | ------ | ------- | ------- |
+| catapult      | 25     | 200     | 25      |
+| battering ram | 30     | 250     |         |
+| siege tower   | 30     | 250     |         |
 
 Siege engines do 5-10 points of damage to the structure per hit.
 
@@ -2119,12 +2027,12 @@ Nobles may possess items which grant attack, defense or missile bonuses in comba
 
 For example, suppose Osswid had the following items:
 
-    Shield of Achilles [fx78]       +25 defense
-    Sword of Death [gl23]           +10 attack
-    Mithril Axe [wt29]              +15 attack
-    Magic javelin [ht02]            +5 missile
-
- 
+| item                      | bonus       |
+| ------------------------- | ----------- |
+| Shield of Achilles [fx78] | +25 defense |
+| Sword of Death [gl23]     | +10 attack  |
+| Mithril Axe [wt29]        | +15 attack  |
+| Magic javelin [ht02]      | +5 missile  |
 
 Osswid would wield the javelin and axe, and wear the shield. He would not use the Sword of Death.
 
@@ -2132,46 +2040,44 @@ Nobles automatically use items with combat bonuses in battle. No special orders 
 
 ## Prisoners
 
-Characters may become prisoners by losing to an enemy in battle, or by using the surrender order (see orders section for description).
+Characters may become prisoners by losing to an enemy in battle, or by using the `SURRENDER` order (see orders section for description).
 
 Since prisoners are unable to report where they are and what they are seeing, they do not contribute to the turn report of their faction. The player's turn report will show that that a unit is being held prisoner, but little else.
 
 Prisoners will not execute any orders while they are in captivity. Queued orders will remain pending, but none will be processed.
 
-Prisoners when spotted appear as stacked units, marked with the \``prisoner`' string:
+Prisoners when spotted appear as stacked units, marked with the `prisoner` string:
 
-    Seen here:
-       Kosar the Indefectible [2022], with six peasants, one archer,
-       two soldiers, accompanied by:
-          Alion Krysaka [2785], prisoner
+```report
+Seen here:
+  Kosar the Indefectible [2022], with six peasants, one archer,
+  two soldiers, accompanied by:
+    Alion Krysaka [2785], prisoner
+```
 
- 
+Unstacking a prisoner sets them free. Kosar could free Alion by ordering `unstack 2785`.
 
-Unstacking a prisoner sets them free. Kosar could free Alion by ordering \``unstack`` 2785`'.
+Prisoners may be transferred between units with the `GIVE` command. Kosar could transfer Alion to Osswid [501] by ordering:
 
-Prisoners may be transferred between units with the `give` command. Kosar could transfer Alion to Osswid [501] by ordering:
+```orders
+give 501 2785
+```
 
-    give 501 2785
+### Prisoner escapes
 
- 
+Prisoners are always on the lookout for ways to escape. Units holding prisoners can reduce their chances by remaining inside a structure, not transferring prisoners with `GIVE`, and not traveling with prisoners.
 
-------------------------------------------------------------------------
-
-**Prisoner escapes**
-
-Prisoners are always on the lookout for ways to escape. Units holding prisoners can reduce their chances by remaining inside a structure, not transferring prisoners with give, and not traveling with prisoners. 
-
-Each week (four times each game turn), a prisoner being held by a unit which is outside of a building has a 2% chance of escaping. A prisoner being held by a unit which is inside a structure, such as a castle, tower, inn or ship, has a 1% chance of escaping.Each time a prisoner is transferred with the give order, there is a 2% chance of a escape. Also, each time a unit holding a prisoner engages in travel which takes longer than one day, there is a 2% chance that the prisoner will be able to get free. Thus, short movement, such as entering or exiting a building, will not give the prisoners additional opportunities for escape, but traveling between provinces with prisoners will.Prisoners inside building or sub-locations will flee out into the surrounding location upon gaining their freedom. Escaped prisoners on ships will leap over the side and swim to a nearby shore.
+Each week (four times each game turn), a prisoner being held by a unit which is outside of a building has a 2% chance of escaping. A prisoner being held by a unit which is inside a structure, such as a castle, tower, inn or ship, has a 1% chance of escaping.Each time a prisoner is transferred with the give order, there is a 2% chance of a escape. Also, each time a unit holding a prisoner engages in travel which takes longer than one day, there is a 2% chance that the prisoner will be able to get free. Thus, short movement, such as entering or exiting a building, will not give the prisoners additional opportunities for escape, but traveling between provinces with prisoners will. Prisoners inside building or sub-locations will flee out into the surrounding location upon gaining their freedom. Escaped prisoners on ships will leap over the side and swim to a nearby shore.
 
 ## Permissions and declared attitudes
 
 Commands dealing with permissions:
 
-- `admit`
-- `hostile`
-- `neutral`
-- `defend`
-- `default`
+- `ADMIT`
+- `HOSTILE`
+- `NEUTRAL`
+- `DEFEND`
+- `DEFAULT`
 
 Attitudes can be declared by or for either specific units, or an entire faction. For instance, player [613] could declare a permission or attitude for player [555], or a specific attitude for individual units within player 555's faction.
 
@@ -2181,48 +2087,31 @@ Declaring a permission for a player works so long as the player's units are not 
 
 By default, a unit may not stack with a character belonging to another faction. A unit is also denied entry to a building or ship controlled by another player.
 
-Players may allow units from other factions to stack with them or enter buildings or ships they control with the `admit` order.
+Players may allow units from other factions to stack with them or enter buildings or ships they control with the `ADMIT` order.
 
 ### Combat attitudes
 
 A unit may have one of four combat attitudes to another unit:
 
-`hostile`
+- `HOSTILE` - Attack on sight.
 
-Attack on sight.
+- `DEFEND` - Defend other unit if attacked.
 
- 
+- `NEUTRAL` - Do nothing if other unit is attacked.
 
-`defend`
+- `DEFAULT` - Neutral to units in other factions; Defend units in the same faction unless either one is concealing its lord.
 
-Defend other unit if attacked.
-
- 
-
-`neutral`
-
-Do nothing if other unit is attacked.
-
- 
-
-`default`
-
-Neutral to units in other factions; Defend units in the same faction unless either one is concealing its lord.
-
- 
-
-Every character, and player faction entity, keeps three lists of units or other factions towards which it has declared attitudes. A unit is either on the `hostile`, `defend`, or `neutral` list. If a unit does not appear on any of the three lists, it has attitude `default`.
+Every character, and player faction entity, keeps three lists of units or other factions towards which it has declared attitudes. A unit is either on the `HOSTILE`, `DEFEND`, or `NEUTRAL` list. If a unit does not appear on any of the three lists, it has attitude `DEFAULT`.
 
 Example:
 
-    player          778                     816
-                      hostile 816
-
-    units           4205                    6499
-                    4600                    6530, concealing lord
-                                            6599
-
- 
+```
+player 778                     816
+       hostile 816
+units  4205                    6499
+       4600                    6530, concealing lord
+                               6599
+```
 
 Player 778 has declared player 816 hostile. One of 816's characters is concealing its lord.
 
@@ -2230,45 +2119,43 @@ If 4205 or 4600 run into unit 6499, they will attack it on sight. However, since
 
 If 6499 is attacked and both 6530 and 6599 are present, 6599 will aid in the defense, but 6530 will not, because that might give away its affiliation.
 
-If player 816 wanted 6530 to defend the faction's units anyway, either 816 or 6530 should issue the order \``defend`` 816`'. This would override the default attitude of units in the faction to one another.
+If player 816 wanted 6530 to defend the faction's units anyway, either 816 or 6530 should issue the order `defend 816`. This would override the default attitude of units in the faction to one another.
 
 Attitude toward units is considered before attitude toward the unit's faction. Thus, one may declare a faction hostile, but exclude certain units within the faction by specifically declaring them neutral.
 
-A unit must be the top-most character in its stack to aid in defense. If a top-most unit joins a combat because of `defend`, it will bring its entire stack along, even if the other members of the stack have not declared a `defend` attitude.
+A unit must be the top-most character in its stack to aid in defense. If a top-most unit joins a combat because of `DEFEND`, it will bring its entire stack along, even if the other members of the stack have not declared a `DEFEND` attitude.
 
-Defenders only help when units are attacked, not when they initiate attacks. For example, if `A` has declared \``defend`` ``B`', and `B` attacks `C`, `A` will not help `B`, even if `B` loses the battle.
+Defenders only help when units are attacked, not when they initiate attacks. For example, if `A` has declared `defend B`, and `B` attacks `C`, `A` will not help `B`, even if `B` loses the battle.
 
-Characters declared `defend` to units which are guarding a province against pillaging will aid the guards if they are attacked, either explicitly with `attack`, or implicitly via \``pillage`` 1`'.
+Characters declared `DEFEND` to units which are guarding a province against pillaging will aid the guards if they are attacked, either explicitly with `ATTACK`, or implicitly via `pillage 1`.
 
-Units which joined a combat because of a `defend` declaration are shown with the qualification \``ally`' in the combat report.
+Units which joined a combat because of a `DEFEND` declaration are shown with the qualification `ally` in the combat report.
 
 ## Buildings
 
 The following structures may be built by characters with the Construction [680] skill:
 
-    kind        effort    material   skill         where
-    ----        ------    --------   -----         -----
-    inn            300     75 wood    680          province or city
-    mine           500     25 wood    680 or 720   mountain or rocky hill
-    temple       1,000    50 stone    680          anywhere
-    tower        2,000   100 stone    680          anywhere
-    castle      10,000   500 stone    680          province or city
+| kind   | effort | material  | skill      | where                  |
+| ------ | ------ | --------- | ---------- | ---------------------- |
+| inn    | 300    | 75 wood   | 680        | province or city       |
+| mine   | 500    | 25 wood   | 680 or 720 | mountain or rocky hill |
+| temple | 1,000  | 50 stone  | 680        | anywhere               |
+| tower  | 2,000  | 100 stone | 680        | anywhere               |
+| castle | 10,000 | 500 stone | 680        | province or city       |
 
- 
-
-The term \``anywhere`' means a province, city, or other sublocation. Buildings may not be built inside other buildings, with the exception of towers. Up to six towers may be built inside a castle.
+The term `anywhere` means a province, city, or other sublocation. Buildings may not be built inside other buildings, with the exception of towers. Up to six towers may be built inside a castle.
 
 Effort is in worker-days.
 
 The builder must know the required skill, have at least three workers, and possess at least one-fifth of the necessary construction materials in his inventory.
 
-To start building, unstack from beneath other characters and issue one of the following `build` orders:
+To start building, unstack from beneath other characters and issue one of the following `BUILD` orders:
 
-- `build inn` "`name of inn`"
-- `build mine` "`name of mine`"
-- `build temple` "`name of temple`"
-- `build tower` "`name of tower`"
-- `build castle` "`name of castle`"
+- `build inn "name of inn"`
+- `build mine "name of mine"`
+- `build temple "name of temple"`
+- `build tower "name of tower"`
+- `build castle "name of castle"`
 
 For example, a character who wanted to build a tower would need to know Construction [680], have at least three workers [11], and possess at least 20 stone [78].
 
@@ -2302,15 +2189,15 @@ The owner of a building or a ship is the first character shown inside. This will
 
 For example, assume the following characters are on a ship, the HMS Pinafore [4000]:
 
-    Candide the Captain [1269], with ten sailors
-    Osswid [5499], accompanied by:
-       Feasel the Wicked [1109]
-
- 
+```report
+Candide the Captain [1269], with ten sailors
+Osswid [5499], accompanied by:
+  Feasel the Wicked [1109]
+```
 
 Since Candide is first in the ship's character list, he is the owner of the ship. Only Candide may issue sail orders, or change the ship's name. If Candide were to leave, Osswid would become the new captain of the ship.
 
-The owner of a building or ship may determine who may enter with the `admit` order. The default is to refuse entry to units from other factions.
+The owner of a building or ship may determine who may enter with the `ADMIT` order. The default is to refuse entry to units from other factions.
 
 If the first character inside a building leaves, he is no longer the owner.
 
@@ -2324,7 +2211,7 @@ A new mine has an initial depth of one. The mine shaft becomes deeper as charact
 
 As the depth of the shaft increases, the mix of resources obtainable changes. Iron is usually found nearest the surface. As one proceeds deeper, gold may be found in higher quantities. Other rare elements may be found by going deeper still.
 
-The deeper a mine becomes, the more frequently cave-ins or other accidents will occur. With each accident, the mine's damage percentage will rise. If not attended with `repair`, the mine will eventually collapse. Once a mine collapses, it remains in the province for one game year (eight game months). Characters may not enter or use a collapsed mine. After the year has passed, the collapsed mine will vanish, and a new mine may be built in the location.
+The deeper a mine becomes, the more frequently cave-ins or other accidents will occur. With each accident, the mine's damage percentage will rise. If not attended with `REPAIR`, the mine will eventually collapse. Once a mine collapses, it remains in the province for one game year (eight game months). Characters may not enter or use a collapsed mine. After the year has passed, the collapsed mine will vanish, and a new mine may be built in the location.
 
 ## Opium
 
@@ -2336,7 +2223,7 @@ Opium adversely affects the city's tax base. The more opium the market buys, the
 
 ## Pillaging
 
-Gangs of ten or more fighters may use the `pillage` command to seize loot from a province or a city. Pillaging siezes the tax base for a location, leaving none available for taxation.
+Gangs of ten or more fighters may use the `PILLAGE` command to seize loot from a province or a city. Pillaging siezes the tax base for a location, leaving none available for taxation.
 
 Pillaging has a harmful effect on the future tax revenue of the location. The more a location has been pillaged, the lower its tax base. Provinces and cities take four months to recover from each pillaging. For example, a city which was pillaged for five months in a row would take twenty months from the first pillaging to return to its normal tax base.
 
@@ -2344,11 +2231,11 @@ Pillagers must first defeat any units guarding the province, including any provi
 
 ## Province control and ownership
 
-Each province and city generates an amount of gold each month. This gold is known as its *tax base*. The size of the tax base is determined by the civilization level of the province. This gold may be pillaged, taxed by a castle, or taxed by a garrison. It does not accumulate if left uncollected at the end of a turn.
+Each province and city generates an amount of gold each month. This gold is known as its _tax base_. The size of the tax base is determined by the civilization level of the province. This gold may be pillaged, taxed by a castle, or taxed by a garrison. It does not accumulate if left uncollected at the end of a turn.
 
 A castle automatically collects all of the gold in its province.
 
-The \``garrison`` ``castle`' order installs a group of at least ten soldiers in a province to claim it and guard against pillaging. Garrisons must be bound to a castle.
+The `GARRISON CASTLE` order installs a group of at least ten soldiers in a province to claim it and guard against pillaging. Garrisons must be bound to a castle.
 
 A garrison pays maintenance for its members from the province tax base, then forwards 1/2 of the remaining gold to its castle.
 
@@ -2356,25 +2243,22 @@ Garrisons with fewer than 10 fighting men will pay maintenance for themselves, b
 
 The castle owner gains status from the number of provinces under control:
 
-    provinces       rank
-    ---------       ----
-       1-5          lord
-       6-12         knight
-      13-25         baron
-      25-37         count
-      38-50         earl
-      51-63         marquess
-       64+          duke
-      region        king     (region must have at least 15 provinces)
+| provinces | rank                                          |
+| --------- | --------------------------------------------- |
+| 1-5       | lord                                          |
+| 6-12      | knight                                        |
+| 13-25     | baron                                         |
+| 25-37     | count                                         |
+| 38-50     | earl                                          |
+| 51-63     | marquess                                      |
+| 64+       | duke                                          |
+| region    | king (region must have at least 15 provinces) |
 
- 
+A noble may `PLEDGE` to another noble, granting status and control of owned provinces. The status of a noble who pledges is the smaller of the original status or one below the rank of the pledge target:
 
-A noble may `pledge` to another noble, granting status and control of owned provinces. The status of a noble who pledges is the smaller of the original status or one below the rank of the pledge target:
-
-    new status = min(original status, one below rank of pledge 
-    target)
-
- 
+```
+new status = min(original status, one below rank of pledge target)
+```
 
 Control of a province allows one to change its name or the name of any of its sublocations, take items from the garrison, and issue decrees to watch for certain units, or to attack specified units on sight.
 
@@ -2384,31 +2268,29 @@ Every noble in the pledge chain shares control of the garrisoned provinces. In o
 
 Visitors to a province are informed of the castle to which the garrison is bound, and the top-most ruler in the pledge chain (which may simply be the owner of the castle):
 
-    Province controlled by Amber Keep [0909], castle, in Forest 
-    [cj12]
-    Ruled by Erekosse [5210], baron
-    ...
-    Seen here:
-      Garrison [780], garrison, on guard, with ten soldiers
-
- 
+```report
+Province controlled by Amber Keep [0909], castle, in Forest
+  [cj12]
+Ruled by Erekosse [5210], baron
+...
+Seen here:
+  Garrison [780], garrison, on guard, with ten soldiers
+```
 
 ### Tax base
 
 Each province generates a tax base each month. The amount of gold fed into the tax base is determined by the civilization level of the province:
 
-    civ level       tax gold
-    ---------       --------
-    wilderness         50
-    civ-1             100
-    civ-2             150
-    civ-3             200
-    civ-4             250
-    civ-5             300
-    civ-6             350
-    civ-7             400
-
- 
+| civ level  | tax gold |
+| ---------- | -------- |
+| wilderness | 50       |
+| civ-1      | 100      |
+| civ-2      | 150      |
+| civ-3      | 200      |
+| civ-4      | 250      |
+| civ-5      | 300      |
+| civ-6      | 350      |
+| civ-7      | 400      |
 
 Cities add a flat 100 gold/month to their province's tax base.
 
@@ -2432,7 +2314,7 @@ A castle alone is not sufficient to rule a province. A garrison must be statione
 
 ### Garrisons
 
-Garrisons are groups of men who are stationed in provinces to protect them, and collect taxes in the name of a castle. Garrisons must be created with the `garrison` order, and must be bound to a castle located in the same region.
+Garrisons are groups of men who are stationed in provinces to protect them, and collect taxes in the name of a castle. Garrisons must be created with the `GARRISON` order, and must be bound to a castle located in the same region.
 
 For example, suppose that the region Lesser Atnos had 20 provinces. One of these provinces contains Amber Keep [0909]. A garrison bound to Amber Keep could be stationed in each of the 20 provinces (including the province containing the castle itself).
 
@@ -2446,7 +2328,7 @@ A garrison in a province containing a castle must be bound to that castle.
 
 A garrison may only be installed in a province adjoining a province which already contains a garrison bound to the same castle, or the province the castle is in.
 
-Garrisons are established with the \``garrison`` ``castle`' order. Ten soldiers are required to create a garrison. The `garrison` order must be issue at the outer level of a province; one can't establish a garrison while inside a city, building or other sublocation.
+Garrisons are established with the `GARRISON CASTLE` order. Ten soldiers are required to create a garrison. The `GARRISON` order must be issue at the outer level of a province; one can't establish a garrison while inside a city, building or other sublocation.
 
 The garrison pays the maintenance cost of its men directly from the tax base of the province. Half of the remaining tax base is forwarded to the castle the garrison is bound to.
 
@@ -2454,18 +2336,18 @@ For example, a garrison of ten soldiers would require 20 gold per month to suppo
 
 Example:
 
-    > garrison cy09
-    Installed Garrison [780], garrison, on guard, with ten soldiers
-
- 
+```report
+> garrison cy09
+Installed Garrison [780], garrison, on guard, with ten soldiers
+```
 
 Visitors to this province would see:
 
-    Province controlled by Amber Keep [0909], castle, in Forest 
-    [cj12]
-    Ruled by Erekosse [5210], baron
-
- 
+```
+Province controlled by Amber Keep [0909], castle, in Forest
+  [cj12]
+Ruled by Erekosse [5210], baron
+```
 
 Note that Erekosse may be located inside the castle, or the castle's owner may have pledged service to him, in which case Erekosse could be anywhere.
 
@@ -2475,35 +2357,33 @@ Garrisons do not provide full location reports to their owners. They do notice a
 
 Garrisons do not monitor activity in hidden locations, even if the players who rule over the garrisons have discovered the hidden locations.
 
-The \``decree watch`` ``who`' order may be given by a ruler to instruct all garrisons to watch for a particular unit. This is useful for locating individuals who would otherwise go unnoticed by the garrisons.
+The `DECREE WATCH WHO` order may be given by a ruler to instruct all garrisons to watch for a particular unit. This is useful for locating individuals who would otherwise go unnoticed by the garrisons.
 
 ### Referring to garrisons
 
-Since a province may only have one garrison, garrisons may be referred to without knowing their entity number. The keyword `garrison` will match the province's garrison, if there is one.
+Since a province may only have one garrison, garrisons may be referred to without knowing their entity number. The keyword `GARRISON` will match the province's garrison, if there is one.
 
 Examples:
 
-    give garrison 12 5
-    attack garrison
-
- 
+```orders
+give garrison 12 5
+attack garrison
+```
 
 ### Status
 
 The number of provinces a noble controls determines his status or rank:
 
-    provinces       rank
-    ---------       ----
-       1-5          lord
-       6-12         knight
-      13-25         baron
-      25-37         count
-      38-50         earl
-      51-63         marquess
-       64+          duke
-      region        king     (region must have at least 15 provinces)
-
- 
+| provinces | rank                                          |
+| --------- | --------------------------------------------- |
+| 1-5       | lord                                          |
+| 6-12      | knight                                        |
+| 13-25     | baron                                         |
+| 25-37     | count                                         |
+| 38-50     | earl                                          |
+| 51-63     | marquess                                      |
+| 64+       | duke                                          |
+| region    | king (region must have at least 15 provinces) |
 
 In addition, if a character has control over every province in a region, and the region contains at least 15 provinces, then the character is given the rank of king.
 
@@ -2511,7 +2391,7 @@ Provinces may be directly owned, if the noble is the owner of a castle, or indir
 
 ### Pledging land
 
-A noble may `pledge` his lands to another noble. This grants the pledge target status by increasing the number provinces he may rule over.
+A noble may `PLEDGE` his lands to another noble. This grants the pledge target status by increasing the number provinces he may rule over.
 
 For example, suppose there are two castle owners, Osswid and Feasel. Osswid has garrisoned six provinces, and Feasel has three. Osswid is therefore a baron, and Feasel is a lord.
 
@@ -2531,35 +2411,35 @@ For example, a noble with 5 provinces who pledges to a king will remain a baron.
 
 Relics are unique item artifacts which are introduced into the game via quests with monsters. All relics except the Throne return to the netherworld after use or some delay to be given out to a new adventurer via QUEST.
 
-- Imperial Throne [401]
+### Imperial Throne [401]
 
-  Long ago, the emperor of Olympia sat on his throne in the emperor's palace, high amidst Mt. Olympus. It is said that whoever rebuilds the famed castle on Mt. Olympus, and sits upon the throne, will be titled Emperor of Olympia.
+Long ago, the emperor of Olympia sat on his throne in the emperor's palace, high amidst Mt. Olympus. It is said that whoever rebuilds the famed castle on Mt. Olympus, and sits upon the throne, will be titled Emperor of Olympia.
 
-- Crown of Prosperity [402]
+### Crown of Prosperity [402]
 
-  The Crown of Prosperity was once worn by the most prosperous mortal to ever rule in Olympia, King Damar. Damar now wears his crown in the underworld and reflects on his past adventures of long ago, before the first Great Ending swept away all that he knew, and carried him from his beloved city of Kircarth to the land of the dead.
+The Crown of Prosperity was once worn by the most prosperous mortal to ever rule in Olympia, King Damar. Damar now wears his crown in the underworld and reflects on his past adventures of long ago, before the first Great Ending swept away all that he knew, and carried him from his beloved city of Kircarth to the land of the dead.
 
-  Sometimes nobles are able to acquire the Crown and hold it for a time. The crown infuses whatever province it ends each turn in with a measure of prosperity and economic health, equivalent to a +2 increase in the province's civilization level.
+Sometimes nobles are able to acquire the Crown and hold it for a time. The crown infuses whatever province it ends each turn in with a measure of prosperity and economic health, equivalent to a +2 increase in the province's civilization level.
 
-  However, this prosperity does not last forever, for King Damar's ghostly hand invariably will reach out from the underworld to reclaim his relic. The Crown can be expected to return to its rightful owner 12-24 turns after its appearance in the mortal world.
+However, this prosperity does not last forever, for King Damar's ghostly hand invariably will reach out from the underworld to reclaim his relic. The Crown can be expected to return to its rightful owner 12-24 turns after its appearance in the mortal world.
 
-- Skull of Bastrestric [403]
+### Skull of Bastrestric [403]
 
-  The most feared of the ancients was a wizard of terrible power known as Bastrestric ther Archymonaged. Bastrestric routinely incinerated his foes (or anyone who offended him) with bursts of raw aura energy directed from his black tower in the castle built on Mt. Olympus.
+The most feared of the ancients was a wizard of terrible power known as Bastrestric ther Archymonaged. Bastrestric routinely incinerated his foes (or anyone who offended him) with bursts of raw aura energy directed from his black tower in the castle built on Mt. Olympus.
 
-  Though he was the most powerful living mage in the known world, and by any measure a fearsome, unholy force, Bastrestric yearned for ever greater abilities. He felt increasingly constrained by the limits of his mortal body, and thus in time resolved to abandon it. BtA's spirit jumped free of his body, plunging directly into the aura rivers which bind together the deepest structures of the very world itself. Only a scorched, empty body was left behind in his tower.
+Though he was the most powerful living mage in the known world, and by any measure a fearsome, unholy force, Bastrestric yearned for ever greater abilities. He felt increasingly constrained by the limits of his mortal body, and thus in time resolved to abandon it. BtA's spirit jumped free of his body, plunging directly into the aura rivers which bind together the deepest structures of the very world itself. Only a scorched, empty body was left behind in his tower.
 
-  BtA's spirit has passed on, but the remants of his mortal body continue to radiate intense power.
+BtA's spirit has passed on, but the remants of his mortal body continue to radiate intense power.
 
-  Use of BtA's skull (USE 403) causes an intense aura burst which a mage will attempt to absorb. If successful, the mage will gain a 50-75 boost to current aura (within the limit of 5 times the mage's maximum aura).
+Use of BtA's skull (USE 403) causes an intense aura burst which a mage will attempt to absorb. If successful, the mage will gain a 50-75 boost to current aura (within the limit of 5 times the mage's maximum aura).
 
-  There is a 25% chance that the mage will be killed by use of the skull. Non-mages who use the skull will be instantly killed.
+There is a 25% chance that the mage will be killed by use of the skull. Non-mages who use the skull will be instantly killed.
 
-  BtA's skull will vanish with use, or within 10-20 turns after appearing in the mortal world.
+BtA's skull will vanish with use, or within 10-20 turns after appearing in the mortal world.
 
 ## Ships
 
-Players may build two kinds of ships in Olympia: galleys and roundships.
+Players may build two kinds of ships in Olympia: _galleys_ and _roundships_.
 
 A galley, also known as a warship, is a slender rowed vessel. Galleys require 14 sailors as oarsmen for travel, and may carry up to 5,000 units of cargo.
 
@@ -2569,14 +2449,12 @@ With favorable winds, roundships will make better time than galleys, even when f
 
 The Shipcraft [600] skill category allows nobles to train sailors, and has sub-skills for building and sailing ships.
 
-    ship            capacity        sailors
-    ----            --------        -------
-    galley             5,000           14
-    roundship         25,000            8
+| ship      | capacity | sailors |
+| --------- | -------- | ------- |
+| galley    | 5,000    | 14      |
+| roundship | 25,000   | 8       |
 
- 
-
-Ships may be damaged while sailing by storms, or by submerged rocks in coastal waters. Damaged ships may be repaired with the `repair` command. Repairing a damaged ship requires one unit of pitch [261].
+Ships may be damaged while sailing by storms, or by submerged rocks in coastal waters. Damaged ships may be repaired with the `REPAIR` command. Repairing a damaged ship requires one unit of pitch [261].
 
 The capacity of a damaged ship is a reduced in proportion to the amount of damage. A galley with 10% damage may only carry 4,500 units of cargo.
 
@@ -2588,29 +2466,27 @@ The Sailing [601] subskill of Shipcraft [600] is required to pilot a ship. Shipc
 
 Construction of ships requires a character to have the Shipbuilding [602] skill, a subskill of Shipcraft [600].
 
-    ship               effort               material
-    ----               ------               --------
-    galley          250 worker-days          50 wood
-    roundship       500 worker-days         100 wood
+| ship      | effort          | material |
+| --------- | --------------- | -------- |
+| galley    | 250 worker-days | 50 wood  |
+| roundship | 500 worker-days | 100 wood |
 
- 
+To begin construction of a ship, the shipbuilder should unstack from beneath other characters and issue one of the following `BUILD` orders:
 
-To begin construction of a ship, the shipbuilder should unstack from beneath other characters and issue one of the following `build` orders:
-
-- `build galley` `name of galley`
-- `build roundship` `name of roundship`
+- `build galley "name of galley"`
+- `build roundship "name of roundship"`
 
 One-fifth of the lumber will immediately be deducted from the shipbuilder's inventory and put to use building the new ship. The shipbuilder and his workers will be placed inside the new ship.
 
 At least three workers are needed to begin construction of a ship.
 
-Until the ship is completed, it will be shown as \``in progress`':
+Until the ship is completed, it will be shown as `in progress`:
 
-    Ships docked at port:
-       HMS Pinafore [1111], galley-in-progress, 28% completed, owner:
-          Osswid the Constructor [5499], with five workers
-
- 
+```report
+Ships docked at port:
+  HMS Pinafore [1111], galley-in-progress, 28% completed, owner:
+    Osswid the Constructor [5499], with five workers
+```
 
 The remaining construction materials are deducted from the builder's inventory as work on the ship progresses. A second fifth of the lumber is required when the ship becomes 20% complete, a third fifth when the ship becomes 40% complete, etc. Construction halts if the builder runs out of materials
 
@@ -2618,7 +2494,7 @@ For example, a noble who wanted to build a galley would need to know Shipbuildin
 
 As soon as the required number of worker-days has been invested in construction, the ship will be christened and declared seaworthy.
 
-To resume construction of a partially completed ship, first enter the ship, then issue the either `build galley` or `build roundship`.
+To resume construction of a partially completed ship, first enter the ship, then issue the either `BUILD GALLEY` or `BUILD ROUNDSHIP`.
 
 Ships may only be built in port cities.
 
@@ -2626,140 +2502,122 @@ Ships may only be built in port cities.
 
 There are several commands useful for operating a commercial ferry:
 
-`fee`
+- `FEE` - Sets the fee passengers will be charged
 
-Sets the fee passengers will be charged
+- `BOARD` - Passengers use this to pay their fee and board a ferry
 
- 
+- `UNLOAD` - Unload passengers once the destination is reached
 
-`board`
+- `FERRY` - Signals passengers waiting in port that they may board
 
-Passengers use this to pay their fee and board a ferry
+The captain of a ferry must issue `FEE GOLD` command to set a fee which will be charged to passengers wishing to `BOARD` his ship. The fee is expressed as how many gold pieces per 100 weight of the passenger's stack will be charged.
 
- 
-
-`unload`
-
-Unload passengers once the destination is reached
-
- 
-
-`ferry`
-
-Signals passengers waiting in port that they may board
-
- 
-
-The captain of a ferry must issue \``fee`` ``gold`' command to set a fee which will be charged to passengers wishing to `board` his ship. The fee is expressed as how many gold pieces per 100 weight of the passenger's stack will be charged.
-
-For instance, if the captain wanted to charge 1/2 gold per unit weight of the passengers stack, he would issue \``fee`` 50`'. (a 50 gold fee for every 100 weight).
+For instance, if the captain wanted to charge 1/2 gold per unit weight of the passengers stack, he would issue `fee 50`. (a 50 gold fee for every 100 weight).
 
 The fee is a property of the captain, not the ship.
 
-A character may clear the fee with the \``fee`` 0`' order. If no fee is set, then the ship is not considered to be operating as a ferry, and characters are may not use the `board` order to enter the ship.
+A character may clear the fee with the `fee 0` order. If no fee is set, then the ship is not considered to be operating as a ferry, and characters are may not use the `BOARD` order to enter the ship.
 
-Passengers issue \``board`` ``ship`' to board a ferry. The order will fail if the ship is not present, or if it is not operating as a ferry (the captain of the ship has no fee set). `board` will cause the character to pay the captain the required boarding fee, then move the character's stack onto the ship.
+Passengers issue `board ship` to board a ferry. The order will fail if the ship is not present, or if it is not operating as a ferry (the captain of the ship has no fee set). `BOARD` will cause the character to pay the captain the required boarding fee, then move the character's stack onto the ship.
 
-The captain shouldn't issue an `admit` order to let characters on board who will be paying to take the ferry. Otherwise they could board the ship with `move` instead of `board`, bypassing the ferry fee.
+The captain shouldn't issue an `ADMIT` order to let characters on board who will be paying to take the ferry. Otherwise they could board the ship with `move` instead of `BOARD`, bypassing the ferry fee.
 
 ### Ferry synchronization
 
-Suppose now that the captain has a ship, has set a fee, announced his service in the *Olympia Times* and with `post`, and is now ready to ferry passengers. What should he tell them? How will the synchronization work?
+Suppose now that the captain has a ship, has set a fee, announced his service in the _Olympia Times_ and with `POST`, and is now ready to ferry passengers. What should he tell them? How will the synchronization work?
 
-Passengers should travel to the port the ferry will be arriving at and issue \``wait ferry`` ``ship`'.
+Passengers should travel to the port the ferry will be arriving at and issue `WAIT FERRY SHIP`.
 
-When the ship arrives at port, the captain should order `unload` to eject his current load of passengers, then `ferry` to signal any passengers waiting in port that they may now board.
+When the ship arrives at port, the captain should order `UNLOAD` to eject his current load of passengers, then `FERRY` to signal any passengers waiting in port that they may now board.
 
-Note that passengers should not use `wait ship` to wait for the ferry. Otherwise, they will attempt to `board` as soon as the ship reaches the port. The captain's `unload` order may not have executed at this point. In this case, `board` orders might fail because there won't be any room to enter the ship until the existing load of passengers has disembarked.
+Note that passengers should not use `WAIT SHIP` to wait for the ferry. Otherwise, they will attempt to `BOARD` as soon as the ship reaches the port. The captain's `UNLOAD` order may not have executed at this point. In this case, `BOARD` orders might fail because there won't be any room to enter the ship until the existing load of passengers has disembarked.
 
 Example:
 
-    Posted by Captain McCook [3402]:
-    "Captain McCook's ferry to Drassa departs each
-     Sunsear on the 15th.  The fee is 1 gold/wt.
-     Issue WAIT FERRY 1234 then BOARD 1234 for
-     ferry service.   Arrr!"
-
- 
+```report
+Posted by Captain McCook [3402]:
+  "Captain McCook's ferry to Drassa departs each
+  Sunsear on the 15th.  The fee is 1 gold/wt.
+  Issue WAIT FERRY 1234 then BOARD 1234 for
+  ferry service.   Arrr!"
+```
 
 Captain McCook's orders:
 
-    > fee 100                 # 1 gold/wt. is our fee
-    > sail ...                # arrival at port
-    > unload                  # unload current passengers
-    > wait day 15             # wait until stated time of departure
-    > ferry                   # sound our horn
-    > sail ...                # on to the next port
-
- 
+```orders
+> fee 100                 # 1 gold/wt. is our fee
+> sail ...                # arrival at port
+> unload                  # unload current passengers
+> wait day 15             # wait until stated time of departure
+> ferry                   # sound our horn
+> sail ...                # on to the next port
+```
 
 Passengers wishing to travel on McCook's ferry:
 
-    > wait ferry 1234             # [1234] is McCook's ship
-    > board 1234                  # pay our gold and embark
-    > wait loc destination        # Captain McCook will 
-    unload us at the
-                                  # end of the journey, so wait until we
-                                  # find ourselves in the destination city.
-
- 
+```orders
+> wait ferry 1234         # [1234] is McCook's ship
+> board 1234              # pay our gold and embark
+> wait loc destination    # Captain McCook will unload us at the
+                          # end of the journey, so wait until we
+                          # find ourselves in the destination city.
+```
 
 ## Summary of important tables
 
 ### Item combat values
 
-                         name    swamp man-like    beast  
-    fighter
-                         ----    ----- --------    -----  -------
-                 peasant [10]     no       yes      no    (1,1,0)
-                  worker [11]     no       yes      no    (1,1,0)
-                 soldier [12]     no       yes      no    (5,5,0)
-                  archer [13]     no       yes      no    (5,5,50)
-                  knight [14]     no       yes      no    (45,45,0)
-             elite guard [15]     no       yes      no    (90,90,0)
-                 pikeman [16]     no       yes      no    (5,30,0)
-         blessed soldier [17]     no       yes      no    (5,5,0)
-           ghost warrior [18]     no       yes      no    (0,0,0)
-                  sailor [19]     no       yes      no    (1,1,0)
-               swordsman [20]     no       yes      no    (15,15,0)
-             crossbowman [21]     no       yes      no    (1,1,25)
-            elite archer [22]     no       yes      no    (10,10,75)
-           angry peasant [23]     no       yes      no    (2,1,0)
-                  pirate [24]     no       yes      no    (5,5,0)
-                     elf [25]     no       yes      no    (50,50,100)
-                  spirit [26]     no       yes      no    (50,50,0)
-                  undead [31]     no       yes      no    (10,10,0)
-                  savage [32]     no       yes      no    (1,1,0)
-                skeleton [33]     no       yes      no    (6,6,0)
-               barbarian [34]     no       yes      no    (2,1,0)
-              wild horse [51]     yes      no       no     -
-            riding horse [52]     yes      no       no     -
-                warmount [53]     yes      no       no     -
-            winged horse [54]     yes      no       no     -
-                  nazgul [55]     yes      no       yes   (80,80,0)
-           battering ram [60]     no       no       no    (30,250,0)
-                catapult [61]     no       no       no    (25,200,25)
-             siege tower [62]     no       no       no    (30,250,0)
-                      ox [76]     yes      no       no     -
-               ratspider [81]     no       no       yes   (5,5,0)
-                centaur [271]     yes      no       yes   (30,30,0)
-               minotaur [272]     yes      no       yes   (30,5,0)
-           giant spider [278]     yes      no       yes   (150,100,0)
-                    rat [279]     yes      no       yes   (3,3,0)
-                   lion [280]     yes      no       yes   (100,100,0)
-             giant bird [281]     yes      no       yes   (200,150,0)
-           giant lizard [282]     yes      no       yes   (45,45,0)
-                 bandit [283]     no       yes      no    (3,3,0)
-                chimera [284]     yes      no       yes   (130,130,0)
-                 harpie [285]     yes      no       yes   (80,120,0)
-                 dragon [286]     yes      no       yes   (500,500,250)
-                    orc [287]     no       yes      yes   (20,15,0)
-                 gorgon [288]     yes      no       yes   (10,20,0)
-                   wolf [289]     yes      no       yes   (5,5,0)
-                cyclops [291]     no       yes      yes   (25,75,0)
-                  giant [292]     no       yes      yes   (75,25,0)
-                  faery [293]     no       yes      no    (9,9,9)
-                  hound [295]     yes      no       no    (1,1,0)
+| name                 | swamp | man-like | beast | fighter       |
+| -------------------- | ----- | -------- | ----- | ------------- |
+| peasant [10]         | no    | yes      | no    | (1,1,0)       |
+| worker [11]          | no    | yes      | no    | (1,1,0)       |
+| soldier [12]         | no    | yes      | no    | (5,5,0)       |
+| archer [13]          | no    | yes      | no    | (5,5,50)      |
+| knight [14]          | no    | yes      | no    | (45,45,0)     |
+| elite guard [15]     | no    | yes      | no    | (90,90,0)     |
+| pikeman [16]         | no    | yes      | no    | (5,30,0)      |
+| blessed soldier [17] | no    | yes      | no    | (5,5,0)       |
+| ghost warrior [18]   | no    | yes      | no    | (0,0,0)       |
+| sailor [19]          | no    | yes      | no    | (1,1,0)       |
+| swordsman [20]       | no    | yes      | no    | (15,15,0)     |
+| crossbowman [21]     | no    | yes      | no    | (1,1,25)      |
+| elite archer [22]    | no    | yes      | no    | (10,10,75)    |
+| angry peasant [23]   | no    | yes      | no    | (2,1,0)       |
+| pirate [24]          | no    | yes      | no    | (5,5,0)       |
+| elf [25]             | no    | yes      | no    | (50,50,100)   |
+| spirit [26]          | no    | yes      | no    | (50,50,0)     |
+| undead [31]          | no    | yes      | no    | (10,10,0)     |
+| savage [32]          | no    | yes      | no    | (1,1,0)       |
+| skeleton [33]        | no    | yes      | no    | (6,6,0)       |
+| barbarian [34]       | no    | yes      | no    | (2,1,0)       |
+| wild horse [51]      | yes   | no       | no    | -             |
+| riding horse [52]    | yes   | no       | no    | -             |
+| warmount [53]        | yes   | no       | no    | -             |
+| winged horse [54]    | yes   | no       | no    | -             |
+| nazgul [55]          | yes   | no       | yes   | (80,80,0)     |
+| battering ram [60]   | no    | no       | no    | (30,250,0)    |
+| catapult [61]        | no    | no       | no    | (25,200,25)   |
+| siege tower [62]     | no    | no       | no    | (30,250,0)    |
+| ox [76]              | yes   | no       | no    | -             |
+| ratspider [81]       | no    | no       | yes   | (5,5,0)       |
+| centaur [271]        | yes   | no       | yes   | (30,30,0)     |
+| minotaur [272]       | yes   | no       | yes   | (30,5,0)      |
+| giant spider [278]   | yes   | no       | yes   | (150,100,0)   |
+| rat [279]            | yes   | no       | yes   | (3,3,0)       |
+| lion [280]           | yes   | no       | yes   | (100,100,0)   |
+| giant bird [281]     | yes   | no       | yes   | (200,150,0)   |
+| giant lizard [282]   | yes   | no       | yes   | (45,45,0)     |
+| bandit [283]         | no    | yes      | no    | (3,3,0)       |
+| chimera [284]        | yes   | no       | yes   | (130,130,0)   |
+| harpie [285]         | yes   | no       | yes   | (80,120,0)    |
+| dragon [286]         | yes   | no       | yes   | (500,500,250) |
+| orc [287]            | no    | yes      | yes   | (20,15,0)     |
+| gorgon [288]         | yes   | no       | yes   | (10,20,0)     |
+| wolf [289]           | yes   | no       | yes   | (5,5,0)       |
+| cyclops [291]        | no    | yes      | yes   | (25,75,0)     |
+| giant [292]          | no    | yes      | yes   | (75,25,0)     |
+| faery [293]          | no    | yes      | no    | (9,9,9)       |
+| hound [295]          | yes   | no       | no    | (1,1,0)       |
 
 Items with a "yes" in the "swamp" column will cause their stack to move more slowly through swamps, as they need to be lead.
 
@@ -2769,142 +2627,136 @@ Items with a "yes" in the "beast" column are counted as beasts for the various B
 
 A -1 in a carrying capacity field means that the item will carry its own weight, but nothing additional. Capacity does not include the weight of the item itself.
 
-    item name                     weight land ride  fly
-    ---- ----                     ------ ---- ----  ---
-       1 gold                          0    0    0    0
-      10 peasant                     100  100    0    0
-      11 worker                      100  100    0    0
-      12 soldier                     100  100    0    0
-      13 archer                      100  100    0    0
-      14 knight                      400  100  100    0
-      15 elite guard                 400  100  100    0
-      16 pikeman                     100  100    0    0
-      17 blessed soldier             100  100    0    0
-      18 ghost warrior                 0    0    0    0
-      19 sailor                      100  100    0    0
-      20 swordsman                   100  100    0    0
-      21 crossbowman                 100  100    0    0
-      22 elite archer                100  100    0    0
-      23 angry peasant               100  100    0    0
-      24 pirate                      100  100    0    0
-      25 elf                         100  100    0    0
-      26 spirit                      100  100    0    0
-      31 undead                      100  100    0    0
-      32 savage                      100  100    0    0
-      33 skeleton                    100  100    0    0
-      34 barbarian                   100  100    0    0
-      51 wild horse                1,000   -1   -1    0
-      52 riding horse              1,000  150  150    0
-      53 warmount                  1,000  150  150    0
-      54 winged horse              1,000  150  150  150
-      55 nazgul                    1,500  150  150  150
-      59 flotsam                      30    0    0    0
-      60 battering ram               300    0    0    0
-      61 catapult                    300    0    0    0
-      62 siege tower                 300    0    0    0
-      63 ratspider venom               0    0    0    0
-      64 lana bark                     1    0    0    0
-      65 avinia leaf                   1    0    0    0
-      66 spiny root                    1    0    0    0
-      67 farrenstone                   1    0    0    0
-      68 yew                           3    0    0    0
-      69 elfstone                      1    0    0    0
-      70 mallorn wood                 30    0    0    0
-      71 pretus bones                  1    0    0    0
-      72 longbow                       3    0    0    0
-      73 plate armor                   5    0    0    0
-      74 longsword                     5    0    0    0
-      75 pike                          5    0    0    0
-      76 ox                        2,000 1,500   -1    0
-      77 wood                         30    0    0    0
-      78 stone                       100    0    0    0
-      79 iron                         10    0    0    0
-      80 leather                      30    0    0    0
-      81 ratspider                     1    0    0    0
-      82 mithril                       5    0    0    0
-      83 gate crystal                  1    0    0    0
-      84 blank scroll                  2    0    0    0
-      85 crossbow                     10    0    0    0
-      87 fish                          2    0    0    0
-      93 opium                         1    0    0    0
-      94 woven basket                  1    0    0    0
-      95 clay pot                      5    0    0    0
-      98 drum                          2    0    0    0
-      99 hide                         50    0    0    0
-     102 lead                         10    0    0    0
-     261 pitch                       100    0    0    0
-     271 centaur                   1,000  150  150    0
-     272 minotaur                    800   -1   -1    0
-     278 giant spider                500   -1   -1    0
-     279 rat                          50   -1   -1    0
-     280 lion                        750   -1   -1    0
-     281 giant bird                1,500   -1   -1   -1
-     282 giant lizard              1,000   -1   -1    0
-     283 bandit                      100  100    0    0
-     284 chimera                     800   -1   -1    0
-     285 harpie                      500   -1   -1   -1
-     286 dragon                    2,500   -1   -1   -1
-     287 orc                         100  100   -1    0
-     288 gorgon                      200   -1   -1    0
-     289 wolf                        100   -1   -1    0
-     290 crystal orb                   1    0    0    0
-     291 cyclops                     200  200    0    0
-     292 giant                       200  200    0    0
-     293 faery                        10   10    0    0
-     295 hound                        65   -1    0    0
-     401 Imperial Throne               0    0    0    0
+| item | name            | weight | land  | ride | fly |
+| ---- | --------------- | ------ | ----- | ---- | --- |
+| 1    | gold            | 0      | 0     | 0    | 0   |
+| 10   | peasant         | 100    | 100   | 0    | 0   |
+| 11   | worker          | 100    | 100   | 0    | 0   |
+| 12   | soldier         | 100    | 100   | 0    | 0   |
+| 13   | archer          | 100    | 100   | 0    | 0   |
+| 14   | knight          | 400    | 100   | 100  | 0   |
+| 15   | elite guard     | 400    | 100   | 100  | 0   |
+| 16   | pikeman         | 100    | 100   | 0    | 0   |
+| 17   | blessed soldier | 100    | 100   | 0    | 0   |
+| 18   | ghost warrior   | 0      | 0     | 0    | 0   |
+| 19   | sailor          | 100    | 100   | 0    | 0   |
+| 20   | swordsman       | 100    | 100   | 0    | 0   |
+| 21   | crossbowman     | 100    | 100   | 0    | 0   |
+| 22   | elite archer    | 100    | 100   | 0    | 0   |
+| 23   | angry peasant   | 100    | 100   | 0    | 0   |
+| 24   | pirate          | 100    | 100   | 0    | 0   |
+| 25   | elf             | 100    | 100   | 0    | 0   |
+| 26   | spirit          | 100    | 100   | 0    | 0   |
+| 31   | undead          | 100    | 100   | 0    | 0   |
+| 32   | savage          | 100    | 100   | 0    | 0   |
+| 33   | skeleton        | 100    | 100   | 0    | 0   |
+| 34   | barbarian       | 100    | 100   | 0    | 0   |
+| 51   | wild horse      | 1,000  | -1    | -1   | 0   |
+| 52   | riding horse    | 1,000  | 150   | 150  | 0   |
+| 53   | warmount        | 1,000  | 150   | 150  | 0   |
+| 54   | winged horse    | 1,000  | 150   | 150  | 150 |
+| 55   | nazgul          | 1,500  | 150   | 150  | 150 |
+| 59   | flotsam         | 30     | 0     | 0    | 0   |
+| 60   | battering ram   | 300    | 0     | 0    | 0   |
+| 61   | catapult        | 300    | 0     | 0    | 0   |
+| 62   | siege tower     | 300    | 0     | 0    | 0   |
+| 63   | ratspider venom | 0      | 0     | 0    | 0   |
+| 64   | lana bark       | 1      | 0     | 0    | 0   |
+| 65   | avinia leaf     | 1      | 0     | 0    | 0   |
+| 66   | spiny root      | 1      | 0     | 0    | 0   |
+| 67   | farrenstone     | 1      | 0     | 0    | 0   |
+| 68   | yew             | 3      | 0     | 0    | 0   |
+| 69   | elfstone        | 1      | 0     | 0    | 0   |
+| 70   | mallorn wood    | 30     | 0     | 0    | 0   |
+| 71   | pretus bones    | 1      | 0     | 0    | 0   |
+| 72   | longbow         | 3      | 0     | 0    | 0   |
+| 73   | plate armor     | 5      | 0     | 0    | 0   |
+| 74   | longsword       | 5      | 0     | 0    | 0   |
+| 75   | pike            | 5      | 0     | 0    | 0   |
+| 76   | ox              | 2,000  | 1,500 | -1   | 0   |
+| 77   | wood            | 30     | 0     | 0    | 0   |
+| 78   | stone           | 100    | 0     | 0    | 0   |
+| 79   | iron            | 10     | 0     | 0    | 0   |
+| 80   | leather         | 30     | 0     | 0    | 0   |
+| 81   | ratspider       | 1      | 0     | 0    | 0   |
+| 82   | mithril         | 5      | 0     | 0    | 0   |
+| 83   | gate crystal    | 1      | 0     | 0    | 0   |
+| 84   | blank scroll    | 2      | 0     | 0    | 0   |
+| 85   | crossbow        | 10     | 0     | 0    | 0   |
+| 87   | fish            | 2      | 0     | 0    | 0   |
+| 93   | opium           | 1      | 0     | 0    | 0   |
+| 94   | woven basket    | 1      | 0     | 0    | 0   |
+| 95   | clay pot        | 5      | 0     | 0    | 0   |
+| 98   | drum            | 2      | 0     | 0    | 0   |
+| 99   | hide            | 50     | 0     | 0    | 0   |
+| 102  | lead            | 10     | 0     | 0    | 0   |
+| 261  | pitch           | 100    | 0     | 0    | 0   |
+| 271  | centaur         | 1,000  | 150   | 150  | 0   |
+| 272  | minotaur        | 800    | -1    | -1   | 0   |
+| 278  | giant spider    | 500    | -1    | -1   | 0   |
+| 279  | rat             | 50     | -1    | -1   | 0   |
+| 280  | lion            | 750    | -1    | -1   | 0   |
+| 281  | giant bird      | 1,500  | -1    | -1   | -1  |
+| 282  | giant lizard    | 1,000  | -1    | -1   | 0   |
+| 283  | bandit          | 100    | 100   | 0    | 0   |
+| 284  | chimera         | 800    | -1    | -1   | 0   |
+| 285  | harpie          | 500    | -1    | -1   | -1  |
+| 286  | dragon          | 2,500  | -1    | -1   | -1  |
+| 287  | orc             | 100    | 100   | -1   | 0   |
+| 288  | gorgon          | 200    | -1    | -1   | 0   |
+| 289  | wolf            | 100    | -1    | -1   | 0   |
+| 290  | crystal orb     | 1      | 0     | 0    | 0   |
+| 291  | cyclops         | 200    | 200   | 0    | 0   |
+| 292  | giant           | 200    | 200   | 0    | 0   |
+| 293  | faery           | 10     | 10    | 0    | 0   |
+| 295  | hound           | 65     | -1    | 0    | 0   |
+| 401  | Imperial Throne | 0      | 0     | 0    | 0   |
 
 ### Training tables
 
+```
+     +--- sailor ------- pirate
+    +---- worker
+   +----- crossbowman
+  /
+peasant ------ soldier ------ swordsman --- knight ----- elite guard
+                  \
+                   +---- archer ------ elite archer
+                    +--- pikeman
+                     +-- blessed soldier
+```
 
-         +--- sailor ------- pirate
-        +---- worker
-       +----- crossbowman
-      /
-    peasant ------ soldier ------ swordsman --- knight ----- elite guard
-                      \
-                       +---- archer ------ elite archer
-                        +--- pikeman
-                         +-- blessed soldier
-
- 
-
-    num  kind            skill  input man       input item        
-    where
-    ---  -----------     -----  --------------  ----------------  ------
-     11  worker           none  peasant [10]
-     12  soldier           610  peasant [10]
-     13  archer            615  soldier [12]    longbow [72]
-     14  knight            616  swordsman [20]  warmount [53]
-     15  elite guard       616  knight [14]     plate armor [73]  castle
-     16  pikeman           610  soldier [12]    pike [75]
-     17  blessed soldier   750  soldier [12]                      temple
-     19  sailor            601  peasant [10]
-     20  swordsman         616  soldier [12]    longsword [74]
-     21  crossbowman       610  peasant [10]    crossbow [85]
-     22  elite archer      615  archer [13]                       castle
-     24  pirate            616  sailor [19]     longsword [74]    ship
-
- 
+| num | kind            | skill | input man      | input item       | where  |
+| --- | --------------- | ----- | -------------- | ---------------- | ------ |
+| 11  | worker          | none  | peasant [10]   |                  |        |
+| 12  | soldier         | 610   | peasant [10]   |                  |        |
+| 13  | archer          | 615   | soldier [12]   | longbow [72]     |        |
+| 14  | knight          | 616   | swordsman [20] | warmount [53]    |        |
+| 15  | elite guard     | 616   | knight [14]    | plate armor [73] | castle |
+| 16  | pikeman         | 610   | soldier [12]   | pike [75]        |
+| 17  | blessed soldier | 750   | soldier [12]   |                  | temple |
+| 19  | sailor          | 601   | peasant [10]   |                  |        |
+| 20  | swordsman       | 616   | soldier [12]   | longsword [74]   |        |
+| 21  | crossbowman     | 610   | peasant [10]   | crossbow [85]    |        |
+| 22  | elite archer    | 615   | archer [13]    |                  | castle |
+| 24  | pirate          | 616   | sailor [19]    | longsword [74]   | ship   |
 
 ### Combat ratings of fighters
 
-    attack    defense    missile
-                    +----------------------------
-    peasant         |   1         1
-    worker          |   1         1
-    sailor          |   1         1
-    soldier         |   5         5
-    pikeman         |   5        30
-    swordsman       |  15        15
-    pirate          |   5 (15)    5 (15)
-    knight          |  45 (20)   45 (20)
-    elite guard     |  90 (65)   90 (65)
-    crossbowman     |   1         1         25
-    archer          |   5         5         50
-    elite archer    |  10        10         75
-
- 
+|              | attack | attack (shipboard) | defense | defense (shipboard) | missile |
+| ------------ | ------ | ------------------ | ------- | ------------------- | ------- |
+| peasant      | 1      |                    | 1       |                     |         |
+| worker       | 1      |                    | 1       |                     |         |
+| sailor       | 1      |                    | 1       |                     |         |
+| soldier      | 5      |                    | 5       |                     |         |
+| pikeman      | 5      |                    | 30      |                     |         |
+| swordsman    | 15     |                    | 15      |                     |         |
+| pirate       | 5      | (15)               | 5       | (15)                |         |
+| knight       | 45     | (20)               | 45      | (20)                |         |
+| elite guard  | 90     | (65)               | 90      | (65)                |         |
+| crossbowman  | 1      |                    | 1       |                     | 25      |
+| archer       | 5      |                    | 5       |                     | 50      |
+| elite archer | 10     |                    | 10      |                     | 75      |
 
 - A noble is rated (attack=80, defense=80, missile=0).
 - Blessed soldiers fight with the same attack and defense values as regular soldiers, but has a 50% chance of surviving a hit.
@@ -2913,69 +2765,65 @@ A -1 in a carrying capacity field means that the item will carry its own weight,
 
 ### Maintenance costs
 
-    num   kind            cost
-    ---   -----------     ----
-     10   peasant          1
-     11   worker           2
-     19   sailor           2
-     21   crossbowman      2
-     12   soldier          2
-     13   archer           3
-     16   pikeman          3
-     17   blessed soldier  3
-     20   swordsman        3
-     24   pirate           3
-     14   knight           4
-     22   elite archer     4
-     15   elite guard      5
+| num | kind            | cost |
+| --- | --------------- | ---- |
+| 10  | peasant         | 1    |
+| 11  | worker          | 2    |
+| 19  | sailor          | 2    |
+| 21  | crossbowman     | 2    |
+| 12  | soldier         | 2    |
+| 13  | archer          | 3    |
+| 16  | pikeman         | 3    |
+| 17  | blessed soldier | 3    |
+| 20  | swordsman       | 3    |
+| 24  | pirate          | 3    |
+| 14  | knight          | 4    |
+| 22  | elite archer    | 4    |
+| 15  | elite guard     | 5    |
 
 ### Castle improvement
 
-    level   stone   worker-days
-    -----   -----   -----------
-      1       50       1000
-      2       60       1250
-      3       70       1500
-      4       80       1750
-      5       90       2000
-      6      100       2500
+| level | stone | worker-days |
+| ----- | ----- | ----------- |
+| 1     | 50    | 1000        |
+| 2     | 60    | 1250        |
+| 3     | 70    | 1500        |
+| 4     | 80    | 1750        |
+| 5     | 90    | 2000        |
+| 6     | 100   | 2500        |
 
-IMPROVE [days]
-
-Runs for the specified number of days, or until the next improvement level is reached, whichever comes first.
+- `IMPROVE [days]` - Runs for the specified number of days, or until the next improvement level is reached, whichever comes first.
 
 ### Castle garrisons
 
 A castle's improvement level determines how many provinces may be garrisoned to it:
 
-    castle
-    improvement   provinces      rank
-    -----------   ---------      ----
-         0           1-5         lord
-         1           6-12        knight
-         2          13-24        baron
-         3          25-37        count
-         4          38-50        earl
-         5          51-63        marquess
-         6           64+         duke
-                    region       king
+| castle improvement | provinces | rank     |
+| ------------------ | --------- | -------- |
+| 0                  | 1-5       | lord     |
+| 1                  | 6-12      | knight   |
+| 2                  | 13-24     | baron    |
+| 3                  | 25-37     | count    |
+| 4                  | 38-50     | earl     |
+| 5                  | 51-63     | marquess |
+| 6                  | 64+       | duke     |
+|                    | region    | king     |
 
 (A region must have at least 15 provinces to have a king)
 
 ### Protection
 
-    structure               men 
-    protected
-    ---------               -------------
-    Castle                  first 500
-    Tower                   first 100
-    Galley or roundship     first 50
-    Other structures        first 50
+| structure protected | men       |
+| ------------------- | --------- |
+| Castle              | first 500 |
+| Tower               | first 100 |
+| Galley or roundship | first 50  |
+| Other structures    | first 50  |
 
 ### Civilization
 
 | Feature    | Contribution                |
-|------------|-----------------------------|
+| ---------- | --------------------------- |
 | Safe Haven | 2                           |
 | Castle     | 1.5 + improvement level / 4 |
 | City       | 1                           |
@@ -2986,292 +2834,241 @@ A castle's improvement level determines how many provinces may be garrisoned to 
 
 ### Beastmastery
 
-Each use of BREED incurs a 20% chance of an accident which may kill one parent.
+Each use of `BREED` incurs a 20% chance of an accident which may kill one parent.
 
-The time necessary for the BREED command to function is dependent on the type of animal produced:
+The time necessary for the `BREED` command to function is dependent on the type of animal produced:
 
-    beast           days
-        -----           ----
-        dragon [286]             45
-        giant bird [281]         28
-        giant spider [278]       21
-        chimera [284]            21
-        nazgul [55]              14
-            centaur [271]            14
-        lion [280]               14
-        harpie [285]             14
-        all other beasts          7
+| beast              | days |
+| ------------------ | ---- |
+| dragon [286]       | 45   |
+| giant bird [281]   | 28   |
+| giant spider [278] | 21   |
+| chimera [284]      | 21   |
+| nazgul [55]        | 14   |
+| centaur [271]      | 14   |
+| lion [280]         | 14   |
+| harpie [285]       | 14   |
+| all other beasts   | 7    |
 
 ### Quest
 
-    where        what           combat      how many
-    -----        ----           -------     --------
-    islands      pirate [24]        (5,5,0)     5-30
-             cyclops [291]      (25,75,0)   1-5
-     
-    caves        rat [279]      (3,3,0)     10-50
-             wolf [289]     (5,5,0)     3-10
-             ratspider [81]     (5,5,0)     5-20
-             gorgon [288]       (10,20,0)   3-5
-             orc [287]      (20,15,0)   5-20
-
-    ruins        bandit [283]       (3,3,0)     2-10
-             cyclops [291]      (25,75,0)   2-5
-             minotaur [272]     (30,5,0)    3-10
-             centaur [271]      (30,30,0)   3-10
-             giant lizard [282] (45,45,0)   1-3
-
-    battlefields     skeleton [33]      (6,6,0)     10-100
-             spirit [26]        (50,50,0)   5-50
-             giant [292]        (75,25,0)   3-10
-             nazgul [55]        (80,80,0)   5-20
-
-    graveyards   undead [31]        (10,10,0)   10-100
-             harpie [285]       (80,120,0)  3-10
-             giant spider [278] (150,100,0) 3-10
-             giant bird [281]   (200,150,0) 1-3
-
-    lairs
-             lion [280]     (100,100,0) 3-8
-             chimera [284]      (130,130,0) 2-10
-             dragon [286]       (500,500,250)   1
-
-    enchanted
-    forests,
-    faery hills  faery [293]        (9,9,9)     5-20
-             elf [25]       (50,50,100) 5-20
-
-    pits & bogs  rat [279]      (3,3,0)     5-25
-             gorgon [288]       (10,20,0)   3-7
-             cyclops [291]      (25,75,0)   2-3
-             minotaur [272]     (30,5,0)    1-5
-
-    sand pits    giant lizard [282] (45,45,0)   15-30
-
-    circles of
-    stone        skeleton [33]      (6,6,0)     3-15
-             gorgon [288]       (10,20,0)   3-15
-             orc [287]      (20,15,0)   3-15
-             cyclops [291]      (25,75,0)   3-15
-             minotaur [272]     (30,5,0)    3-15
-             centaur [271]      (30,30,0)   3-15
-             spirit [26]        (50,50,0)   3-15
-             giant [292]        (75,25,0)   3-15
-             nazgul [55]        (80,80,0)   3-15
-             harpie [285]       (80,120,0)  3-15
-             chimera [284]      (130,130,0) 3-15
-
-    tunnel chamber,  rat [279]      (3,3,0)     10-50
-    levels 1-6   ratspider [81]     (5,5,0)     5-20
-             gorgon [288]       (10,20,0)   3-6
-             orc [287]      (20,15,0)   5-20
-
-    tunnel chamber,  cyclops [291]      (25,75,0)   5-10
-    levels 5-6   minotaur [272]     (30,5,0)    5-15
-             giant lizard [282] (45,45,0)   5-15
-             giant spider [278] (150,100,0) 5-15
+| where                          | what               | combat        | how many |
+| ------------------------------ | ------------------ | ------------- | -------- |
+| islands                        | pirate [24]        | (5,5,0)       | 5-30     |
+|                                | cyclops [291]      | (25,75,0)     | 1-5      |
+| caves                          | rat [279]          | (3,3,0)       | 10-50    |
+|                                | wolf [289]         | (5,5,0)       | 3-10     |
+|                                | ratspider [81]     | (5,5,0)       | 5-20     |
+|                                | gorgon [288]       | (10,20,0)     | 3-5      |
+|                                | orc [287]          | (20,15,0)     | 5-20     |
+| ruins                          | bandit [283]       | (3,3,0)       | 2-10     |
+|                                | cyclops [291]      | (25,75,0)     | 2-5      |
+|                                | minotaur [272]     | (30,5,0)      | 3-10     |
+|                                | centaur [271]      | (30,30,0)     | 3-10     |
+|                                | giant lizard [282] | (45,45,0)     | 1-3      |
+| battlefields                   | skeleton [33]      | (6,6,0)       | 10-100   |
+|                                | spirit [26]        | (50,50,0)     | 5-50     |
+|                                | giant [292]        | (75,25,0)     | 3-10     |
+|                                | nazgul [55]        | (80,80,0)     | 5-20     |
+| graveyards                     | undead [31]        | (10,10,0)     | 10-100   |
+|                                | harpie [285]       | (80,120,0)    | 3-10     |
+|                                | giant spider [278] | (150,100,0)   | 3-10     |
+|                                | giant bird [281]   | (200,150,0)   | 1-3      |
+| lairs                          | lion [280]         | (100,100,0)   | 3-8      |
+|                                | chimera [284]      | (130,130,0)   | 2-10     |
+|                                | dragon [286]       | (500,500,250) | 1        |
+| enchanted forests, faery hills | faery [293]        | (9,9,9)       | 5-20     |
+|                                | elf [25]           | (50,50,100)   | 5-20     |
+| pits & bogs                    | rat [279]          | (3,3,0)       | 5-25     |
+|                                | gorgon [288]       | (10,20,0)     | 3-7      |
+|                                | cyclops [291]      | (25,75,0)     | 2-3      |
+|                                | minotaur [272]     | (30,5,0)      | 1-5      |
+| sand pits                      | giant lizard [282] | (45,45,0)     | 15-30    |
+| circles of stone               | skeleton [33]      | (6,6,0)       | 3-15     |
+|                                | gorgon [288]       | (10,20,0)     | 3-15     |
+|                                | orc [287]          | (20,15,0)     | 3-15     |
+|                                | cyclops [291]      | (25,75,0)     | 3-15     |
+|                                | minotaur [272]     | (30,5,0)      | 3-15     |
+|                                | centaur [271]      | (30,30,0)     | 3-15     |
+|                                | spirit [26]        | (50,50,0)     | 3-15     |
+|                                | giant [292]        | (75,25,0)     | 3-15     |
+|                                | nazgul [55]        | (80,80,0)     | 3-15     |
+|                                | harpie [285]       | (80,120,0)    | 3-15     |
+|                                | chimera [284]      | (130,130,0)   | 3-15     |
+| tunnel chamber, levels 1-6     | rat [279]          | (3,3,0)       | 10-50    |
+|                                | ratspider [81]     | (5,5,0)       | 5-20     |
+|                                | gorgon [288]       | (10,20,0)     | 3-6      |
+|                                | orc [287]          | (20,15,0)     | 5-20     |
+| tunnel chamber, levels 5-6     | cyclops [291]      | (25,75,0)     | 5-10     |
+|                                | minotaur [272]     | (30,5,0)      | 5-15     |
+|                                | giant lizard [282] | (45,45,0)     | 5-15     |
+|                                | giant spider [278] | (150,100,0)   | 5-15     |
 
 ### Experience
 
-    use             level
-    -----           -----
-     0-4            apprentice
-     5-11           journeyman
-    12-20           adept
-    21-34           master
-     35+            grand master
+| use   | level        |
+| ----- | ------------ |
+| 0-4   | apprentice   |
+| 5-11  | journeyman   |
+| 12-20 | adept        |
+| 21-34 | master       |
+| 35+   | grand master |
 
 ### Skill listing and learning times
 
-    Skill 
-    schools:
-
-    600    Shipcraft                          three weeks
-    610    Combat                             three weeks
-    630    Stealth                            four weeks
-    650    Beastmastery                       four weeks, 1 NP req'd
-    670    Persuasion                         four weeks
-    680    Construction                       three weeks
-    690    Alchemy                            four weeks
-    700    Forestry                           three weeks
-    720    Mining                             three weeks
-    730    Trade                              three weeks
-    750    Religion                           five weeks, 1 NP req'd
-    800    Magic                              four weeks, 1 NP req'd
-    820    Weather magic                      five weeks, 1 NP req'd
-    840    Scrying                            five weeks, 1 NP req'd
-    860    Gatecraft                          five weeks, 1 NP req'd
-    880    Artifact construction              six weeks, 1 NP req'd
-    900    Necromancy                         six weeks, 2 NP req'd
-    920    Advanced sorcery                   six weeks
-
-    Shipcraft [600]
-       601    Sailing                            two weeks
-       602    Shipbuilding                       two weeks
-       603    Fishing                            two weeks
-
-    Combat [610]
-       611    Survive fatal wound                four weeks
-       612    Fight to the death                 four weeks
-       613    Construct catapult                 two weeks
-       614    Defense                            two weeks
-       615    Archery                            three weeks
-       616    Swordplay                          two weeks
-       617    Weaponsmithing                     two weeks
-
-    Stealth [630]
-       631    Petty thievery                     two weeks
-       632    Determine inventory of character   two weeks
-       633    Determine skills of character      two weeks
-       634    Determine character's lord         two weeks
-       635    Conceal faction                    four weeks
-       636    Learn of richest nearby noble      two weeks
-       637    Torture prisoner                   three weeks
-       638    Conceal self                       four weeks
-       639    Sneak into structure               three weeks
-
-    Beastmastery [650]
-       651    Bird spy                           three weeks
-       652    Capture beasts in battle           four weeks
-       653    Use beasts in battle               four weeks
-       654    Breed beasts                       four weeks
-       655    Catch wild horses                  two weeks
-       656    Train wild horse to riding horse   two weeks
-       657    Train wild horse to warmount       three weeks
-       658    Summon wild men                    three weeks
-       659    Persuade wild men to remain        three weeks
-       661    Breed hound                        three weeks
-
-    Persuasion [670]
-       671    Bribe noble                        two weeks
-       672    Persuade oathbound noble           three weeks
-       673    Raise peasant mob                  two weeks
-       674    Rally peasant mob                  three weeks
-       675    Incite mob violence                three weeks
-       676    Train angry peasants               two weeks
-
-    Construction [680]
-       681    Construct siege tower              two weeks
-       682    Stone quarrying                    two weeks
-
-    Alchemy [690]
-       691    Brew healing potion                three weeks
-       692    Record skill on scroll             three weeks
-       693    Extract venom from ratspider       three weeks
-       694    Make potion of slavery             three weeks
-       695    Collect rare elements              two weeks
-       696    Brew potion of death               three weeks
-       697    Turn lead into gold                four weeks
-
-    Forestry [700]
-       701    Construct battering ram            two weeks
-       702    Harvest lumber                     two weeks
-       703    Harvest yew                        two weeks
-       704    Collect rare foliage               two weeks
-       705    Harvest mallorn wood               two weeks
-       706    Harvest opium                      two weeks
-       707    Improve opium production           two weeks
-
-    Mining [720]
-       721    Mine iron                          two weeks
-       722    Mine gold                          two weeks
-       723    Mine mithril                       two weeks
-
-    Trade [730]
-       731    Conceal identity of trader         two weeks
-       732    Find tradegood for sale            two weeks
-       733    Find market for tradegood          two weeks
-
-    Religion [750]
-       751    Receive vision                     four weeks
-       752    Lay to rest                        four weeks
-       753    Preparatory ritual                 three weeks
-       754    Resurrect dead noble               four weeks
-       755    Remove blessing from soldiers      four weeks
-       756    Immunity from Vision               four weeks
-
-    Magic [800]
-       801    Meditate                           two weeks
-       802    Perform common tasks for gold      two weeks
-       803    Appear common                      two weeks
-       804    View current aura level of others  three weeks
-       805    Heal                               three weeks
-       806    Modern magic script                three weeks
-       807    Reveal abilities of another mage   two weeks
-       808    Tap health for aura                three weeks
-       809    Shroud abilities from scry         three weeks
-       811    Detect ability scry                three weeks
-       812    Dispel ability shroud              three weeks
-       813    Advanced meditation                three weeks
-       814    Hinder meditation                  three weeks
-
-    Weather magic [820]
-       821    Fierce wind                        three weeks
-       822    Bind storm to ship                 three weeks
-       823    Scribe weather symbols             three weeks
-       824    Summon wind                        three weeks
-       825    Summon rain                        three weeks
-       826    Summon fog                         three weeks
-       827    Direct storm                       three weeks
-       828    Dissipate storm                    three weeks
-       829    Renew storm strength               three weeks
-       831    Lightning bolt                     four weeks
-       832    Seize control of storm             three weeks
-       833    Fog of death                       three weeks
-
-    Scrying [840]
-       841    Scry location                      three weeks
-       842    Ciphered writing of Areth-Pirn     three weeks
-       843    Shroud location from magical scry  two weeks
-       844    Dispel location shroud             three weeks
-       845    Create magical barrier             three weeks
-       846    Remove magical barrier             three weeks
-       847    Locate character                   three weeks
-       848    Detect location scry               three weeks
-       849    Farcasting                         three weeks
-       851    Save farcast state                 three weeks
-       852    Banish undead                      three weeks
-
-    Gatecraft [860]
-       861    Detect gates                       two weeks
-       862    Jump through gate                  two weeks
-       863    Language of the Ancients           three weeks
-       864    Seal gate                          two weeks
-       865    Unseal gate with key               two weeks
-       866    Notify if gate unsealed            two weeks
-       867    Forcefully unseal gate             three weeks
-       868    Reveal gate key                    three weeks
-       869    Notify of gate jumps               two weeks
-       871    Teleport                           two weeks
-       872    Reverse jump through gate          three weeks
-
-    Artifact construction [880]
-       881    Forge auraculum                    two weeks
-       882    Arcane symbols                     three weeks
-       883    Forge magical weapon               three weeks
-       884    Forge magical armor                three weeks
-       885    Forge magical bow                  three weeks
-       886    Curse noncreator loyalty           two weeks
-       887    Reveal creator of artifact         two weeks
-       888    Reveal where artifact was created  two weeks
-       889    Destroy artifact                   three weeks
-       891    Cloak creator of artifact          four weeks
-       892    Cloak region of artifact creation  two weeks
-       893    Dispel cloaking from artifact      three weeks
-       894    Forge palantir                     three weeks
-
-    Necromancy [900]
-       901    Raise undead                       three weeks
-       902    Summon ghost warriors              three weeks
-       903    Runes of Evil                      three weeks
-       904    Summon demon lord                  three weeks
-       905    Renew demon bond                   three weeks
-       906    Banish demon lord                  three weeks
-       907    Eating of the dead                 four weeks
-       908    Aura blast                         three weeks
-       909    Absorb aura blast                  three weeks
-       911    Transcend death                    four weeks, 1 NP req'd
-
-    Advanced sorcery [920]
-       921    Trance                             four weeks
-       922    Teleport items                     four weeks
+|                             | Code          | Skill                             | Learning Time          |
+| --------------------------- | ------------- | --------------------------------- | ---------------------- |
+| Skill schools               | 600           | Shipcraft                         | three weeks            |
+|                             | 610           | Combat                            | three weeks            |
+|                             | 630           | Stealth                           | four weeks             |
+|                             | 650           | Beastmastery                      | four weeks, 1 NP req'd |
+|                             | 670           | Persuasion                        | four weeks             |
+|                             | 680           | Construction                      | three weeks            |
+|                             | 690           | Alchemy                           | four weeks             |
+|                             | 700           | Forestry                          | three weeks            |
+|                             | 720           | Mining                            | three weeks            |
+|                             | 730           | Trade                             | three weeks            |
+|                             | 750           | Religion                          | five weeks, 1 NP req'd |
+|                             | 800           | Magic                             | four weeks, 1 NP req'd |
+|                             | 820           | Weather magic                     | five weeks, 1 NP req'd |
+|                             | 840           | Scrying                           | five weeks, 1 NP req'd |
+|                             | 860           | Gatecraft                         | five weeks, 1 NP req'd |
+|                             | 880           | Artifact construction             | six weeks, 1 NP req'd  |
+|                             | 900           | Necromancy                        | six weeks, 2 NP req'd  |
+|                             | 920           | Advanced sorcery                  | six weeks              |
+| Shipcraft [600]             | 601           | Sailing                           | two weeks              |
+|                             | 602           | Shipbuilding                      | two weeks              |
+|                             | 603           | Fishing                           | two weeks              |
+| Combat [610]                | 611           | Survive fatal wound               | four weeks             |
+|                             | 612           | Fight to the death                | four weeks             |
+|                             | 613           | Construct catapult                | two weeks              |
+|                             | 614           | Defense                           | two weeks              |
+|                             | 615           | Archery                           | three weeks            |
+|                             | 616           | Swordplay                         | two weeks              |
+|                             | 617           | Weaponsmithing                    | two weeks              |
+| Stealth [630]               | 631           | Petty thievery                    | two weeks              |
+|                             | 632           | Determine inventory of character  | two weeks              |
+|                             | 633           | Determine skills of character     | two weeks              |
+|                             | 634           | Determine character's lord        | two weeks              |
+|                             | 635           | Conceal faction                   | four weeks             |
+|                             | 636           | Learn of richest nearby noble     | two weeks              |
+|                             | 637           | Torture prisoner                  | three weeks            |
+|                             | 638           | Conceal self                      | four weeks             |
+|                             | 639           | Sneak into structure              | three weeks            |
+| Beastmastery [650]          | 651           | Bird spy                          | three weeks            |
+|                             | 652           | Capture beasts in battle          | four weeks             |
+|                             | 653           | Use beasts in battle              | four weeks             |
+|                             | 654           | Breed beasts                      | four weeks             |
+|                             | 655           | Catch wild horses                 | two weeks              |
+|                             | 656           | Train wild horse to riding horse  | two weeks              |
+|                             | 657           | Train wild horse to warmount      | three weeks            |
+|                             | 658           | Summon wild men                   | three weeks            |
+|                             | 659           | Persuade wild men to remain       | three weeks            |
+|                             | 661           | Breed hound                       | three weeks            |
+| Persuasion [670]            | 671           | Bribe noble                       | two weeks              |
+|                             | 672           | Persuade oathbound noble          | three weeks            |
+|                             | 673           | Raise peasant mob                 | two weeks              |
+|                             | 674           | Rally peasant mob                 | three weeks            |
+|                             | 675           | Incite mob violence               | three weeks            |
+|                             | 676           | Train angry peasants              | two weeks              |
+| Construction [680]          | 681           | Construct siege tower             | two weeks              |
+|                             | 682           | Stone quarrying                   | two weeks              |
+|                             | Alchemy [690] |                                   |                        |     |
+|                             | 691           | Brew healing potion               | three weeks            |
+|                             | 692           | Record skill on scroll            | three weeks            |
+|                             | 693           | Extract venom from ratspider      | three weeks            |
+|                             | 694           | Make potion of slavery            | three weeks            |
+|                             | 695           | Collect rare elements             | two weeks              |
+|                             | 696           | Brew potion of death              | three weeks            |
+|                             | 697           | Turn lead into gold               | four weeks             |
+| Forestry [700]              | 701           | Construct battering ram           | two weeks              |
+|                             | 702           | Harvest lumber                    | two weeks              |
+|                             | 703           | Harvest yew                       | two weeks              |
+|                             | 704           | Collect rare foliage              | two weeks              |
+|                             | 705           | Harvest mallorn wood              | two weeks              |
+|                             | 706           | Harvest opium                     | two weeks              |
+|                             | 707           | Improve opium production          | two weeks              |
+| Mining [720]                | 721           | Mine iron                         | two weeks              |
+|                             | 722           | Mine gold                         | two weeks              |
+|                             | 723           | Mine mithril                      | two weeks              |
+| Trade [730]                 | 731           | Conceal identity of trader        | two weeks              |
+|                             | 732           | Find tradegood for sale           | two weeks              |
+|                             | 733           | Find market for tradegood         | two weeks              |
+| Religion [750]              | 751           | Receive vision                    | four weeks             |
+|                             | 752           | Lay to rest                       | four weeks             |
+|                             | 753           | Preparatory ritual                | three weeks            |
+|                             | 754           | Resurrect dead noble              | four weeks             |
+|                             | 755           | Remove blessing from soldiers     | four weeks             |
+|                             | 756           | Immunity from Vision              | four weeks             |
+| Magic [800]                 | 801           | Meditate                          | two weeks              |
+|                             | 802           | Perform common tasks for gold     | two weeks              |
+|                             | 803           | Appear common                     | two weeks              |
+|                             | 804           | View current aura level of others | three weeks            |
+|                             | 805           | Heal                              | three weeks            |
+|                             | 806           | Modern magic script               | three weeks            |
+|                             | 807           | Reveal abilities of another mage  | two weeks              |
+|                             | 808           | Tap health for aura               | three weeks            |
+|                             | 809           | Shroud abilities from scry        | three weeks            |
+|                             | 811           | Detect ability scry               | three weeks            |
+|                             | 812           | Dispel ability shroud             | three weeks            |
+|                             | 813           | Advanced meditation               | three weeks            |
+|                             | 814           | Hinder meditation                 | three weeks            |
+| Weather magic [820]         | 821           | Fierce wind                       | three weeks            |
+|                             | 822           | Bind storm to ship                | three weeks            |
+|                             | 823           | Scribe weather symbols            | three weeks            |
+|                             | 824           | Summon wind                       | three weeks            |
+|                             | 825           | Summon rain                       | three weeks            |
+|                             | 826           | Summon fog                        | three weeks            |
+|                             | 827           | Direct storm                      | three weeks            |
+|                             | 828           | Dissipate storm                   | three weeks            |
+|                             | 829           | Renew storm strength              | three weeks            |
+|                             | 831           | Lightning bolt                    | four weeks             |
+|                             | 832           | Seize control of storm            | three weeks            |
+|                             | 833           | Fog of death                      | three weeks            |
+| Scrying [840]               | 841           | Scry location                     | three weeks            |
+|                             | 842           | Ciphered writing of Areth-Pirn    | three weeks            |
+|                             | 843           | Shroud location from magical scry | two weeks              |
+|                             | 844           | Dispel location shroud            | three weeks            |
+|                             | 845           | Create magical barrier            | three weeks            |
+|                             | 846           | Remove magical barrier            | three weeks            |
+|                             | 847           | Locate character                  | three weeks            |
+|                             | 848           | Detect location scry              | three weeks            |
+|                             | 849           | Farcasting                        | three weeks            |
+|                             | 851           | Save farcast state                | three weeks            |
+|                             | 852           | Banish undead                     | three weeks            |
+| Gatecraft [860]             | 861           | Detect gates                      | two weeks              |
+|                             | 862           | Jump through gate                 | two weeks              |
+|                             | 863           | Language of the Ancients          | three weeks            |
+|                             | 864           | Seal gate                         | two weeks              |
+|                             | 865           | Unseal gate with key              | two weeks              |
+|                             | 866           | Notify if gate unsealed           | two weeks              |
+|                             | 867           | Forcefully unseal gate            | three weeks            |
+|                             | 868           | Reveal gate key                   | three weeks            |
+|                             | 869           | Notify of gate jumps              | two weeks              |
+|                             | 871           | Teleport                          | two weeks              |
+|                             | 872           | Reverse jump through gate         | three weeks            |
+| Artifact construction [880] | 881           | Forge auraculum                   | two weeks              |
+|                             | 882           | Arcane symbols                    | three weeks            |
+|                             | 883           | Forge magical weapon              | three weeks            |
+|                             | 884           | Forge magical armor               | three weeks            |
+|                             | 885           | Forge magical bow                 | three weeks            |
+|                             | 886           | Curse noncreator loyalty          | two weeks              |
+|                             | 887           | Reveal creator of artifact        | two weeks              |
+|                             | 888           | Reveal where artifact was created | two weeks              |
+|                             | 889           | Destroy artifact                  | three weeks            |
+|                             | 891           | Cloak creator of artifact         | four weeks             |
+|                             | 892           | Cloak region of artifact creation | two weeks              |
+|                             | 893           | Dispel cloaking from artifact     | three weeks            |
+|                             | 894           | Forge palantir                    | three weeks            |
+| Necromancy [900]            | 901           | Raise undead                      | three weeks            |
+|                             | 902           | Summon ghost warriors             | three weeks            |
+|                             | 903           | Runes of Evil                     | three weeks            |
+|                             | 904           | Summon demon lord                 | three weeks            |
+|                             | 905           | Renew demon bond                  | three weeks            |
+|                             | 906           | Banish demon lord                 | three weeks            |
+|                             | 907           | Eating of the dead                | four weeks             |
+|                             | 908           | Aura blast                        | three weeks            |
+|                             | 909           | Absorb aura blast                 | three weeks            |
+|                             | 911           | Transcend death                   | four weeks, 1 NP req'd |
+| Advanced sorcery [920]      | 921           | Trance                            | four weeks             |
+|                             | 922           | Teleport items                    | four weeks             |

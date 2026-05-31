@@ -2,7 +2,7 @@
 # Theme: Hextra (loaded as a Hugo module — see go.mod).
 # Structure follows the Diataxis framework: tutorials, how-to, reference, explanation.
 
-baseURL: https://example.org/opyl/
+baseURL: https://example.org/docs/
 locale: en-us
 title: opyl documentation
 enableRobotsTXT: true

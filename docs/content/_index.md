@@ -7,6 +7,11 @@ opyl is a batch-style, turn-based game engine in Go. It ingests player order
 files, resolves turns deterministically, renders per-player reports as text or
 PDF, and dispatches them by email.
 
+{{< cards >}}
+  {{< card link="rules" title="Rules" icon="book-open"
+        subtitle="Rules for playing." >}}
+{{< /cards >}}
+
 This documentation is organised by the [Diataxis](https://diataxis.fr) framework.
 Pick the section that matches what you are trying to do right now.
 

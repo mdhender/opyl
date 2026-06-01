@@ -645,7 +645,7 @@ base), [logistics.md](docs/content/rules/logistics.md) (upkeep, training),
 [tables.md](docs/content/rules/tables.md). Cross-refs: §5 (tax-base value, garrisons, castles), §7
 (skill mechanics & per-use yields), §9 (ships' economic role), §11 (resolution timing).
 
-### 6.1 The monthly money flow ✅ (split) / 🟡 (un-garrisoned castle, timing)
+### 6.1 The monthly money flow ✅ (split, un-garrisoned castle) / 🟡 (timing)
 
 §5.2 fixed the tax-base **value** (`50 + 50·civ`, +100 per city) and deferred the **flow** here. The
 end-to-end path for a **garrisoned province** bound to a castle:
@@ -668,10 +668,10 @@ lost.
   upkeep)`; the un-kept half is lost, consistent with the no-accumulation rule.
 - **Pillaging** (§5.2) **seizes the whole tax base** for the month (a pillager must first defeat any
   guarding garrison, §8) and lowers *future* revenue (4 months' recovery per pillaging).
-- **Open (🟡):** what a castle collects from its **own province when no functional garrison** is
-  stationed there is unsettled — the rulebook ties protection (and, ambiguously, collection) to a
-  garrison's presence. Pinned with §11: a castle with no functional garrison (≥10 men) in its
-  province is undefended and its tax goes uncollected. **Confirm.**
+- **Un-garrisoned castle (settled ✅ in §11.6):** a castle with **no functional garrison** (≥10 men)
+  in its own province is **undefended, and its tax goes uncollected** that month — collection is gated
+  on the same garrison presence that gates protection. (Previously pinned to §11 for confirmation;
+  resolved there.)
 - **Timing (🟡):** the order of operations within a turn — when tax is computed, when upkeep debits,
   when the owner is paid — is a §11 concern and matters for idempotency (the `TurnLedger`).
 
@@ -1690,7 +1690,210 @@ architectural decisions" table:
 > **account/scan directives** travel as a separate typed channel out of the parser (§10.8) remain 🟡 and
 > are carried forward.
 
-## 11. Turn resolution ❓
+## 11. Turn resolution 🟡
+
+§11 is the engine's **global sequencer** — the section every earlier one deferred its *timing* and
+*ordering* questions to. §6.1 deferred *when* tax is computed, upkeep debits, and the castle owner is
+paid; §6.2 fixed upkeep "at end of month" but left its slot relative to combat; §8.2 deferred *when* a
+battle resolves relative to movement, market clearing, and pillaging; §9.4 deferred the ship travel-time
+model; §10.4/§10.5 handed over the **scheduler** that consumes each command's priority and the moment a
+queued `STOP` bites. §11 is where those compose into one deterministic month. It **owns**: the **turn
+clock** (30 game days, §11.1), the **three turn phases** (§11.2), the **priority scheduler** (the 0–4
+bands §10 assigns, run ascending, location-order tiebreak — §11.3), **parallel execution & time accrual**
+(§11.4), **`STOP`/interrupt timing and carry-over** (§11.5), the **turn-boundary events** (new-player
+addition, `FORM` minting, NP award, the monthly money flow — §11.6), the **determinism contract** (no
+`time.Now`, no ambient randomness; a seeded PRNG, §11.7), and the **idempotency placement** (`ProcessTurn`
++ an input hash, §11.8). It **reuses, never re-decides** every *mechanic*: combat math is §8, travel cost
+§2.4/§9.4, upkeep amounts §6.2, tax base §5.2/§6.1, study/production §6/§7 — §11 fixes only **when each
+fires and in what order**, never what it computes. Primary sources: [playing.md](docs/content/rules/playing.md)
+(the parallel-execution and 30-day-month model, the turn schedule, global-only re-runs) and
+[orders.md](docs/content/rules/orders.md) (the priority/time table, the `STOP` interrupt rule). §11 is the
+**`ProcessTurn`** use case — the `process` pipeline stage (`internal/app`, see the idempotency and
+use-case explanation docs). Cross-refs: §2.9 (the established turn-seed discipline), §3.7 (NP at multiples
+of 8), §6.1/§6.2 (money-flow & upkeep timing), §8.2 (battle placement), §9.4 (ship travel), §10.4/§10.5
+(priority bands & the per-unit queue), §12 (the report the resolved turn feeds).
+
+### 11.1 The turn is a fixed 30-day month ✅
+
+- One turn = one Olympian month = **30 game days** ([playing.md](docs/content/rules/playing.md)). The day
+  is the unit of accrual: each command consumes a **time class** (§10.4) — `0 days`, a fixed count,
+  `as given` (player-supplied), or `varies` (computed from world state). ✅
+- The real-world cadence (turns run Mondays at noon AEST/AEDT) is **operator scheduling, outside the
+  engine**. Resolution never reads a wall clock (§11.7): it knows only the integer **turn number** and the
+  30-day budget. The turn number drives the calendar/season (the eight-month Olympian year,
+  [playing.md](docs/content/rules/playing.md)) and the multiple-of-8 NP award (§3.7/§11.6). ✅
+
+### 11.2 The turn's three phases: open → execute → close ✅ (frame) / 🟡 (sub-step placement)
+
+A turn resolves in three ordered phases:
+
+1. **Open** — turn-boundary *entry* events that must precede order execution: **new players are added**
+   ([playing.md](docs/content/rules/playing.md): "additions are performed when the turn is run"), the
+   **`FORM`-number reservation list** is computed and published (§3.2/§10.5), and **NP is awarded** on
+   turns that are a multiple of 8 (§3.7).
+2. **Execute** — the 30-day order-execution loop driven by the priority scheduler (§11.3) over every
+   unit's command queue (§11.4).
+3. **Close** — end-of-month *exit* bookkeeping: the **monthly money flow** (tax base → garrison upkeep →
+   castle owner, §6.1), **men upkeep** charged to holding nobles with deterministic desertion/starvation
+   (§6.2), then hand-off to **report rendering** (§12).
+
+The **phase boundaries are decided**; the **exact slot of several sub-steps inside Execute vs. Close is
+🟡**. §6.1 explicitly deferred *when* tax is computed and paid; §6.2 fixed upkeep at month's end (→ Close);
+§8.2 deferred where battles fall relative to movement/market/pillage (→ within Execute). §11 names the
+phases — pinning every sub-step's slot is the remaining work this section tracks.
+
+### 11.3 The priority scheduler ✅ (bands & tiebreak) / 🟡 (tick granularity)
+
+- Within **Execute**, commands run in **ascending priority** (§10.4): all ready **prio-0** (permission /
+  attitude — `ADMIT`, `HOSTILE`, `NEUTRAL`, `DEFEND`, `CONTACT`, `DECREE`, `DEFAULT`) before any
+  **prio-1** (zero-time commands and `WAIT`), before **prio-2** (`MOVE`/`FLY`/`BOARD`), before **prio-3**
+  (everything else), before **prio-4** (`SAIL` alone). The bands exist so a declared attitude is in force
+  **before** the movement and combat it governs, and so sailing settles last. ✅
+- **Same-priority ties resolve by location order** — the "seen here" list, oldest-resident-first (§10.5);
+  a freshly-arrived or `UNSTACK`ed unit reinserts per the §12 ordering rules. This is the **sole
+  tiebreaker**, making the within-band order a deterministic function of recorded state — never `rand`,
+  never Go map-iteration order (§6.8). ✅
+- **Tick granularity (🟡):** the rulebook presents execution as happening "in parallel"
+  ([playing.md](docs/content/rules/playing.md)) — player-facing fiction. The engine must impose a
+  **deterministic total order**. Whether that is a literal **day-by-day loop** (advance every unit one
+  day, re-evaluate ready commands each day, in priority/location order) or an **event-merge** (compute each
+  command's completion day, then process events in `(day, priority, location)` order) is the **central open
+  modeling choice** — it dictates exactly how movement, combat (§8.2), and market clearing (§6.6)
+  interleave mid-month. The bands and tiebreak are fixed; the tick model is deferred.
+
+### 11.4 Parallel execution & time accrual ✅ / 🟡
+
+- Each unit drains its queue **independently**: a command starts, consumes its time class in game days, the
+  next begins, "as many orders as game time allows" until the unit's 30-day budget is spent
+  ([playing.md](docs/content/rules/playing.md)). ✅
+- **Failed orders generally take zero time** (§10.3/§10.4): a semantically-invalid command (target gone,
+  skill not offered here, no peasants to recruit) fails with a business-meaning `cerr` sentinel at run,
+  consumes **no days**, and the queue advances to the next order. ✅
+- **`varies`/`as given` durations are evaluated at start-of-command against current world state** — travel
+  cost (§2.4/§9.4), `BUILD` (§6.4), `USE` (§7) — never precomputed once for the whole turn. The
+  cost-functions live in their owning sections; §11 fixes only that they read **the state as it stands when
+  the command begins**, deterministically. 🟡 where those functions are themselves still 🟡 (the §2.4
+  movement-variance model, the §9.4 ship travel-time model). ✅ (the *when*) / 🟡 (the *how much*)
+
+### 11.5 `STOP`, interrupts & carry-over ✅
+
+- A re-submitted `unit` block **does not interrupt** an in-flight command **unless its first queued order
+  is `STOP`** (§10.5). `STOP` queues like any other order and **bites only when the turn runs** — so a
+  later file can still replace it before the deadline. At run, before draining a unit's queue, the
+  scheduler checks for a leading `STOP`: present → **abandon the in-flight command** (its accrued days are
+  forfeit — no partial credit) and proceed; absent → let the in-flight command **finish first**, then
+  drain the new queue. ✅
+- **Carry-over:** a command still executing when the 30-day budget is exhausted **continues into the next
+  turn** ([playing.md](docs/content/rules/playing.md)); its **remaining days are preserved as in-flight
+  state in the turn snapshot** and it resumes at the start of the next turn's Execute phase. Unstarted
+  queued orders simply remain queued. This is why **per-unit in-flight progress is part of persisted turn
+  state**, not transient scheduler memory (§11.9). ✅
+
+### 11.6 Turn-boundary events: additions, minting, NP & money flow ✅ / 🟡
+
+Collects the entry/exit events earlier sections deferred to the turn boundary (§11.2):
+
+- **New-player addition** (Open): players who joined since the last run enter at run, placed in a
+  safe-haven city (§2.8, where combat/magic are forbidden), seeded with starting gold and NP **including
+  catch-up NP** so all players hold roughly equal NP (§3.7). ✅
+- **`FORM` minting** (Open + Execute): the next-N entity numbers are reserved and **published in the report**
+  (§3.2/§10.5) so a player can pre-queue a `unit <minted-number>` block; the `FORM` itself (prio-3, 7 days)
+  runs in Execute and the newborn begins draining its queue the moment it appears. ✅
+- **NP award** (Open): **+1 NP on every turn that is a multiple of 8** (§3.7). ✅
+- **Recorded countdown & replenishment timers** (Close): the monthly tick that advances every
+  deterministic per-turn counter the earlier sections deferred here — **loyalty-bond decay** (contract,
+  fear, oath; §3.5/§3.6), **body decomposition and noble-return** windows (§4.5/§3.6), **relic/realm and
+  pillage-recovery** timers (§5.2/§5.8), and **illness recovery / health regeneration** (§8). All advance
+  by **fixed rule or §2.9-seeded draw**, never live entropy. ✅ (that they tick in Close) / 🟡 (per-timer
+  slot order, with their owning sections)
+- **Money flow** (Close): the tax base is computed, garrison upkeep debited, the castle owner paid
+  **⌊(base − garrison upkeep)/2⌋**, the un-forwarded half lost (§6.1); men upkeep is charged to holding
+  nobles, and **one-third of unpaid soldiers leave / unpaid peasants starve**, the affected men selected
+  **deterministically from recorded state** (§6.2), never by `rand`. ✅ (the events) / 🟡 (their exact slot
+  inside Close, carried with §6.1)
+- **Un-garrisoned castle collection — settles the §6.1 pin:** a castle with **no functional garrison**
+  (≥10 men, §5.5) in its own province is **undefended, and its tax goes uncollected** that month —
+  collection is gated on the same garrison presence that gates protection. This **closes the §6.1 open
+  item** (which pinned the question here for confirmation). ✅
+
+### 11.7 Determinism: the seeded PRNG and the no-ambient-input rule ✅ (rule) / 🟡 (PRNG integration)
+
+- Resolution is a **pure function of recorded state, the assembled orders, and a recorded seed** —
+  conceptually `resolve(state, orders, seed) → state'`. CLAUDE.md forbids `time.Now` and ambient
+  randomness in the domain; AGENTS.md's **`Clock` port** abstracts time. So **no wall clock and no
+  `math/rand` global** enters resolution: the turn number, not a date, drives the calendar (§11.1). ✅
+- **Two distinct flavors of "the engine decides", both reproducible:**
+  - **Deterministic-from-state selection** — *which* men desert/starve when a noble underpays (§6.2),
+    *which* of several equal trades matches (§6.6), the within-band scheduling tie (§11.3). These follow a
+    **fixed rule over recorded order**, with **no PRNG draw at all**.
+  - **Genuinely stochastic mechanics** — combat hit rolls and random target selection (§8.2), the 25%/week
+    skill-acquisition roll (§7.3), randomized return/decay windows (§4.5/§5.8), exploration/quest outcomes.
+    These draw from the **seeded PRNG**.
+- **The seed discipline is already established in §2.9:** `ProcessTurn` takes a **recorded turn seed** as
+  input (from the `TurnLedger`), and the domain derives every stochastic outcome from it via a seeded
+  PRNG — importing **no entropy source**, the same discipline `Clock` applies to time. The scaffolded
+  **`internal/prng`** package realizes this primitive: a **splittable PCG** with save/restore state and
+  `Split()` into independent substreams. **Splitting per event (per battle, per unit, per location)** gives
+  **order-independent reproducibility** — a battle's stream does not shift because an unrelated unit rolled
+  more dice earlier in the month. The **seed-derivation rule** (from `(gameID, turn)` vs. stored) and the
+  **substream-assignment scheme** are 🟡, to settle when resolution is built. ✅ (rule) / 🟡 (integration)
+
+### 11.8 Idempotency: `ProcessTurn`, the input hash & global-only re-runs ✅
+
+- `ProcessTurn` is the state-mutating use case, and **idempotency is an Application concern** (CLAUDE.md,
+  the idempotency explanation doc): it hashes `(prior state, validated orders, seed)`, asks
+  `TurnLedger.AlreadyProcessed(gameID, turn, inputHash)`, **short-circuits** with
+  `cerr.ErrTurnAlreadyProcessed` on a match, otherwise resolves and `Record`s the hash. Re-running after an
+  operator fixes garbled orders **changes the hash**, so it does **not** short-circuit — exactly the
+  intended escape hatch. ✅
+- **Re-runs are global, never per-player** ([playing.md](docs/content/rules/playing.md): "it is not
+  possible to re-run a turn for a single player … only for all players"). This matches the hash model
+  directly: the hash is over the **whole assembled mailbox plus prior state**, so the idempotency unit is
+  the **turn**, not the player. ✅
+- **The seed must be part of (or deterministically derived from) the hashed input** (§11.7) so a re-run
+  reproduces the same stochastic draws — otherwise an idempotent re-run could silently diverge. ✅
+- Mail-arrival ordering feeds the `UNIT`-replace race **at ingest** (§10.8); by the time `ProcessTurn`
+  runs, the bundle set is fixed and resolution is pure. **Late orders simply queue for the next turn**
+  ([playing.md](docs/content/rules/playing.md)) — they never retroactively alter a resolved turn. ✅
+
+### 11.9 Architectural implications
+
+These follow from §11 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 / §7.9 / §8.10 / §9.8 / §10.8 in AGENTS.md's
+"Open architectural decisions" table:
+
+- **Turn resolution is the core of the `process` stage and must stay a pure transform.** `ProcessTurn`
+  takes `(prior snapshot, []OrderBundle, seed)` and returns the next snapshot; it reads the world only
+  through `GameStateStore`, consults `TurnLedger` for idempotency, and touches no renderer, mailer, or
+  clock. If resolution ever "needs" `time.Now`, live entropy, or a concrete store, the boundary moved to
+  the wrong layer.
+- **The seeded-PRNG location collides with the domain-import check.** §2.9 commits the **domain** to
+  deriving randomness from a seeded PRNG, yet the SOUSA conformance command
+  (`go list -deps ./internal/domain/... | … | grep -v /domain`) forbids domain importing any internal
+  package outside `/domain`. A sibling `internal/prng` would trip it. Resolution: either **relocate the
+  PRNG under `internal/domain/`**, or have domain define a minimal `Roller` interface that `prng.PRNG`
+  satisfies and inject the (split) stream as a value. This is the one new structural decision §11 surfaces.
+- **The intra-turn tick model is the largest undecided mechanic** (§11.3): day-by-day loop vs. event-merge.
+  It gates the still-open interleavings of §6.1 (money-flow slot), §6.2 (upkeep slot), §8.2 (battle
+  placement), and §6.6 (market clearing) — none of those can be fully pinned until the tick model is.
+- **In-flight command progress is persisted turn state** (§11.5 carry-over): the per-turn snapshot must
+  carry each unit's *remaining days on the running command*, not just its pending queue — otherwise a turn
+  cannot resume a multi-day order, and the snapshot is not a faithful save point.
+- **The idempotency hash must include the seed** (§11.7/§11.8): hashing only `(state, orders)` would let a
+  re-run with a fresh seed produce different combat/skill outcomes while the ledger reported "already
+  processed." The seed is part of the input identity.
+- **Money-flow and upkeep slot placement (§6.1/§6.2) is the last turn-timing decision** feeding the Close
+  phase, and it "matters for idempotency" exactly as those sections warned — the same recorded state must
+  always debit and pay in the same order.
+
+> **Not yet distilled.** §11's decided facts (the 30-day clock, the open→execute→close phase frame, the
+> ascending-priority/location-order scheduler, parallel time-accrual with zero-time failures, the `STOP`
+> bite and carry-over of in-flight progress, the turn-boundary event set, the seeded-PRNG determinism
+> contract, and the `ProcessTurn`/input-hash/global-re-run idempotency model) wait on **§12 (turn reports)**
+> before promotion to a `reference/model/` page — the report is the resolved turn's only output, and the
+> "seen here" / location-ordering rules the scheduler's tiebreak depends on are co-owned with §12. Still
+> 🟡 and carried forward: the **intra-turn tick granularity** (§11.3), the **exact Close-phase slot** of
+> money-flow vs. upkeep (§11.6, with §6.1/§6.2), the **PRNG seed-derivation and substream scheme** plus its
+> **package location** (§11.7/§11.9), and the §2.4/§9.4 cost-functions the accrual reads (§11.4).
 
 ## 12. Turn reports ❓
 

@@ -16,7 +16,11 @@ Status legend: ✅ decided · 🟡 partially specified · ❓ open question, und
 
 ## 1. Concept & victory
 
-opyl is an **open-ended fantasy game** derived from Skrenta's Olympia. ✅
+- opyl is an **open-ended fantasy game** derived from Skrenta's Olympia. ✅
+- **No victory conditions, no winner.** Characters have no fixed goals; players pursue whatever
+  ends they choose, and the game **never declares a winner** ([playing.md](docs/content/rules/playing.md)).
+  The engine therefore implements **no scoring, no win-check, and no end-of-game** logic — turns
+  run indefinitely until the GM stops the game. ✅
 
 ## 2. The map 🟡
 

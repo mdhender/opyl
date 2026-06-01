@@ -26,4 +26,5 @@ design opyl is converging on, not a settled specification.
   {{< card link="provinces" title="Provinces & Relics" subtitle="Province control, taxes, castles, garrisons, pledging, and relics." >}}
   {{< card link="ships" title="Ships" subtitle="Sailing, shipbuilding, and operating a ferry." >}}
   {{< card link="tables" title="Reference Tables" subtitle="Item values, weights, training, combat ratings, and skill listings." >}}
+  {{< card link="glossary" title="Glossary" subtitle="Definitions of the key terms used throughout the rulebook." >}}
 {{< /cards >}}

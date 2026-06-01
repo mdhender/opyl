@@ -311,27 +311,37 @@ Three nesting levels, each with a sharply different status:
 
 ### 3.8 Architectural implications
 
-These follow from §3 and belong with §2.9 in AGENTS.md's "Open architectural decisions" table:
+The architectural consequences of §3 have moved to their correct homes per the routing rule in
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (§3.2, §4, §5, and §6 link to its
+anchor):
 
-- **Faction & Noble are core `domain` aggregates.** They are pure types with invariants (one active
-  loyalty bond; health in `[0,100]`; stack parent within the same location). An `OrderBundle` (§10)
-  targets nobles **by entity number**, so ingest must resolve order → noble against the current
-  snapshot — a lookup the domain exposes, infra never performs.
-- **Deterministic entity-ID allocation.** Minting a new entity number at `FORM` (or when an item is
-  created) must be a **pure function of recorded state** — e.g. a monotonic counter persisted in the
-  per-turn snapshot, advanced inside resolution — mirroring the §2.9 turn-seed discipline. The domain
-  imports **no** entropy or clock source. The numbering **scheme/alphabet** stays ❓ (§3.2).
-- **Men-as-possessions keep the entity table small.** Modeling men as typed counts (not units) means
-  the entity-number space holds only nobles, items, skills, and sub-locations — not the thousands of
-  peasants a large game spawns. This is a deliberate model choice, not an optimization.
-- **Bodies are items, not nobles.** Death is a **type transition** (noble → `Body` item) with a
-  decomposition timer; the snapshot must carry dead-body items and their death turn so the 12-turn
-  decay and NP return are deterministic.
+- **Faction & Noble as core `domain` aggregates** — pure types with invariants (one active loyalty
+  bond; health in `[0,100]`; stack parent within the same location), and the order → noble lookup
+  ingest resolves **by entity number against the current snapshot** — a domain-exposed lookup infra
+  never performs. This is the standing SOUSA/domain discipline in [AGENTS.md](AGENTS.md) (untrusted
+  input stops at the `orderfile` boundary; only typed `OrderBundle` values reach `app`). The
+  descriptive attribute model itself awaits its `reference/model/` page (see the deferral note below).
+- **Deterministic entity-number allocation** → [`docs/adr/`](docs/adr/README.md): minting a number at
+  `FORM`/item creation is a pure function of recorded state — a **monotonic counter persisted in the
+  per-turn snapshot**, advanced inside resolution (now pinned in the State-storage snapshot
+  constraints, alongside the §2 turn-seed discipline). The determinism rule itself is the standing one
+  in [AGENTS.md](AGENTS.md) (domain imports no entropy or clock source). The on-disk/display numbering
+  **scheme/alphabet** stays open (§3.2) — a reference-side representation fact to settle with the
+  model, like the province display code in
+  [reference/model/map.md](docs/content/reference/model/map.md), not an architecture decision.
+- **Men-as-possessions** (typed counts, not entities) keep the entity-number space to nobles, items,
+  skills, and sub-locations — not the thousands of peasants a large game spawns; a deliberate model
+  choice, not an optimization. The descriptive fact belongs in `reference/model/` and its rationale in
+  `explanation/`; both ride with the deferred model page below.
+- **Bodies are items, not nobles** → [`docs/adr/`](docs/adr/README.md): death is a **type transition**
+  (noble → `Body` item) on a decomposition timer, so the snapshot must carry dead-body items and their
+  death turn for the 12-turn decay and NP return to be deterministic (now pinned in the State-storage
+  snapshot constraints). The type-transition fact itself is descriptive model, awaiting `reference/model/`.
 
 > **Not yet distilled.** Like §2 before its Map reference, §3's decided facts are not yet promoted to a
-> `reference/model/` page. Promote the noble/faction attribute model into a reference page once §10
-> (orders) confirms the attributes orders actually read and mutate — drafting that page now would
-> freeze slots the orders pass may still reshape.
+> `reference/model/` page. Promote the noble/faction attribute model — and its men-as-possessions
+> rationale into `explanation/` — once §10 (orders) confirms the attributes orders actually read and
+> mutate; drafting them now would freeze slots the orders pass may still reshape.
 
 ## 4. Items & possessions 🟡
 

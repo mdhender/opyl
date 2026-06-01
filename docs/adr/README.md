@@ -70,9 +70,12 @@ port boundary is wrong — stop and fix the port first.
 **Constraints the design work has pinned on still-open rows (GAME-DESIGN §13):**
 
 - **State storage** — backend open, but the per-turn snapshot's *contents* are pinned: it must
-  round-trip RNG state, per-unit in-flight command progress, all timer/countdown state, and the
-  per-location arrival-order list (GAME-DESIGN §13.1). `TurnLedger`, the report store, and
-  `MapSource` are separate stores, not part of this one.
+  round-trip RNG state, per-unit in-flight command progress, all timer/countdown state, the
+  per-location arrival-order list (GAME-DESIGN §13.1), the **entity-number allocation counter** (so
+  numbers minted at `FORM`/item creation are a pure function of recorded state, advanced inside
+  resolution — GAME-DESIGN §3.8), and **dead-body items with their death turn** (so the 12-turn
+  decomposition decay and Noble-Point return resolve deterministically — GAME-DESIGN §3.6/§3.8).
+  `TurnLedger`, the report store, and `MapSource` are separate stores, not part of this one.
 - **PDF library** — reports are stored and GM-regenerable (GAME-DESIGN §12.7), so deterministic,
   version-stable byte output (same snapshot + code → same bytes) favors a pure-Go library over an
   external binary or headless browser (GAME-DESIGN §13.2).

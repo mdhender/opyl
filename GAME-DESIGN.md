@@ -1538,31 +1538,45 @@ A ship becomes a **commercial ferry** when its captain sets a fee:
 
 ### 9.8 Architectural implications
 
-These follow from §9 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 / §7.9 / §8.10 in AGENTS.md's "Open
-architectural decisions" table:
+The architectural consequences of §9 have moved to their correct homes per the routing rule in
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (later chapters' §X.9/§X.8 sibling
+lists reference its anchor, e.g. §10.8, §11.9). Like combat (§8.10), ships introduce **no new** port,
+open decision, or snapshot field — §9 is a *consumer* of seams §2–§8 already established, so every
+consequence routes to a home those chapters already populated:
 
 - **Ship-type stats are authored reference data, not stored state.** The §9.1 table (capacity, crew,
   cost, shelter) is loaded immutably alongside the map (§2.1), item-type table (§4.2), and skill table
-  (§7.2) — most likely through the same authored-data source/adapter (the `MapSource`-class concern),
-  and inheriting its open on-disk-format question (§3.2). Resolution reads these stats, never mutates
-  them.
+  (§7.2) — the **same open authored-data artifact-and-loader concern** as the "Map artifact format"
+  row and the planned `MapSource` port in [`docs/adr/`](docs/adr/README.md) (a sibling loader, not a
+  separate decision — §13.7, exactly as the item-type and skill tables are routed in §4.9/§7.9).
+  Resolution reads these stats, never mutates them. The descriptive ship-type model belongs in
+  `reference/model/` with the deferred page (see the note below).
 - **A ship is a mobile container entity.** Its identity is an entity number (§3.2), but the location
   model (§2) must express **"inside ship `[n]`"** as a containment edge — distinct from province
   coordinates and from authored sub-location codes — so that a single `SAIL` transform relocates the
   vessel and everything stacked within it. This is the one place the entity-number space and the
-  spatial graph genuinely meet.
+  spatial graph genuinely meet. This descriptive containment-model fact belongs in `reference/model/`
+  with the deferred page, alongside the §2 map model.
 - **Per-instance ship state lives on the entity; type stats do not.** Name, damage %, construction
   progress, captain (positional, §6.4), and the occupant/cargo manifest are carried per ship (the
   §4.5 per-instance-state pattern); capacity/crew/cost are read from the authored table. Effective
-  capacity is a *derived* value (`base × (1 − damage)`), computed at use, not persisted.
+  capacity is a *derived* value (`base × (1 − damage)`), computed at use, not persisted. This
+  descriptive per-instance model belongs in `reference/model/` with the deferred page.
 - **Build and travel introduce no new timers or entropy.** Ship construction reuses §6.4's
   fifths-staged progress (no new persisted countdown), and storm/rock damage is a **pure function of
-  recorded state + the §2.9 seed** — re-running `(gameID, turn)` reproduces the same hull damage and
-  the same sailing outcomes, which is what keeps ship movement idempotent under the `TurnLedger`.
+  recorded state + the §2.9 seed** — the standing **domain-purity** rule (the domain imports no
+  entropy or clock — [AGENTS.md](AGENTS.md)), the draws going through the `RNG` port
+  ([ADR 0003](docs/adr/README.md)). Re-running `(gameID, turn)` reproduces the same hull damage and
+  the same sailing outcomes, which keeps ship movement idempotent under the `TurnLedger` — the
+  rationale already lives in [explanation/idempotency.md](docs/content/explanation/idempotency.md).
+  Ship build and damage add **no new persisted timer** — they feed the timer/countdown state the
+  snapshot already carries, **already pinned** in [`docs/adr/`](docs/adr/README.md)'s State-storage
+  constraints (routed in §5.9/§7.9).
 - **The ferry fee is per-captain (noble) state, read at `BOARD` time.** It is *not* a property of the
   ship entity (§9.6); the `BOARD` use case reads the co-located captain's fee and effects a
-  pay-then-move. The `FEE`/`BOARD`/`UNLOAD`/`FERRY`/`WAIT FERRY` handshake is order-driven (§10), and
-  its priority ordering within a turn is a §11 concern.
+  pay-then-move. This descriptive per-noble slot belongs in `reference/model/` with the deferred page.
+  The `FEE`/`BOARD`/`UNLOAD`/`FERRY`/`WAIT FERRY` handshake is order-driven (§10), and its priority
+  ordering within a turn is a §11 resolution concern that bears on idempotency.
 
 > **Not yet distilled.** Like §2–§8, §9's decided facts (the two ship types, the entity/container
 > model, the §6.4-reusing build, the crew gate and dock, the damage/repair and ferry models) wait on

@@ -7,30 +7,30 @@ open.
 ## What this is — and why it lives here, not in `docs/content/`
 
 `docs/adr/` sits **outside the Diataxis taxonomy** and **outside the Hugo site** (`docs/content/`).
-Diataxis organises documentation by a *product user's* needs — learning, working, looking up, and
+Diataxis organises documentation by a _product user's_ needs — learning, working, looking up, and
 understanding the engine. Architecture decisions serve a different reader: the **contributor or
 coding agent building the engine**, who needs to know what was chosen, why, and what is still
 undecided. That is governance, not product documentation, so it lives beside
 [`AGENTS.md`](../../AGENTS.md) rather than on the published site.
 
 This is the same carve-out that puts the player-facing rulebook outside Diataxis (it documents the
-*game world*, not the tool) — applied for the parallel reason: ADRs document *how the tool is
-built and constrained*, not how it is used.
+_game world_, not the tool) — applied for the parallel reason: ADRs document _how the tool is
+built and constrained_, not how it is used.
 
 ## The line between this and its neighbours
 
 - **vs [`AGENTS.md`](../../AGENTS.md)** — AGENTS.md holds **standing rules that are always true**
   regardless of any choice (SOUSA discipline, the layer table, the ports list, the untrusted-input
   and idempotency invariants, validation commands). This directory holds **decisions that could
-  have gone another way** — and the record of the ones that did. The test: *"Is this a rule I
-  follow, or a choice I made?"*
+  have gone another way** — and the record of the ones that did. The test: _"Is this a rule I
+  follow, or a choice I made?"_
 - **vs [`GAME-DESIGN.md`](../../GAME-DESIGN.md)** — that file resolves **game mechanics** (values,
   phase order, entity attributes). This directory resolves **engine architecture** (storage,
   transport, layout). A decision belongs here the moment it stops being about the game and starts
   being about the program.
 - **vs `docs/content/reference/` and `docs/content/explanation/`** — once a decision lands, its
-  *descriptive* result is promoted to `reference/` ("the `OrderSource` port reads orders for a
-  turn") and its *rationale for a wide audience* to `explanation/` ("why idempotency lives in
+  _descriptive_ result is promoted to `reference/` ("the `OrderSource` port reads orders for a
+  turn") and its _rationale for a wide audience_ to `explanation/` ("why idempotency lives in
   app"). The **binding decision itself and its open/closed status stay here**. See the three-way
   split in AGENTS.md's routing rule.
 
@@ -51,17 +51,18 @@ is where those verdicts become binding for the build.
 Decide each explicitly before substantial implementation begins; add a decision record below when
 one settles. Status is reconciled against the design work in GAME-DESIGN §13.
 
-| Decision               | Status        | Options / resolution                                                                                                            |
-| ---------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| State storage          | open          | SQLite (queryable, concurrent) **vs.** directory of versioned JSON/YAML per turn (human-inspectable, git-diffable audit trail)  |
-| PDF library            | open          | `gofpdf` / `signintech/gopdf` (pure Go) **vs.** `typst` CLI (rich layout, external binary) **vs.** `chromedp` (HTML → PDF, heavy)|
-| Order file format      | **decided**   | Custom line-oriented DSL (rulebook envelope) — *not* YAML, *not* structured email body. See ADR 0001.                          |
-| Mail transport         | open          | Direct SMTP **vs.** SES / SendGrid API **vs.** "drop EML files in `/outbox` for an external mailer"                             |
-| CLI framework          | open          | stdlib `flag` (matches Diacous) **vs.** `cobra` (matches GemGem) — design-neutral, decide at implementation time               |
-| Concurrency model      | **confirmed** | Turns serial per game; games in parallel; **no goroutines inside a single turn's resolution**. See ADR 0002.                   |
-| Map artifact format    | open          | On-disk format (JSON/YAML/custom) for the authored province graph behind the planned `MapSource` port (GAME-DESIGN §2.1/§13.7) |
-| Report store format    | open          | Where/how rendered reports persist behind the planned `ReportStore` port; interacts with State storage (GAME-DESIGN §12.7/§13.7)|
-| JSON results schema    | open          | Versioned projection of `domain.PlayerReport` emailed as machine-readable results (GAME-DESIGN §12.6/§13.7)                    |
+| Decision             | Status        | Options / resolution                                                                                                                                                                                                                                                                                   |
+| -------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| State storage        | open          | SQLite (queryable, concurrent) **vs.** directory of versioned JSON/YAML per turn (human-inspectable, git-diffable audit trail)                                                                                                                                                                         |
+| PDF library          | open          | `gofpdf` / `signintech/gopdf` (pure Go) **vs.** `typst` CLI (rich layout, external binary) **vs.** `chromedp` (HTML → PDF, heavy)                                                                                                                                                                      |
+| Order file format    | **decided**   | Custom line-oriented DSL (rulebook envelope) — _not_ YAML, _not_ structured email body. See ADR 0001.                                                                                                                                                                                                  |
+| Mail transport       | open          | Direct SMTP **vs.** SES / SendGrid API **vs.** "drop EML files in `/outbox` for an external mailer"                                                                                                                                                                                                    |
+| CLI framework        | open          | stdlib `flag` (matches Diacous) **vs.** `cobra` (matches GemGem) — design-neutral, decide at implementation time                                                                                                                                                                                       |
+| Concurrency model    | **confirmed** | Turns serial per game; games in parallel; **no goroutines inside a single turn's resolution**. See ADR 0002.                                                                                                                                                                                           |
+| Map artifact format  | open          | On-disk format (JSON/YAML/custom) for the authored province graph behind the planned `MapSource` port (GAME-DESIGN §2.1/§13.7)                                                                                                                                                                         |
+| Report store format  | open          | Where/how rendered reports persist behind the planned `ReportStore` port; interacts with State storage (GAME-DESIGN §12.7/§13.7)                                                                                                                                                                       |
+| JSON results schema  | open          | Versioned projection of `domain.PlayerReport` emailed as machine-readable results (GAME-DESIGN §12.6/§13.7)                                                                                                                                                                                            |
+| `OrderSource` output | open          | One `[]OrderBundle` channel **vs.** the bundle **plus** a separate account-directives struct — `begin`/`unit`/`end`, account/report-format settings, and immediate-effect directives (`resend`/`lore`/`players`/`public`) are account/scan-level, not per-turn unit commands (GAME-DESIGN §10.6/§10.8) |
 
 Whichever choices land, each should affect **only** the relevant `internal/infra/<adapter>/`
 package. If a decision starts requiring changes outside its infra package, that is a signal the
@@ -69,7 +70,7 @@ port boundary is wrong — stop and fix the port first.
 
 **Constraints the design work has pinned on still-open rows (GAME-DESIGN §13):**
 
-- **State storage** — backend open, but the per-turn snapshot's *contents* are pinned: it must
+- **State storage** — backend open, but the per-turn snapshot's _contents_ are pinned: it must
   round-trip RNG state, per-unit in-flight command progress, all timer/countdown state, the
   per-location arrival-order list (GAME-DESIGN §13.1), the **entity-number allocation counter** (so
   numbers minted at `FORM`/item creation are a pure function of recorded state, advanced inside
@@ -79,7 +80,7 @@ port boundary is wrong — stop and fix the port first.
 - **PDF library** — reports are stored and GM-regenerable (GAME-DESIGN §12.7), so deterministic,
   version-stable byte output (same snapshot + code → same bytes) favors a pure-Go library over an
   external binary or headless browser (GAME-DESIGN §13.2).
-- **Mail transport** — sits behind *two* ports: `ReportDispatcher` (outbound) and `OrderSource`
+- **Mail transport** — sits behind _two_ ports: `ReportDispatcher` (outbound) and `OrderSource`
   (inbound order files). `DispatchReports` idempotency lives in app, above transport
   (GAME-DESIGN §13.4).
 
@@ -107,5 +108,5 @@ deterministic. (GAME-DESIGN §11/§13.6.)
 Stochastic draws go through the **`RNG` port** (`internal/app/ports.go`), mirroring `Clock`,
 realized by the **`internal/infra/prng`** PCG adapter. RNG state round-trips with the per-turn
 snapshot via `GameStateStore` — randomness stays a pure function of recorded state, and no
-component imports an entropy source. This closes the former *Randomness source* open row; the port
+component imports an entropy source. This closes the former _Randomness source_ open row; the port
 is now listed among AGENTS.md's declared ports. (GAME-DESIGN §11.7/§11.9.)

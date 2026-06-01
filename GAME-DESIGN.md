@@ -1622,8 +1622,8 @@ that carry those mechanics, never their resolution. The hand-off is sharp: §10 
   may hold at most **250 queued orders**; excess is silently dropped (a gap §10.8 flags for an explicit
   ingest warning). ✅
 - This DSL — not YAML, not a structured-field email schema — is the **decided order-file content format**,
-  which **settles AGENTS.md's "Order file format" open decision** toward the rulebook's custom
-  line-oriented DSL. Mail *transport* (how the file arrives) is the separate "Mail transport" decision; the
+  recorded as the rulebook's custom line-oriented DSL in [ADR 0001](docs/adr/README.md). Mail *transport*
+  (how the file arrives) is the separate "Mail transport" decision; the
   DSL is simply the body it carries. The **exact tokenizer/grammar spec** (quoting edge cases, numeric vs.
   entity-code argument forms) is 🟡 — pinned down when the orderfile adapter is built. ✅ (format) / 🟡 (spec)
 
@@ -1727,40 +1727,56 @@ layer boundary:
 
 ### 10.8 Architectural implications
 
-These follow from §10 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 / §7.9 / §8.10 / §9.8 in AGENTS.md's "Open
-architectural decisions" table:
+The architectural consequences of §10 have moved to their correct homes per the routing rule in
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (§11.9's sibling list references its
+anchor). Unlike the consumer chapters §3–§9, §10 *owns* the order-ingest machinery — but the
+`OrderSource` port and the `internal/infra/orderfile/` untrusted boundary were already decided, so all
+but one consequence route to homes that already hold them:
 
-- **The order file is the engine's one untrusted boundary, and it lives entirely in `orderfile/`.** Raw
-  bytes exist *only* inside `internal/infra/orderfile/`; it parses the DSL, rejects malformed input with
+- **The order file is the engine's one untrusted boundary, and it lives in `orderfile/`.** Raw bytes
+  exist *only* inside `internal/infra/orderfile/`, which parses the DSL, rejects malformed input with
   `cerr.ErrInvalidOrders`, and emits typed `domain.OrderBundle` values through the `OrderSource` port
-  (`ReadOrders → []domain.OrderBundle`, one per player). `app` and `domain` never see text. This is the
-  literal realization of CLAUDE.md's "order files are untrusted / `orderfile/` is the validation boundary."
+  (`ReadOrders → []domain.OrderBundle`, one per player); `app` and `domain` never see text. This is the
+  standing untrusted-input rule in [AGENTS.md](AGENTS.md) ("Input files are untrusted"); the port's
+  descriptive signature and its `ErrInvalidOrders` return are already in
+  [reference/ports.md](docs/content/reference/ports.md) and
+  [reference/errors.md](docs/content/reference/errors.md).
 - **Two-stage validation *is* the layer boundary.** Lexical/structural validity (verb exists, envelope
   well-formed, scan-order params) is the **parser's** job and fails as `ErrInvalidOrders`; semantic
   validity (skill offered here? peasants present? target real?) is **resolution's** job (§11) and fails as
-  the business-meaning `cerr` sentinels at run, taking zero time. Keeping these on opposite sides of the
-  port stops infra from needing game rules and stops the resolver from re-parsing text.
+  the business-meaning `cerr` sentinels at run, taking zero time. The descriptive error split lives in
+  [reference/errors.md](docs/content/reference/errors.md); the rationale — the parser is the boundary, so
+  the domain never re-validates well-formedness — is in
+  [explanation/use-cases.md](docs/content/explanation/use-cases.md).
 - **The command catalog is authored reference data with two consumers.** Each verb's priority and time
   class are immutable authored facts (like the item/skill/ship-type tables); the **parser** reads arity and
-  parse-time params from it, the **§11 scheduler** reads priority and time. Where this catalog physically
-  lives — a domain constant table vs. an authored artifact loaded like the map (§2.1) — inherits the same
-  **authored-data-source / on-disk-format** open question carried since §3.2/§9.8.
-- **Account/scan directives are not per-turn unit commands — likely a separate channel.** `begin`/`unit`/
-  `end`, `password`/`email`/`vis_email`/`realname`/`format`/`notab`/`times`, and `resend`/`lore`/`players`/
-  `public` configure the *account and the scan reply*, not the simulated turn (§10.6). They probably should
-  **not** ride inside the `OrderBundle` the §11 resolver drains; the bundle wants the per-unit *command
-  queue*, while these are ingest-time settings/effects. Whether that means a second typed value out of the
-  parser (an "account directives" struct alongside the bundle) is an open shape to settle when the adapter
-  and the `OrderSource` port are fleshed out.
-- **`OrderBundle` + an input hash is the idempotency key's raw material.** The bundle is the deterministic
-  digest of one player's intent for `(gameID, turn)`; hashing the accumulated, parsed bundles gives the
-  `TurnLedger` its input hash (the Application-level idempotency concern, CLAUDE.md). Note that **which**
-  bundles accumulate by the deadline depends on mail arrival — a `UNIT`-replace race the rulebook's
-  `PASSWORD` trick exploits — so arrival ordering is an **ingest-time** input to the hash, deterministic
-  *given* the assembled mailbox; the resolver downstream stays a pure function of that hash.
-- **The 250-order cap and silent drops want an explicit ingest warning.** Truncation that reads as
-  "accepted everything" violates the no-silent-caps discipline; the acknowledgement reply (§12) should
-  surface dropped orders rather than discarding them quietly.
+  parse-time params, the **§11 scheduler** reads priority and time. *Where* the catalog physically lives —
+  a domain constant table vs. an authored artifact loaded like the map (§2.1) — is the **same open
+  authored-data artifact-and-loader concern** as the "Map artifact format" row and the planned `MapSource`
+  port in [`docs/adr/`](docs/adr/README.md) (a sibling loader, not a separate decision — exactly as the
+  item-type and skill tables route in §4.9/§7.9). The descriptive catalog model belongs in
+  `reference/model/` with the deferred §10 page (see the note below).
+- **Account/scan directives may need a channel separate from the `OrderBundle`.** `begin`/`unit`/`end`,
+  the account/report-format settings (`password`/`email`/`vis_email`/`realname`/`format`/`notab`/`times`),
+  and the immediate-effect directives (`resend`/`lore`/`players`/`public`) configure the *account and the
+  scan reply*, not the simulated turn (§10.6) — so they probably should **not** ride inside the per-unit
+  `OrderBundle` the §11 resolver drains. Whether the parser emits a second typed value (an
+  "account-directives" struct alongside the bundle) is an **open `OrderSource`-output shape**, now tracked
+  in [`docs/adr/`](docs/adr/README.md)'s open-decisions register; settle it when the orderfile adapter and
+  the `OrderSource` port are built.
+- **`OrderBundle` + an input hash is the idempotency key's raw material.** Hashing the accumulated, parsed
+  bundles for `(gameID, turn)` gives `TurnLedger` its input hash — the Application-level idempotency
+  concern whose rationale already lives in
+  [explanation/idempotency.md](docs/content/explanation/idempotency.md) and
+  [explanation/use-cases.md](docs/content/explanation/use-cases.md). *Which* bundles accumulate by the
+  deadline depends on mail arrival — the `UNIT`-replace race the rulebook's `PASSWORD` trick exploits — so
+  arrival ordering is an **ingest-time** input to the hash, deterministic *given* the assembled mailbox (a
+  §12 mail-ingest detail carried with the report pass); the resolver downstream stays a pure function of
+  that hash.
+- **The 250-order cap and its silent drops want an explicit ingest warning.** Truncation that reads as
+  "accepted everything" should instead surface the dropped orders in the acknowledgement reply (§12) rather
+  than discarding them quietly — a reporting-behavior constraint the §12 acknowledgement-reply mechanic
+  owns.
 
 > **Not yet distilled.** Like §2–§9, §10's decided facts (the `begin`/`unit`/`end` DSL and its
 > forgiving grammar, the untrusted boundary and `OrderBundle` flow, the parse-time/execute-time split,
@@ -1768,9 +1784,11 @@ architectural decisions" table:
 > name sanitization at ingest) wait on **§11 (turn resolution)** before promotion to a `reference/model/`
 > page — the scheduler that consumes priorities, the `STOP`/interrupt and time-accrual timing, and the
 > idempotency hashing may still reshape the slots. The **tokenizer/grammar spec** and **sanitization
-> charset** (§10.1/§10.7), the **physical home of the command catalog** (§10.8), and whether
-> **account/scan directives** travel as a separate typed channel out of the parser (§10.8) remain 🟡 and
-> are carried forward.
+> charset** (§10.1/§10.7) remain 🟡 and are carried forward. The two *architecture* shapes §10.8 surfaced
+> — the **physical home of the command catalog** and whether **account/scan directives** travel as a
+> separate typed channel out of the parser — have moved to their home in
+> [`docs/adr/`](docs/adr/README.md) (the authored-data concern and the open `OrderSource`-output row,
+> respectively).
 
 ## 11. Turn resolution 🟡
 

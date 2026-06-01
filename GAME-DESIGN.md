@@ -27,7 +27,9 @@ Status legend: ✅ decided · 🟡 partially specified · ❓ open question, und
 The world is a square grid of **provinces** grouped into named **regions**. Provinces may
 contain **inner locations** (cities, inns, ports, …). This section records the decisions
 that turn the [Geography & Movement](docs/content/rules/geography.md) rulebook draft into a
-buildable model. Spatial flavor (terrain *yields*, special realms) is deferred where noted.
+buildable model. Spatial flavor (terrain *yields*, special realms) is deferred where noted. §2
+is **geometry only**: a province's non-spatial attributes — tax base, ownership, buildings,
+garrisons, rank — are political/economic and live in §5 (Provinces & territory) and §6 (Economy).
 
 > **Distilled →** the decided (✅) facts of this section are published as the
 > [Map reference](docs/content/reference/model/map.md) — the sole source the engine builds
@@ -62,8 +64,7 @@ buildable model. Spatial flavor (terrain *yields*, special realms) is deferred w
     `a b c d e f g h k m n p q r s t u v w x y z` (a–z minus `i`, `j`, `l`, `o`, which read as
     `1`/`0`). So `a`=1 … `z`=22, then `aa`=23, `ab`=24, …; **two-letter rows begin at row 23**
     (bijective numbering has no zero digit). No hard cap — the code simply grows a letter
-    (`aaa`=507) for very large maps. This alphabet **supersedes** the rulebook's
-    `abcdfghjkmnpqrstvwxz` list, which excluded `e` yet used `[ae48]` as its main example.
+    (`aaa`=507) for very large maps.
   - **Column** is a plain decimal ordinal (`1`, `2`, …), written without leading zeros.
 - **GM convention:** the world origin is the GM's choice, but maps are typically laid out with
   **`aa1` at the upper-left = `(row 23, col 1)`**, leaving rows 1–22 (`a`–`z`) as northern
@@ -81,7 +82,7 @@ buildable model. Spatial flavor (terrain *yields*, special realms) is deferred w
 
 - **Six terrain types**: plains, forest, swamp, mountain, desert, ocean. ✅
 - Terrain affects **movement cost** (§2.4). Other terrain **effects** (resource yield,
-  defense, sighting) are **deferred to the economy/combat passes** — 🟡.
+  defense, sighting) are **deferred to §6/§8 (economy/combat)** — 🟡.
 
 ### 2.4 Movement & travel time 🟡
 
@@ -94,7 +95,7 @@ buildable model. Spatial flavor (terrain *yields*, special realms) is deferred w
   the `TurnLedger`** (see §2.7). ✅ *mechanism* — the concrete **variance model**
   (distributions, per-mode/terrain modifiers, wind for ocean) is ❓ and designed later.
 - `FLY` exists in the command set but its movement rules are unspecified here — cross-ref the
-  Orders pass. ❓
+  Orders section (§10). ❓
 
 ### 2.5 Inner locations, ports & visibility ✅
 
@@ -156,8 +157,8 @@ The entity model the rest of the engine bottoms out on. §2 gave us the **places
 defines the **entities that occupy them** — who accepts orders, what they own, and how they
 are born and die. This section fixes the *shape* of the model (which entities exist, what
 attributes each carries, how they nest) and **defers the mechanics** that act on that shape to
-the passes that consume them — orders (§4), turn resolution (§5), and the not-yet-opened
-skills/items/combat passes.
+the passes that consume them — orders (§10), turn resolution (§11), and the items, skills,
+and combat sections (§4, §7, §8).
 
 Primary source: [Playing the Game](docs/content/rules/playing.md) ("Definition of Terms"),
 with [Loyalty, Stacking & Upkeep](docs/content/rules/logistics.md) and
@@ -201,26 +202,26 @@ vocabulary.
   state** (see §3.8), never `rand`/`time`.
 - A noble also carries a **display name** — free text, player-chosen via order (as for other named
   entities). Name is **cosmetic**; the number is identity. Player-supplied names are **untrusted input**
-  and must be sanitized before reaching any report — see §4.
+  and must be sanitized before reaching any report — see §10.
 
 ### 3.3 Noble attributes ✅ (slots) / 🟡 (mechanics)
 
 The decision here is the **attribute set** — which slots a noble carries. Whether each slot's
-*mechanics* are settled is marked per row; an unsettled mechanic still reserves its slot now so §4/§5
+*mechanics* are settled is marked per row; an unsettled mechanic still reserves its slot now so §10/§11
 have a stable target.
 
 | Attribute            | Slot | Mechanics settled?                                                              |
 | -------------------- | ---- | ------------------------------------------------------------------------------- |
 | Entity number, name  | ✅   | ✅ identity (§3.2)                                                               |
 | Location             | ✅   | ✅ province/sub-location placement (§2.5)                                        |
-| Stack position       | ✅   | 🟡 grouping model below; movement/combat effects deferred to §5/combat pass     |
-| Loyalty bond         | ✅   | 🟡 kind + rating decided (§3.5); decay/desertion resolution deferred to §5      |
-| Health + illness flag| ✅   | 🟡 1–100 + sick flag decided; weekly update/wound math deferred (§5/combat)     |
-| Inventory: items     | ✅   | 🟡 held items incl. gold `[1]`; per-item rules deferred to the items pass       |
-| Inventory: men       | ✅   | 🟡 typed counts (§3.4); training/upkeep/combat deferred (§5/combat)             |
-| Skills + experience  | ✅   | ❓ slot reserved; skill model deferred to the skills/magic pass                 |
-| Aura (current/max)   | ✅   | 🟡 present on **every** noble, `0` for non-mages; spend/replenish & max-growth deferred to magic pass |
-| Combat attitude, rank| 🟡   | ❓ attitude/behind/rank deferred to combat & provinces passes                   |
+| Stack position       | ✅   | 🟡 grouping model below; movement/combat effects deferred to §8/§11             |
+| Loyalty bond         | ✅   | 🟡 kind + rating decided (§3.5); decay/desertion resolution deferred to §11     |
+| Health + illness flag| ✅   | 🟡 1–100 + sick flag decided; weekly update/wound math deferred (§8/§11)        |
+| Inventory: items     | ✅   | 🟡 held items incl. gold `[1]`; per-item rules deferred to §4 (items)           |
+| Inventory: men       | ✅   | 🟡 typed counts (§3.4); training/upkeep/combat deferred (§6/§8)                 |
+| Skills + experience  | ✅   | ❓ slot reserved; skill model deferred to §7 (skills, magic & religion)         |
+| Aura (current/max)   | ✅   | 🟡 present on **every** noble, `0` for non-mages; spend/replenish & max-growth deferred to §7 |
+| Combat attitude, rank| 🟡   | ❓ attitude/behind deferred to §8 (combat); rank to §5 (territory)              |
 | Player-character flag| ✅   | ✅ marks the faction's first noble (§3.6); no other special behavior            |
 
 - **Health is noble-only.** Men have no health rating (alive or dead); some NPCs read `n/a` and need
@@ -229,14 +230,14 @@ have a stable target.
   learns spells. Carrying it **universally** (not only on mages) keeps the noble type uniform and lets
   any noble take up magic without a shape change; the cost is one cheap integer pair per noble. ✅
   There is **no separate "piety" rating**: priesthood is simply knowing Religion `[750]` (temple
-  offerings + prayers-as-skills, §skills pass). Piety belongs to Scott Turner's *Olympia: The Age of
+  offerings + prayers-as-skills, §7). Piety belongs to Scott Turner's *Olympia: The Age of
   Gods*, **not** this rulebook. ✅
 - **Stack grouping (model):** stacking is a **tree** — each noble may be stacked *under* exactly one
   parent noble, forming a stack whose top-most member is the **leader**. Only one level is shown in
   reports, but the engine stores the **full parent chain** because break-up follows it (a noble
   follows the parent it was stacked under). Stacking is **orthogonal to faction ownership and
   loyalty**: stack-mates may belong to different factions (gated by `ADMIT`). ✅ shape; movement/combat
-  consequences are §5/combat.
+  consequences are §8/§11.
 
 ### 3.4 The faction → noble → men/items hierarchy ✅
 
@@ -251,10 +252,10 @@ Three nesting levels, each with a sharply different status:
   ownership, maintenance billing, and drops), but **carrying capacity and upkeep are computed for the
   stack as a whole** — one stack-mate may hold all the gold and pay the whole stack's upkeep; another
   may hold all the horses. The distribution across same-faction stack-mates is irrelevant to capacity.
-  ✅ (the capacity/upkeep math itself is §5.)
+  ✅ (the capacity/upkeep math itself is §6.)
 - "Men" includes beast-fighters (e.g. dragons, via Beastmastery) but **not** work-animals (horses,
-  oxen) that have no combat value — both are possessions, distinguished later by the combat/economy
-  passes. 🟡
+  oxen) that have no combat value — both are possessions, distinguished later by Economy/Combat
+  (§6/§8). 🟡
 
 ### 3.5 Loyalty bonds ✅ (model) / 🟡 (resolution)
 
@@ -264,7 +265,7 @@ Three nesting levels, each with a sharply different status:
   bond names is the **owning faction**.
 - **Decided starting values:** the player character begins **oath-2**; newly hired/FORMed nobles begin
   **contract-500**. ✅
-- **Deferred to §5 (turn resolution):** monthly **decay** (contract `max(50, 10%)`; fear `1–2`; oath
+- **Deferred to §11 (turn resolution):** monthly **decay** (contract `max(50, 10%)`; fear `1–2`; oath
   none), **desertion** at contract-0/fear-0 (50%/mo), and **bribe/oath defection** resistance
   (oath-1 ignores bribes; oath-2 immovable). The *values* are recorded here; the *when/how* is a
   resolution-phase concern. 🟡
@@ -274,16 +275,16 @@ Three nesting levels, each with a sharply different status:
 - **Birth.** A faction's first noble is the **player character (PC)**, present at game start at
   oath-2. Further nobles are created with **`FORM`**, which **spends Noble Points** (§3.7). Nothing is
   special about the PC beyond being first; if it dies, play continues with the faction's other nobles.
-  ✅ shape; `FORM` cost/syntax is §4.
+  ✅ shape; `FORM` cost/syntax is §10.
 - **Death.** Health reaching **0** (or a killing blow) ends a noble. On death the noble **becomes a
   `Body` item** dropped into its province, recoverable with `EXPLORE` (an executioner receives the
   body directly). ✅ The body **decomposes 1.5 game years after death** — **12 turns**, since a year is
   8 months/turns (die turn 20 → decompose end of turn 32). ✅
 - **NP return on dissolution.** Noble Points invested in a noble **return to the original owner** when
   its body **decomposes** (or on desertion — but a contract/fear renouncer's NPs are withheld until it
-  next swears to a faction or dies). ✅ values; the return is applied during resolution (§5).
+  next swears to a faction or dies). ✅ values; the return is applied during resolution (§11).
 - **Resurrection / `LAY TO REST`** (priest skills that hasten or reverse a spirit's passing): **later
-  content**, deferred to the skills/religion pass. ❓
+  content**, deferred to §7 (skills, magic & religion). ❓
 
 ### 3.7 Noble Points (NP) ✅ / 🟡
 
@@ -294,14 +295,14 @@ Three nesting levels, each with a sharply different status:
   hold roughly equal NP; **+1 NP every turn that is a multiple of 8** (turns 8, 16, 24, …). NP buys
   nobles (`FORM`), some advanced skills, and oath loyalty. ✅
 - The **starting amount**, **catch-up formula**, and **per-skill NP costs** are 🟡 — recorded as
-  present, valued during the orders/skills passes.
+  present, valued during the Orders/Skills passes (§10/§7).
 
 ### 3.8 Architectural implications
 
 These follow from §3 and belong with §2.9 in AGENTS.md's "Open architectural decisions" table:
 
 - **Faction & Noble are core `domain` aggregates.** They are pure types with invariants (one active
-  loyalty bond; health in `[0,100]`; stack parent within the same location). An `OrderBundle` (§4)
+  loyalty bond; health in `[0,100]`; stack parent within the same location). An `OrderBundle` (§10)
   targets nobles **by entity number**, so ingest must resolve order → noble against the current
   snapshot — a lookup the domain exposes, infra never performs.
 - **Deterministic entity-ID allocation.** Minting a new entity number at `FORM` (or when an item is
@@ -316,11 +317,64 @@ These follow from §3 and belong with §2.9 in AGENTS.md's "Open architectural d
   decay and NP return are deterministic.
 
 > **Not yet distilled.** Like §2 before its Map reference, §3's decided facts are not yet promoted to a
-> `reference/model/` page. Promote the noble/faction attribute model into a reference page once §4
+> `reference/model/` page. Promote the noble/faction attribute model into a reference page once §10
 > (orders) confirms the attributes orders actually read and mutate — drafting that page now would
 > freeze slots the orders pass may still reshape.
 
-## 4. Orders ❓
+## 4. Items & possessions ❓
+
+The item entity model — what an item *is*, and the shared table of item types (gold `[1]`,
+weapons, armor, scrolls, raw materials, and `Body` items). §3 reserved each noble's item and men
+slots (§3.3–§3.4) and made a noble a `Body` item on death (§3.6); this section defines the items
+themselves: weight/carry ratings, stacking of identical items, and creation via `MAKE`. Primary
+sources: [logistics.md](docs/content/rules/logistics.md) (carrying capacity, making weapons &
+armor), [tables.md](docs/content/rules/tables.md) (item table); trade-good aspects are shared
+with §6.
+
+## 5. Provinces & territory control ❓
+
+The province as a **political/economic entity**, layered on §2's spatial graph: tax base,
+ownership and control, the buildings it holds, castles and the garrisons bound to them, noble
+**rank** (lord → king, by provinces controlled), pledge chains and shared **rulers**, decrees, and
+**relics**. §2 stays geometry; this section owns everything non-spatial about a province. Primary
+sources: [provinces.md](docs/content/rules/provinces.md),
+[buildings-economy.md](docs/content/rules/buildings-economy.md). Cross-refs: §2.7 (civ level), §6.
+
+## 6. Economy ❓
+
+The monthly flow of money and materials: tax base → income, building **construction** (effort in
+worker-days), **markets** (`BUY`/`SELL` matched in a shared city), **trade goods**, the
+**maintenance/upkeep** of men, and **training** peasants into other kinds of men. Primary sources:
+[buildings-economy.md](docs/content/rules/buildings-economy.md),
+[markets.md](docs/content/rules/markets.md), [provinces.md](docs/content/rules/provinces.md) (tax
+base), [logistics.md](docs/content/rules/logistics.md) (upkeep, training). Ships' economic role
+cross-refs §9.
+
+## 7. Skills, magic & religion ❓
+
+The skill model: the category/sub-skill tree, `STUDY`/`RESEARCH`, **experience** levels
+(apprentice → grand master), the six **schools of magic** and the **aura** they spend (§3.3
+reserved the skills and aura slots), and **religion** — priests, prayers, and temple offerings,
+with **no separate piety rating** (§3.3). Primary sources:
+[skills-magic.md](docs/content/rules/skills-magic.md),
+[tables.md](docs/content/rules/tables.md).
+
+## 8. Combat ❓
+
+Battle resolution: `ATTACK`/`DEFEND`, the combat **attitudes** (`HOSTILE`/`DEFEND`/`NEUTRAL`/
+`DEFAULT`), `BEHIND` positioning, the **break point**, stack-leader targeting, garrisons and
+**sieges**, **prisoners**, and the **wound** generation that feeds noble health (§3.3, §3.6).
+Primary source: [combat.md](docs/content/rules/combat.md). Cross-refs: §5 (garrisons), §9 (no
+siege engines at sea).
+
+## 9. Ships ❓
+
+Ships as combined movement + economic entities: galley and roundship, sailing requirements and
+cargo capacity, **ferries** (`FEE`/`BOARD`/`FERRY`/`UNLOAD`), and docking (cross-ref §2.5). A ship
+is an ordinary entity in the entity-number space (§3.2), not a sub-location. Primary source:
+[ships.md](docs/content/rules/ships.md). May fold into §6 if it stays thin.
+
+## 10. Orders ❓
 
 > **Early decision (recorded ahead of the full orders pass).**
 >
@@ -335,10 +389,10 @@ These follow from §3 and belong with §2.9 in AGENTS.md's "Open architectural d
 > CLAUDE.md's rule that `orderfile/` is *the* validation boundary, so only safe, typed names cross into
 > `domain` and every render target inherits a clean string. Render-time escaping, if added, is
 > defense-in-depth, not the primary control. The exact allowed character set and transform (reject vs.
-> strip vs. escape on the way in) is 🟡 — settled with the rest of §4.
+> strip vs. escape on the way in) is 🟡 — settled with the rest of §10.
 
-## 5. Turn resolution ❓
+## 11. Turn resolution ❓
 
-## 6. Turn reports ❓
+## 12. Turn reports ❓
 
-## 7. Open decisions carried from AGENTS.md ❓
+## 13. Open decisions carried from AGENTS.md ❓

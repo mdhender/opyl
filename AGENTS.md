@@ -56,6 +56,11 @@ These are the seams between layers. Application owns them; infra implements them
 - `Clock` — abstract time for determinism
 - `RNG` — abstract randomness for deterministic dice / stochastic decisions
 
+Two more ports are **planned but not yet declared**, surfaced by the design work (GAME-DESIGN §13.7); add them here when their adapters are built:
+
+- `MapSource` — load the authored province graph as immutable domain input (GAME-DESIGN §2.1/§2.9)
+- `ReportStore` — persist / retrieve / remove rendered reports keyed `(gameID, turn, playerID, format)` (GAME-DESIGN §12.7/§12.9)
+
 If you need a new external capability, add a small port here first, then implement it in `internal/infra/<adapter>/`.
 
 ## Project-specific rules (override or extend the unified skill)
@@ -82,18 +87,33 @@ There is no end-user-facing surface, so there are no JWT, session, or authz conc
 
 ## Open architectural decisions
 
-These should be decided explicitly before substantial implementation begins. Add a short ADR-style note here when each is settled.
+These should be decided explicitly before substantial implementation begins. Add a short ADR-style note here when each is settled. Status is reconciled against the design work in GAME-DESIGN §13.
 
-| Decision               | Options under consideration                                                                                                      |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| State storage          | SQLite (queryable, concurrent) **vs.** directory of versioned JSON/YAML per turn (human-inspectable, git-diffable audit trail)   |
-| PDF library            | `gofpdf` / `signintech/gopdf` (pure Go) **vs.** `typst` CLI (rich layout, external binary) **vs.** `chromedp` (HTML → PDF, heavy)|
-| Order file format      | Custom line-oriented DSL **vs.** YAML **vs.** structured email body                                                              |
-| Mail transport         | Direct SMTP **vs.** SES / SendGrid API **vs.** "drop EML files in `/outbox` for an external mailer"                              |
-| CLI framework          | stdlib `flag` (matches Diacous) **vs.** `cobra` (matches GemGem)                                                                 |
-| Concurrency model      | Turns processed serially per game; multiple games in parallel — confirm before adding goroutines                                 |
+| Decision               | Status     | Options / resolution                                                                                                             |
+| ---------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| State storage          | open       | SQLite (queryable, concurrent) **vs.** directory of versioned JSON/YAML per turn (human-inspectable, git-diffable audit trail)   |
+| PDF library            | open       | `gofpdf` / `signintech/gopdf` (pure Go) **vs.** `typst` CLI (rich layout, external binary) **vs.** `chromedp` (HTML → PDF, heavy)|
+| Order file format      | **decided**| Custom line-oriented DSL (rulebook envelope) — *not* YAML, *not* structured email body. See ADR below.                          |
+| Mail transport         | open       | Direct SMTP **vs.** SES / SendGrid API **vs.** "drop EML files in `/outbox` for an external mailer"                              |
+| CLI framework          | open       | stdlib `flag` (matches Diacous) **vs.** `cobra` (matches GemGem) — design-neutral, decide at implementation time                |
+| Concurrency model      | **confirmed**| Turns serial per game; games in parallel; **no goroutines inside a single turn's resolution**. See ADR below.                 |
+| Map artifact format    | open       | On-disk format (JSON/YAML/custom) for the authored province graph behind the planned `MapSource` port (GAME-DESIGN §2.1/§13.7) |
+| Report store format    | open       | Where/how rendered reports persist behind the planned `ReportStore` port; interacts with State storage (GAME-DESIGN §12.7/§13.7)|
+| JSON results schema    | open       | Versioned projection of `domain.PlayerReport` emailed as machine-readable results (GAME-DESIGN §12.6/§13.7)                     |
 
 Whichever choices land, they should affect **only** the relevant `internal/infra/<adapter>/` package. If a decision starts requiring changes outside its infra package, that is a signal the port boundary is wrong — stop and fix the port first.
+
+**Constraints noted on still-open rows (GAME-DESIGN §13):**
+
+- **State storage** — backend open, but the per-turn snapshot's *contents* are pinned: it must round-trip RNG state, per-unit in-flight command progress, all timer/countdown state, and the per-location arrival-order list (GAME-DESIGN §13.1). `TurnLedger`, `ReportStore`, and `MapSource` are separate stores, not part of this one.
+- **PDF library** — reports are stored and GM-regenerable (GAME-DESIGN §12.7), so deterministic, version-stable byte output (same snapshot + code → same bytes) favors a pure-Go library over an external binary or headless browser (GAME-DESIGN §13.2).
+- **Mail transport** — sits behind *two* ports: `ReportDispatcher` (outbound) and `OrderSource` (inbound order files). `DispatchReports` idempotency lives in app, above transport (GAME-DESIGN §13.4).
+
+**ADR — Order file format (decided):** the order file is the rulebook's custom **line-oriented DSL** — a `begin <player> [password]` … `unit <number>` blocks … single `end` envelope, forgiving grammar (`#` comments, quoted multi-word args), `UNIT`-replaces-not-appends semantics, 250 orders/unit cap. Parsed only in `internal/infra/orderfile/`, the untrusted-input boundary. The exact tokenizer/grammar spec is pinned when that adapter is built. (GAME-DESIGN §10.1/§13.3.)
+
+**ADR — Concurrency model (confirmed):** `ProcessTurn` is a pure sequential transform — turn N's snapshot is turn N+1's input, so turns of one game cannot overlap; distinct games share no state and may resolve in parallel. A single turn's resolution adds **no goroutines**; RNG substream `Split()` keeps any future within-turn fan-out deterministic. (GAME-DESIGN §11/§13.6.)
+
+**Resolved & promoted:** the former *Randomness source* row is closed — stochastic draws go through the `RNG` port (above), realized by the `internal/infra/prng` PCG adapter, with RNG state round-tripped in the snapshot via `GameStateStore`. (GAME-DESIGN §11.7/§11.9.)
 
 ## Documentation
 

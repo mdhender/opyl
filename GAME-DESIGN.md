@@ -857,28 +857,41 @@ All items enter play through **skill-driven production** (§4.7), never randomly
 
 ### 6.8 Architectural implications
 
-These follow from §6 and join §2.9 / §3.8 / §4.9 / §5.9 in AGENTS.md's "Open architectural
-decisions" table:
+The architectural consequences of §6 have moved to their correct homes per the routing rule in
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (§6.2, §6.6, §11, and §13 link to its
+anchor, as do later chapters' §X.9 sibling lists):
 
-- **The economy is pure resolution arithmetic over the snapshot.** Income collection, upkeep,
-  training, production, and market clearing are deterministic transforms of recorded state — the
-  domain imports **no** entropy or clock. Every "the computer chooses" in the rulebook (which unpaid
-  men starve, which of several equal trades matches) resolves from **recorded order**, not `rand`.
-- **Market clearing depends on per-location character-list order.** Tie-breaks read "position in the
-  location's character list," which reflects **arrival order** — so the snapshot must preserve a
-  stable per-location ordering of occupants, and clearing is a single deterministic pass over it.
-- **Upkeep billing is a stack-aggregate, debited to a specific holder.** Capacity/upkeep are computed
-  for the stack (§3.4) but gold leaves a concrete noble's inventory; the "ask same-faction stack-mates
-  for gold" step is a deterministic gather over the stack, faction-scoped.
-- **Production reuses the typed-count and unique-mint models.** Gathering/`MAKE`/`TRAIN` mutate
-  **fungible rows** (§4.1); scribing/forging mint **unique entities** via the §3.8 counter. No new
-  data model — economy is arithmetic over §3/§4's possessions.
-- **Money flow is a §11 ordering invariant.** Garrison upkeep before the castle's half before the
+- **The economy is pure resolution arithmetic over the snapshot** — income collection, upkeep,
+  training, production, and market clearing are deterministic transforms of recorded state, and every
+  "the computer chooses" (which unpaid men starve, which equal trade matches) resolves from recorded
+  order, never `rand`. This is the standing **domain-purity** rule (the domain imports no entropy or
+  clock — [AGENTS.md](AGENTS.md)) realized for stochastic draws by the `RNG` port
+  ([ADR 0003](docs/adr/README.md)); its descriptive model awaits the deferred `reference/model/` page
+  (see the note below).
+- **Market clearing reads the per-location character-list (arrival) order** → already pinned in
+  [`docs/adr/`](docs/adr/README.md): the snapshot must round-trip "the per-location arrival-order
+  list" under the State-storage constraints, so the tie-break (position in the location's character
+  list) and the single deterministic clearing pass over it are reconstructible. The clearing rule
+  itself is descriptive mechanics (§6.6 body) awaiting the same `reference/model/` page.
+- **Upkeep is stack-aggregate billing debited to a concrete holder** — capacity/upkeep are computed
+  for the stack (§3.4) but gold leaves a specific noble's inventory, with the "ask same-faction
+  stack-mates for gold" step a deterministic, faction-scoped gather. Descriptive model (§6.2 body),
+  reusing §3.8's stack model, awaiting the deferred `reference/model/` page.
+- **Production reuses the typed-count and unique-mint models** — gathering/`MAKE`/`TRAIN` mutate
+  **fungible rows** (§4.1); scribing/forging mint **unique entities** via the §3.8 counter, already
+  pinned as the **entity-number allocation counter** in the State-storage constraints in
+  [`docs/adr/`](docs/adr/README.md). No new data model — economy is arithmetic over §3/§4's
+  possessions.
+- **Money flow is a §11 ordering invariant** — garrison upkeep before the castle's half before the
   owner's payout; tax computed, spent, and discarded within the same turn (no carryover). The
-  sequence is what makes a re-run of `(gameID, turn)` reproduce the same balances — it belongs to the
-  resolution order recorded against the `TurnLedger`.
-- **Depression and mine-collapse timers live in the snapshot**, joining §4's decomposition/return and
-  §5's pillage-recovery countdowns as recorded, deterministic state.
+  sequence is what makes a re-run of `(gameID, turn)` reproduce the same balances; that rerun
+  guarantee is the idempotency rationale in
+  [explanation/idempotency.md](docs/content/explanation/idempotency.md) (`TurnLedger` + input hash),
+  riding on `ProcessTurn` as a pure sequential transform ([ADR 0002](docs/adr/README.md)).
+- **Depression and mine-collapse timers live in the snapshot** → already pinned in
+  [`docs/adr/`](docs/adr/README.md): pillage recovery, opium demand, and mine collapse (8 months) are
+  recorded, deterministic countdowns under the "all timer/countdown state" the snapshot must
+  round-trip (§5.9 already routed these), joining §4's decomposition/return countdowns.
 
 > **Not yet distilled.** Like §3–§5, §6's decided facts (the upkeep, training, construction, and
 > improvement tables; the money-flow split; the market-clearing rule) wait on the orders pass (§10)

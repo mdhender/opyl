@@ -454,7 +454,7 @@ These follow from §4 and join §2.9 / §3.8 in AGENTS.md's "Open architectural 
 > a `reference/model/` page — the item slots that orders read and mutate (`MAKE`, `GIVE`, `DROP`,
 > `STUDY`) may still reshape per-instance state.
 
-## 5. Provinces & territory control ❓
+## 5. Provinces & territory control 🟡
 
 The province as a **political/economic entity**, layered on §2's spatial graph: tax base,
 ownership and control, the buildings it holds, castles and the garrisons bound to them, noble
@@ -462,6 +462,165 @@ ownership and control, the buildings it holds, castles and the garrisons bound t
 **relics**. §2 stays geometry; this section owns everything non-spatial about a province. Primary
 sources: [provinces.md](docs/content/rules/provinces.md),
 [buildings-economy.md](docs/content/rules/buildings-economy.md). Cross-refs: §2.7 (civ level), §6.
+
+### 5.1 The province as a political entity ✅ (slots)
+
+§2 fixed a province's **geometry** (coordinates, terrain, routes); §5 adds the **mutable political /
+economic facet** layered on top. The attribute set a province carries beyond §2:
+
+- **Civilization level** (§2.7) and the **tax base** derived from it (§5.2);
+- the **buildings** it holds — at most one **castle** and one **mine**, plus cities, inns, towers,
+  temples (§5.3);
+- at most one **garrison** (§5.5);
+- the **controlling castle** and the **pledge-chain rulers** that share control (§5.4, §5.6);
+- **depression state** — pillage and opium each lower *future* tax base on their own timers (§5.2).
+
+This is the *slot set*; per-row mechanics are settled in the subsections below or deferred to §6
+(economy flow) and §11 (resolution timing). Geometry stays immutable input (§2.1); the political
+state is what resolution mutates.
+
+### 5.2 Tax base ✅ (value) / cross-ref §6 (flow)
+
+- A province's monthly **tax base** is a function of its civ level: **`50 + 50·civ`** gold
+  (wilderness `50`, civ-1 `100`, … civ-7 `400`). A **city adds a flat +100**, folded into the
+  province tax base **at end of turn** (diminished if the city was pillaged that month).
+- **Tax base does not accumulate** — gold uncollected at turn's end is lost (consistent with §4.4's
+  loose-gold rule).
+- **Pillaging** seizes the whole tax base and lowers *future* revenue: each pillaging costs **4 months**
+  of recovery (five consecutive months ⇒ 20 months to recover). **Opium** consumption in a market
+  likewise depresses the province's tax base, scaling with volume.
+- §5 owns the **value** (the civ→gold mapping, city bonus, depression). The **collection &
+  distribution flow** — garrison maintenance first, then the castle's half — is §6 / §11.
+
+### 5.3 Buildings ✅ (catalog & placement) / cross-ref §6, §2.7
+
+- Five buildings exist: **castle, tower, inn, temple, mine**. Each contributes to civ level (§2.7) and
+  has a role — castle (taxation & ownership, §5.4), tower (`RESEARCH` lab; up to **six per castle**),
+  inn (monthly income + a sheltered noble's weekly illness resistance), temple (Religion study +
+  offerings, §7), mine (resource extraction, §6).
+- **Placement & cardinality** (decided): **one castle per province** (built in the outer province or
+  its city, never another sub-location); **one mine per mountain province or rocky hill**; buildings
+  may **not** nest inside buildings, **except** up to six towers inside a castle. Cities are
+  authored sub-locations (§2.5), not built.
+- **Ownership of a building** is positional: the **first character inside** owns it; leaving forfeits
+  ownership to the next, and `ADMIT` gates entry (default: refuse other factions). Same rule governs
+  ships (§9). ✅
+- **Construction mechanics** (worker-days of effort, materials, the `BUILD` order, mine depth &
+  collapse) are §6; this subsection fixes only **which buildings exist, where they may sit, and who
+  owns them**.
+
+### 5.4 Castles & land ownership ✅
+
+- A **castle is the foundation of land ownership**: it auto-collects all gold in its province, and its
+  owner receives **half of the remaining tax base** each month (after any garrison's maintenance is
+  paid). One castle per province (§5.3).
+- A castle **alone does not rule** — a **garrison must be stationed outside it** in the province to
+  hold it against pillaging (§5.5).
+- **Castle improvement** runs levels **1–6** (the `IMPROVE` order; each level costs stone +
+  worker-days per the castle-improvement table — amounts are §6). Improvement level drives three
+  things: the **civ contribution** `1.5 + level/4` (§2.7), the **garrison capacity / rank band** it can
+  anchor (§5.6), and **protection** (a castle shelters the first **500** men in combat — §8).
+
+### 5.5 Garrisons ✅ (model) / 🟡 (entity status)
+
+- A **garrison** is installed with **`GARRISON CASTLE`**, requires **≥10 soldiers**, and is **bound to a
+  castle in the same region**. **One garrison per province** — so it is referable by the bare keyword
+  `GARRISON` without its entity number.
+- **Contiguous spread:** a garrison may be placed only in a province **adjoining one already garrisoned
+  to the same castle** (or the castle's own province). A castle's garrison network therefore grows as a
+  connected blob within its region.
+- **Tax role:** a garrison pays its men's maintenance **from the province tax base**, then forwards
+  **½ of the remainder** to its castle. A garrison that falls **below 10 fighting men** pays its own
+  upkeep but **cannot** forward tax, guard against pillaging, or obey decrees (§5.7).
+- **Limited reporting:** garrisons report only resource-depletion activity and **large/unusual parties**
+  (any stack of ≥5 units, any party of ≥20 men, most monsters) — not full location reports, and never
+  activity in hidden locations (§2.6).
+- **Entity-model question 🟡:** a garrison appears as a unit with an entity number (`Garrison [780]`)
+  holding typed soldiers, "on guard," bound to a castle — yet it takes **no player orders** (it obeys
+  ruler decrees). Whether it is a **noble variant** or a **distinct station entity** in the
+  entity-number space (§3.2) is open — resolve before the orders/combat passes.
+
+### 5.6 Rank, rulers & pledge chains ✅ (bands) / reconciled
+
+- A noble's **rank** is a function of the **number of provinces controlled**:
+
+  | provinces | rank     |
+  | --------- | -------- |
+  | 1–5       | lord     |
+  | 6–12      | knight   |
+  | 13–24     | baron    |
+  | 25–37     | count    |
+  | 38–50     | earl     |
+  | 51–63     | marquess |
+  | 64+       | duke     |
+  | whole region (≥15 provinces) | king |
+
+  > **Rulebook reconciled ✅:** `provinces.md` prints the baron band as **13–25** and the count band as
+  > **25–37**, overlapping at 25. The non-overlapping `tables.md` "Castle garrisons" values
+  > (**13–24 baron, 25–37 count**) are taken as authoritative; the `provinces.md` `13–25` is a typo to
+  > regenerate on the next docs pass.
+
+- **King** requires controlling **every** province of a region that has **≥15 provinces**.
+- **Castle improvement gates territorial reach:** the same bands cap how many provinces a single castle
+  may anchor garrisons for — improvement level 0 ⇒ up to 5 (lord) … level 6 ⇒ 64+ (duke). Attaining a
+  rank thus needs **both** the province count **and** a castle improved enough to hold them.
+- **`PLEDGE`** lets a noble swear lands to another, granting the target **status** (the target's
+  controlled-province count grows by the pledged provinces) and **shared control**. The pledger's own
+  rank becomes **`min(original rank, one rank below the target)`**. **Income is unaffected** — it still
+  flows to the castles; the target gains no extra gold.
+- **Shared rulers:** every noble in a pledge chain **shares control** of the garrisoned provinces
+  (rename province/sub-locations, take items from garrisons, issue decrees, receive garrison reports),
+  so a province may have **many rulers**; visitors see the **top-most** ruler. A castle keeps receiving
+  its garrison income even when its owner is pledged away. ✅
+
+### 5.7 Decrees ✅
+
+- A **ruler** (anyone in a province's pledge chain) issues **decrees** that all **functional garrisons**
+  (≥10 men) in controlled provinces obey: **`DECREE WATCH WHO`** (surface a named unit in garrison
+  reports — useful for spotting otherwise-unnoticed travelers) and **attack-on-sight / hostile** decrees
+  against specified units.
+
+### 5.8 Relics & province effects ✅ / cross-ref §4.5, §7
+
+§4.5 fixed relics as **unique items** with per-instance state and return timers; §5 records their
+**territorial effects**:
+
+- **Crown of Prosperity `[402]`** — each turn it ends in a province, that province gains a **+2 civ
+  level** modifier (a per-turn province effect). Returns 12–24 turns after appearing.
+- **Imperial Throne `[401]`** — the **Emperor of Olympia** title capstone: whoever **rebuilds the
+  castle on Mt. Olympus and sits on the throne** is titled Emperor. The Throne **never returns** to the
+  netherworld (unlike all other relics).
+- **Skull of Bastrestric `[403]`** — an aura-burst item (`USE 403`: +50–75 current aura, capped at 5×
+  max; **25% chance it kills the mage**, instantly kills non-mages); vanishes on use or in 10–20 turns.
+  An **aura/combat** mechanic — deferred to §7.
+- Randomized return windows derive from the **§2.9 turn seed**, never live entropy (§4.9).
+
+### 5.9 Architectural implications
+
+These follow from §5 and join §2.9 / §3.8 / §4.9 in AGENTS.md's "Open architectural decisions" table:
+
+- **Province gains a mutable political state** distinct from its immutable §2 geometry: tax base,
+  buildings, garrison, controlling castle, ruler chain, civ level, and depression timers — all carried
+  in the per-turn snapshot and rewritten by resolution. The authored map (§2.1) seeds the initial
+  buildings and civ; geometry never changes.
+- **Control and rank are derived, not stored.** A pledge chain is a forest of edges over nobles;
+  controlled-province sets, rank, rulers, and king-hood are computed each turn as a **pure function** of
+  castle ownership + garrison bindings + pledge edges — consistent with §3.1 ("territory a faction
+  controls is derived").
+- **Garrison entity status** (§5.5) is an open §3.2 modeling question (noble variant vs. station
+  entity); settle it before the orders and combat passes consume garrisons.
+- **Regions become a partial mechanical entity.** Garrison binding ("same region") and king-hood
+  ("every province in a region, ≥15 provinces") force a region to carry **at least a province-membership
+  set and a count** — promoting it from §2.8's "label" toward an entity, though richer region attributes
+  stay §2.8-deferred.
+- **Depression & timer state in the snapshot.** Pillage recovery (4 months each), opium demand, and mine
+  collapse (vanishes after 8 months) join §4's decomposition/return timers as recorded, deterministic
+  countdowns.
+
+> **Not yet distilled.** Like §3 and §4, §5's decided facts (the rank bands, tax-base table, building
+> catalog) wait on the orders pass (§10) before promotion to a `reference/model/` page — the orders that
+> read and mutate them (`GARRISON`, `PLEDGE`, `DECREE`, `BUILD`, `IMPROVE`, `PILLAGE`) may still reshape
+> the slots.
 
 ## 6. Economy ❓
 

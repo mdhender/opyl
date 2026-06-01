@@ -1090,13 +1090,246 @@ decisions" table:
 > aura/item costs (§7.6), prayer mechanics (§7.8), and the special-realm teaching map (§7.6) remain
 > 🟡/❓ and are carried forward.
 
-## 8. Combat ❓
+## 8. Combat 🟡
 
-Battle resolution: `ATTACK`/`DEFEND`, the combat **attitudes** (`HOSTILE`/`DEFEND`/`NEUTRAL`/
-`DEFAULT`), `BEHIND` positioning, the **break point**, stack-leader targeting, garrisons and
-**sieges**, **prisoners**, and the **wound** generation that feeds noble health (§3.3, §3.6).
-Primary source: [combat.md](docs/content/rules/combat.md). Cross-refs: §5 (garrisons), §9 (no
-siege engines at sea).
+Battle resolution layered on §3/§4's possessions and §5's territory: the **combat ratings** men,
+nobles, and items carry; the **hit sequence** and the **break point** that ends a battle; the
+**wound** generation that feeds noble health (§3.3, §3.6); **front/rear** positioning (`BEHIND`)
+and **missile** fire; **fortifications** and **sieges**; **prisoners**, loot, and escape; and the
+**permission/attitude** model (`ADMIT`, `HOSTILE`/`DEFEND`/`NEUTRAL`/`DEFAULT`) that decides who
+fights whom. This section closes the deferrals routed here from elsewhere: the §3.3 **combat
+attitude** and **behind** slots and the **wound math** feeding health/death (§3.3, §3.6), §2.3's
+**terrain combat effects** (swamp), §5.4's **castle shelters 500 men**, and §2.8's **safe-haven
+"no combat" enforcement**. It owns **how a battle resolves**; the *combat ratings themselves* are
+authored item-table data (§4.2), the *heroic combat sub-skills* are §7, and **when** combat
+resolves within a turn is a §11 concern, marked where it bites. Combat is the **randomness-heaviest
+subsystem** — every roll below derives from the recorded per-turn seed (§2.9), never live entropy.
+Primary source: [combat.md](docs/content/rules/combat.md);
+[tables.md](docs/content/rules/tables.md) supplies the ratings. Cross-refs: §2.3 (swamp), §3.3/§3.6
+(health, death→`Body`), §4.2/§4.5 (item table, magical items), §5.4/§5.5 (castles, garrisons), §7
+(combat skills), §9 (shipboard combat, no siege at sea), §10 (order syntax), §11 (resolution
+timing).
+
+### 8.1 Combat ratings & item bonuses ✅ (model) / 🟡 (modifier values)
+
+- Every fighter carries three integer ratings — **attack, defense, missile** — read from the
+  **authored item-type table** (§4.2; the table's "Combat ratings of fighters"). Men are rows in
+  that table (§3.4), so their ratings are static authored data, not per-instance state: peasant /
+  worker / sailor `(1,1,0)`, soldier `(5,5,0)`, pikeman `(5,30,0)`, swordsman `(15,15,0)`, knight
+  `(45,45,0)`, elite guard `(90,90,0)`, crossbowman `(1,1,25)`, archer `(5,5,50)`, elite archer
+  `(10,10,75)`. ✅
+- A **noble's innate rating is `(80,80,0)`** — a noble attribute (§3.3), not a table row; an unarmed,
+  untrained noble is still a formidable combatant. ✅
+- **Authored rating modifiers** (static, from the table notes): a **blessed soldier** fights as a
+  regular soldier but has a **50% chance of surviving a hit** (§8.3); a **pirate** fights `(15,15,0)`
+  **shipboard** but `(5,5,0)` on land (§9); **knights and elite guard take −25 to both attack and
+  defense when fighting on a ship or in a swamp province** (closing §2.3's terrain-combat deferral —
+  swamp is the only terrain with a combat effect, and it bites only these two unit types). ✅
+- **Engagement rule:** **peasants, workers, and sailors fight only when attacked** — i.e. only when
+  their party is the *target* of an attack, never as initiators. ✅
+- **Item bonuses (✅ model):** a noble automatically wields combat items it holds — **one item per
+  category** (attack, defense, missile), the **largest bonus** in each category winning; no order is
+  needed to wield them. These bonuses come from **unique magical items** (§4.5) and add to the
+  noble's ratings for the battle. The concrete bonus *values* are per-instance item state (§4.5),
+  🟡 here.
+- **Heroic combat sub-skills (🟡, gated by §7):** the Combat `[610]` category's sub-skills modify a
+  noble's behaviour in battle — **Survive fatal wound `[611]`** and **Fight to the death `[612]`**
+  (both non-experience-rated, §7.5), **Defense `[614]`**, **Archery `[615]`**, **Swordplay `[616]`**.
+  §8 reserves their effect on resolution (a chance to survive a killing blow; continuing to fight
+  while wounded; rating bonuses); the exact mechanics are 🟡, owned by §7's skill model. ❓
+
+### 8.2 Battle resolution: the hit sequence ✅ (algorithm) / 🟡 (timing)
+
+A battle between an attacking side and a defending side resolves as a deterministic alternating
+exchange (combat.md "Resolution of battle"):
+
+1. a random man on the **attacking** side hits a random target on the **defending** side;
+2. a random defender similarly hits a random attacker;
+3. alternate until the **smaller** side has had as many chances to hit as it has attackers;
+4. the **larger** side then takes **N** consecutive hits, where `N = (larger count − smaller count)`;
+5. repeat the whole exchange until a side **breaks** (§8.3).
+
+- **Hit chance.** An attacker with attack rating `Ar` hitting a defender with defense rating `Dr`
+  succeeds with probability **`Ar / (Ar + Dr)`** (so `90` vs `45` ⇒ ⅔; `90` vs `90` ⇒ ½). The
+  attacker's rating used is its **effective attack** = `max(attack, applicable missile)` (§8.4),
+  plus item bonuses (§8.1) and authored modifiers (swamp/ship, §8.1). ✅
+  > **Rulebook reconciled ✅:** combat.md wrote the denominator as `Ar + Br`; `Br` is a typo for the
+  > defender's defense rating `Dr` (confirmed by the surrounding prose and the worked-example table).
+  > Corrected in the rulebook in this pass — a typo fix, no design divergence.
+- **Targeting order.** Within a side, the **stack leader** (top-most unit) is the **last** to take
+  hits regardless of its `BEHIND` status, and **rear** units are reached only after the front is
+  killed (§8.4). ✅
+- **Timing (🟡):** *when* a battle resolves relative to movement, market clearing, and pillaging
+  within a turn — and the order of multiple battles in one location — is a §11 ordering concern that
+  matters for idempotency (the `TurnLedger`). The *algorithm* is fixed here; its *placement* in the
+  turn is deferred.
+
+### 8.3 The break point ✅ / reconciled
+
+- A side **breaks** (loses) when its **combat value** — the sum of `attack + defense` over its
+  members still able to fight — **falls below 50% of that side's starting combat value**. Dead men
+  and **wounded nobles** (who stop fighting, §8.4) are removed from the running total. ✅
+- Worked examples (combat.md): a noble + two pikemen start at `(80+80) + (5+30) + (5+30) = 230`,
+  break point **115** — losing both pikemen (−70) leaves 160, so the noble **fights on**. A noble +
+  two knights start at `(80+80) + (45+45) + (45+45) = 340`, break point **170** — losing both knights
+  (−180) leaves 160 < 170, so the side is **declared the loser**. ✅
+- **Terminology reconciled ✅:** combat.md overloads "offensive value" for two different quantities —
+  the **break-point sum** (`attack + defense`, used here) and the **per-hit attacking rating**
+  (`max(attack, missile)`, §8.2/§8.4). This file names them distinctly — **combat value** for the
+  break-point total and **effective attack** for the per-hit rating — to keep §11's implementation
+  unambiguous.
+
+### 8.4 Wounds, death & the kill rule ✅ (closes §3.3 wound math)
+
+This closes the wound-math deferral from §3.3/§3.6. A successful hit resolves differently against a
+noble than against a man:
+
+- **Against a noble** — the noble receives a **random wound of 1–100 health points** (combat.md;
+  consistent with health-death.md's "wound randomly 1–100"). There is a **1% chance a perfectly
+  healthy noble is killed outright**, and a **greater chance for an already-wounded noble** (the
+  wound is rolled against current health). A wounded noble **stops fighting** for the rest of the
+  battle even if the wound is minor (and is removed from the side's combat value, §8.3). The wound
+  feeds the **illness check** (chance of falling sick = `100 − health`, health-death.md) and, at
+  health **0** or a killing blow, the **death type-transition to a `Body` item** (§3.6, §4.6). ✅
+- **Against a man (fighter)** — a hit **kills** the man, **except a blessed soldier**, who has a
+  **50% chance of surviving** (§8.1). Men have no health rating — alive or dead (§3.3). ✅
+- **NPCs rated `n/a`** for health require a hit of **≥ 50** to be killed (health-death.md; same rule
+  for `terrorize`, aura blasts, lightning bolts). ✅
+- All rolls here — wound magnitude, the 1%/scaled instant-kill, the illness check, the blessed-soldier
+  50% — derive from the **§2.9 turn seed**. The *weekly* health update (sick lose 3–15, wounded
+  recover, 5%/10%-in-an-inn illness-shake) is **resolution timing**, deferred to §11; §8 owns only the
+  **wound generation** that feeds it.
+
+### 8.5 Front, rear & missile fire ✅ (closes §3.3 behind slot)
+
+This closes the §3.3 **behind** slot:
+
+- **`BEHIND`** declares a unit's battle line — **front** or **rear**. Rear units are **not targeted
+  until every unit in front of them is dead**; only **missile fighters** (non-zero missile rating)
+  may attack from the rear. A fighter with **missile 0 cannot attack from the rear** and instead
+  fights as if in front (using its attack rating). The **stack leader** is always the **last** to
+  take hits regardless of `BEHIND` (§8.2). ✅
+- **Missile vs. melee:** a **front** unit attacks with `max(attack, missile)` (its effective attack,
+  §8.2); a **rear** unit attacks with its **missile** rating. So a noble `(80,80,40)` does 40 from
+  the rear, 80 from the front. ✅
+- **Weather cuts missile fire** (deterministic from the §2.4 weather variance, itself seeded from
+  §2.9): **rain or wind** halve archer / elite-archer missile and cut crossbowman missile to **¼**;
+  **fog** cuts **all** missile ratings to **¼**. ✅ The per-turn weather value is the §2.4 ❓ variance
+  model; §8 records only how a given weather state modifies missile ratings.
+
+### 8.6 Fortifications & sieges ✅ (closes §5.4 castle shelter)
+
+- A **structure** with a **defensive rating** adds that rating to the defense of the **men who fit
+  inside** it during a battle fought at its location. Capacity (closing §5.4's "castle shelters the
+  first 500"): **castle 500, tower 100, galley/roundship 50, other structures 50**. ✅
+- **Attacking a structure:** an attacking fighter may randomly target the **structure** instead of an
+  enemy fighter; the hit resolves as fighter-vs-fighter using the attacker's attack rating against the
+  structure's defense rating, and a successful hit **lowers the structure's defense by 1**. Once
+  defense reaches **0**, further hits accrue **damage**; at **100% damage the building collapses**,
+  ejecting its occupants. ✅
+- **Siege engines** (`catapult [61]` `(25,200,25)`, `battering ram [60]` `(30,250,0)`, `siege tower
+  [62]` `(30,250,0)` — §4.2) **always target the structure**, doing **5–10 damage per hit** (a plain
+  fighter attacking a structure does 1). Siege engines are **not used in combat at sea** (§9). ✅ They
+  are produced via skill-driven construction (Construct catapult `[613]`, siege tower `[681]`,
+  battering ram `[701]`) — mechanics with §6/§4.7; their combat ratings are authored item-table data
+  (§4.2). The 5–10 damage roll derives from the §2.9 seed.
+- A **garrison** (§5.5) is the defending force that holds a province against **pillaging**; a pillager
+  must defeat it in battle first (§6.1). Garrison combat uses these same rules. ✅
+
+### 8.7 Prisoners, loot & escape ✅ (mechanism) / derived from §2.9 seed
+
+- **Taking prisoners.** The winner attempts to capture defeated units; the chance a given defeated
+  unit is taken is **proportional to numerical advantage** — **1:1 ⇒ 25%, 2:1 ⇒ 50%, 3:1 ⇒ 75%**,
+  with a hard **floor of 25% and cap of 75%** regardless of ratio. (Capture reflects manpower to run
+  down fleeing enemies, not combat skill.) Uncaptured defeated units **retreat**; those in a building
+  or city may **flee into the surrounding province**. ✅
+- **Loot & position.** The **stack leader of the winning force** receives **all** loot. Prisoners are
+  **stripped of their belongings**, including accompanying men (workers, peasants). The victor
+  **claims the defender's position in the location list** if better, or **moves into the defender's
+  structure, ejecting the loser** — an `ATTACK` flag can inhibit this (§10). When a unit is taken
+  prisoner (in battle or via **`SURRENDER`**), **a portion of its items is always lost**; a lost
+  **unique item** (§4.1) must be re-found by `EXPLORE` of the province. ✅
+- **Prisoner state.** A prisoner **reports nothing** (contributes nothing to its faction's report),
+  **executes no orders** (queued orders stay pending), and is shown to others as a **stacked unit
+  marked `prisoner`**. **`UNSTACK <prisoner>` frees** it; **`GIVE`** transfers a prisoner between
+  co-located units (§4.7). ✅
+- **Escape (weekly + event rolls, all seeded §2.9):** each game **week** (4×/turn, §8.4's weekly
+  cadence), a prisoner held **outside** a building escapes with **2%** chance, **inside** a structure
+  (castle/tower/inn/ship) with **1%**. Additionally **+2%** on each `GIVE` transfer and **+2%** each
+  time the holder **travels more than one day** (short hops — entering/leaving a building — add no
+  escape chance). A freed prisoner **flees into the surrounding location**; one freed on a **ship
+  leaps overboard and swims to a nearby shore**. ✅
+
+### 8.8 Permissions & declared attitudes ✅ (closes §3.3 attitude slot)
+
+This closes the §3.3 **combat attitude** slot. Both a **noble** and the **faction player entity**
+(§3.1) keep three attitude lists; any unit not on a list has attitude `DEFAULT`.
+
+- **`ADMIT`** governs **stacking and entry**: by default a unit may not stack with another faction's
+  character, nor enter a building or ship another player controls (§3.3, §5.3); `ADMIT` grants the
+  exception. ✅
+- **Four combat attitudes** toward a unit or faction: **`HOSTILE`** (attack on sight), **`DEFEND`**
+  (aid the other unit if it is attacked), **`NEUTRAL`** (do nothing), **`DEFAULT`** (neutral to other
+  factions; **defend own-faction units** unless either is concealing its lord). ✅
+- **Resolution rules:**
+  - **Unit attitude beats faction attitude** — one may declare a faction `HOSTILE` yet exclude a
+    specific unit as `NEUTRAL`. ✅
+  - **Concealment defeats it:** declaring an attitude toward a *player* works only while that
+    player's units are **not concealing their faction** (Conceal faction `[635]`, Stealth `[630]`); a
+    unit **concealing its lord** is neither attacked on sight nor expected to give itself away by a
+    `DEFAULT` defense (it must be told to `DEFEND` explicitly). ✅
+  - **Only the top-most unit aids in defense**, and when it joins a battle via `DEFEND` it **brings
+    its whole stack**, even stack-mates that did not declare `DEFEND`. ✅
+  - **Defenders help only when the protected unit is *attacked*, never when it initiates** an attack.
+    Units that join via `DEFEND` are marked **`ally`** in the combat report. ✅
+  - Units declared `DEFEND` toward a province's **guards** aid them when the guards are attacked,
+    whether explicitly (`ATTACK`) or implicitly (`pillage 1`) — tying attitude to §5.5 garrison
+    defense and §5.7 decrees (`DECREE WATCH WHO`, attack-on-sight). ✅
+
+### 8.9 Safe havens: where combat is forbidden ✅ (closes §2.8)
+
+- A **safe haven** (the authored city designation, §2.8) **forbids combat and magic** within it. §8
+  closes the enforcement: **`ATTACK` and other hostile actions are rejected** in a safe-haven city
+  (alongside the magic prohibition, §7). The set of safe-haven cities is **authored map seed data**
+  (§2.1/§2.8), read immutably; §8 owns only the rule that combat orders **fail** there. ✅ The exact
+  rejected-order set is finalized with §10.
+
+### 8.10 Architectural implications
+
+These follow from §8 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 / §7.9 in AGENTS.md's "Open
+architectural decisions" table:
+
+- **Combat is the densest consumer of the §2.9 turn seed.** Random attacker/target selection, the
+  `Ar/(Ar+Dr)` hit roll, the 1–100 wound and instant-kill chance, the illness check, the
+  blessed-soldier 50%, siege 5–10 damage, prisoner capture, and every prisoner-escape roll are **pure
+  functions of recorded state + the recorded seed** — the domain imports **no** entropy or clock.
+  Re-running `(gameID, turn)` reproduces the same battle outcomes; that reproducibility is what makes
+  combat idempotent (the `TurnLedger`).
+- **Combat ratings are authored reference data, not stored state.** Per-unit-type `(attack, defense,
+  missile)` and the shipboard/swamp/blessed modifiers live in the §4.2 item-type table; the
+  noble's innate `(80,80,0)` and any **magical-item bonuses** (§4.5) are the only combat values
+  carried on entities. Resolution reads ratings, never mutates them.
+- **A battle is a transform over a location's occupants.** It reads the per-location character list
+  (the same ordered list §6.6 market clearing depends on), the stack trees (§3.3), `BEHIND` flags,
+  attitude lists, and structure defense ratings; it writes wounds, deaths (noble → `Body`, §4.6),
+  killed-men counts, prisoner links, loot transfers, and structure damage. No new aggregate — combat
+  mutates the §3/§4/§5 state already in the snapshot.
+- **Attitudes and `BEHIND` are recorded per-noble and per-faction.** The three attitude lists live on
+  both the noble and the faction player entity (§3.1); `BEHIND` and the (now-closed) combat-attitude
+  slot occupy the §3.3 reservation. Concealment (§7 Stealth) gates whether an attitude can even be
+  applied — a cross-subsystem read combat must perform at resolution.
+- **Structure damage and the kill rule reuse existing timers/transitions.** A collapsed building ejects
+  occupants (no new state beyond §5's damage/collapse tracking); a killed noble reuses the §3.6/§4.6
+  death transition and decomposition timer. Combat introduces **no new persisted timer** — it feeds
+  the ones §3–§6 already record.
+
+> **Not yet distilled.** Like §3–§7, §8's decided facts (the ratings model, the hit sequence and
+> break point, the wound rule, fortification capacities, the prisoner/escape and attitude rules) wait
+> on the orders pass (§10) before promotion to a `reference/model/` page — the orders that drive them
+> (`ATTACK`, `DEFEND`, `BEHIND`, `HOSTILE`/`NEUTRAL`/`DEFAULT`, `ADMIT`, `SURRENDER`, `PILLAGE`) may
+> still reshape the slots. The heroic combat-skill effects (§8.1 → §7), per-spell/aura combat magic
+> (§7.6), the §2.4 weather-variance model feeding missile penalties (§8.5), and the §11 placement of
+> combat within the turn remain 🟡/❓ and are carried forward.
 
 ## 9. Ships ❓
 

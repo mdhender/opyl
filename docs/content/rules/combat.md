@@ -54,7 +54,7 @@ The offensive value used is either the attack or the effective missile rating, w
 The chance that an attacker with attack rating `Ar` will score a hit against a defender with defense rating `Dr` is:
 
 ```
-Ar / (Ar + Br)
+Ar / (Ar + Dr)
 ```
 
 For example:

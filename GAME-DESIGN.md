@@ -1849,6 +1849,8 @@ Collects the entry/exit events earlier sections deferred to the turn boundary (�
   > through the `RNG` port**, never a domain import. The determinism *intent* (recorded state, no live
   > entropy) is unchanged; only the mechanism is now concrete.
 
+TODO: The note above is questionable. Seeds may live in the GameStateStore, but they have to be carried in the TurnLedger for deterministic restarts. I am concerned about the game design capturing implementation details. We need to circle back on both. 🟡
+
 ### 11.8 Idempotency: `ProcessTurn`, the input hash & global-only re-runs ✅
 
 - `ProcessTurn` is the state-mutating use case, and **idempotency is an Application concern** (CLAUDE.md,
@@ -1913,6 +1915,212 @@ These follow from §11 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 / §7.9 / 
 > money-flow vs. upkeep (§11.6, with §6.1/§6.2), the **PRNG seed-derivation and substream scheme** plus its
 > **package location** (§11.7/§11.9), and the §2.4/§9.4 cost-functions the accrual reads (§11.4).
 
-## 12. Turn reports ❓
+## 12. Turn reports 🟡
+
+§12 is the engine's **output projection** — the resolved turn's only player-visible product, the thing
+§11.2's **Close** phase hands off to once the month is resolved. Where §11 owns *when each mechanic fires*,
+§12 owns *how the result is shown to each player*. It **owns**: the **per-player perspective** that decides
+what a faction may see (§12.2), the **anatomy** of the report — header, per-noble narrative, per-location
+blocks, order template (§12.3), the **location-ordering rule** the "Seen here" list obeys (co-owned with the
+§11.3 scheduler tiebreak — §12.4), the **formatting contract** for the canonical text product (80 columns,
+2-space tab stops — §12.5), the **three delivery products** (text, PDF, JSON — §12.6), the
+**always-generate-and-store** durability rule (§12.7), and **delivery to the registered address** with the
+render/dispatch split (§12.8). It **reuses, never re-decides** every *mechanic* whose output it shows:
+visibility into inner locations is §2.5, hidden-route disclosure §2.6, the prisoner-opacity rule §8.7, the
+market report §6.6, the inventory/skills listings §7, the "next N nobles to be formed" list §3.2/§11.6.
+§12 fixes only **what is projected, in what order, and how it is formatted** — never what the underlying
+numbers are. Primary sources: [playing.md](docs/content/rules/playing.md) (report length & cadence, the
+"Seen here" block, the Olympian calendar), [geography.md](docs/content/rules/geography.md) (the location-report
+anatomy — routes, inner locations, skills taught, ships docked, market report), [orders.md](docs/content/rules/orders.md)
+(the location-order rule, command precedence, the order template, the FORM-reservation line),
+[markets.md](docs/content/rules/markets.md) (the market report), [combat.md](docs/content/rules/combat.md)
+(prisoner display & the column-wrap example), [skills-magic.md](docs/content/rules/skills-magic.md)
+(inventory and skills-taught listings). §12 is the **`RenderReports`** use case (the `render` pipeline stage)
+feeding **`DispatchReports`** (the `dispatch` stage) — two stages, two ports, per AGENTS.md and CLAUDE.md.
+Cross-refs: §2.5/§2.6 (visibility & hidden routes), §3.2/§11.6 (FORM reservation in the header), §3.7/§11.1
+(NP and the calendar/month name), §6.6 (market report), §8.7 (prisoner opacity), §10.5/§11.3 (the per-unit
+queue & location-order tiebreak), §11.2 (Close → render), §11.8 (idempotency & global-only re-runs).
+
+### 12.1 The report is the resolved turn's only output ✅
+
+- After Close (§11.2) the resolved snapshot is fixed; `RenderReports` produces **one report per player** from
+  it. Rendering is a **pure, deterministic function of the resolved snapshot** — `render(snapshot, playerID)
+  → PlayerReport` — reading no wall clock and drawing no randomness (the same no-ambient-input contract as
+  §11.7). The header's month and season come from the integer **turn number**, not a date (§11.1: the
+  eight-month Olympian year, [playing.md](docs/content/rules/playing.md)). ✅
+- **Two distinct steps, two layers.** Projecting the snapshot into a per-player **`domain.PlayerReport`** —
+  applying visibility (§12.2), ordering locations (§12.4), assembling narrative and listings — is a **pure
+  domain transform** (testable, deterministic, no I/O). Turning a `PlayerReport` into bytes is **infra**
+  (`ReportRenderer`, §12.6). The split matters: *what a player may see* is a **game rule that lives in
+  domain**, never a decision a formatter makes (§12.9). ✅
+- Reports are sized for play, not the engine: a three-noble starter report runs ~5 pages of 66 lines,
+  typical reports 15–25 pages ([playing.md](docs/content/rules/playing.md)). Length is an output of faction
+  size, not a configured limit. ✅
+
+### 12.2 Per-player perspective: the report is what your faction can see 🟡
+
+The report is **not** a world dump — it is assembled strictly from what the player's faction can observe:
+
+- **Locations the faction occupies, and what is visible from them.** A unit reports its immediate location
+  and the surrounding province per the §2.5 inner-location visibility rules: a unit in a sub-location sees
+  that sub-location and its immediate surround, **not** into sibling inner locations, and an outer-province
+  unit cannot see into an inner location without entering (§2.5, [geography.md](docs/content/rules/geography.md)). ✅
+- **Other characters appear only as much as visibility allows** — the "Seen here" block lists co-located
+  units (§12.4), but a foreign noble's owning faction is not disclosed (hence the §forwarding service keyed
+  on entity number, [playing.md](docs/content/rules/playing.md)). The depth of detail shown for foreign units
+  vs. the player's own is **🟡** (own units get full inventory/skills/queue; foreign units get name, banner
+  text, and visible men only). 🟡
+- **Prisoners contribute nothing.** A captured unit reports neither location nor sightings to its own
+  faction; it shows in the holder's report marked `prisoner`, "little else" (§8.7,
+  [combat.md](docs/content/rules/combat.md)). The faction owning the prisoner sees only that the unit is
+  held. ✅
+- **Hidden routes are disclosed per-faction.** A hidden route appears in a location's route list **only for
+  factions that have traversed it** (or stacked across it); knowing the destination's entity number is not
+  enough to see or use it (§2.6, [geography.md](docs/content/rules/geography.md)). ✅
+
+### 12.3 Anatomy of the report 🟡 (section roster) / ✅ (the blocks)
+
+The report is a sequence of blocks; the **individual blocks are well-attested in the rulebook**, their exact
+top-level **roster and ordering is 🟡**. The working structure:
+
+1. **Header** — turn number, Olympian month & season (§11.1), faction summary (gold, NP and any catch-up NP
+   awarded this turn — §3.7/§11.6), and the **FORM reservation line**: `The next five nobles formed will be:
+   …` (§3.2/§11.6, [orders.md](docs/content/rules/orders.md)) so a player can pre-queue a `unit
+   <minted-number>` block. ✅
+2. **Per-noble narrative** — for each of the player's own units, an **echo of the orders run with their
+   outcomes**, in execution order. Echoed input lines are prefixed `>`; engine responses follow on their own
+   lines (e.g. `> buy 79 5 10` / `Try to buy five iron [79] for 10 gold each.` — §6.6,
+   [markets.md](docs/content/rules/markets.md)). A failed order reports its business-meaning outcome and (per
+   §11.4) consumed no time. Own-unit detail includes **Inventory** and **skills** listings in the rulebook's
+   tabular form (§7, [skills-magic.md](docs/content/rules/skills-magic.md)). ✅
+3. **Per-location reports** — one block per location the faction can see (§12.2), each in the
+   [geography.md](docs/content/rules/geography.md) shape: the location line (`Plain [ae48], plain, in region
+   Tollus, civ-1`), **Routes leaving** (with hidden routes per §2.6), **Inner locations**, **Skills taught
+   here** (§7.x), **Seen here** (§12.4), **Ships docked at port** (§9), and the **Market report** (§6.6). A
+   block omits sub-sections that are empty. ✅
+4. **Order template** — at the **bottom** of the report, a template listing every unit in the faction with
+   its still-pending queued orders, ready to edit and resubmit ([orders.md](docs/content/rules/orders.md)).
+   Carry-over in-flight commands (§11.5) surface here as still-running. ✅
+
+### 12.4 Location order & the "Seen here" list ✅
+
+The order in which units appear within a location is **recorded state**, governed by one rule set — and it is
+the **same ordering the §11.3 scheduler reads for its same-priority tiebreak**. §11.3 and §12 are co-owners;
+this is the single definition both consume:
+
+- **Longest-resident first.** A unit entering a location is **appended to the end**; the unit present longest
+  sorts to the top ([orders.md](docs/content/rules/orders.md)). ✅
+- **Leave and return → back of the line.** A unit that departs and later returns is re-appended at the end. ✅
+- **Unstack reinserts after the parent**, not at the end: a unit unstacking from beneath another appears
+  **immediately after that unit**, preserving locality ([orders.md](docs/content/rules/orders.md)). ✅
+- **New player characters join at the top** of their safe-haven's list (not the bottom); nobles they later
+  `FORM` are appended at the bottom as usual ([orders.md](docs/content/rules/orders.md)). ✅
+- Stacking is shown by indentation and `accompanied by:`; this ordering is a deterministic function of
+  recorded arrival/unstack events — **never `rand`, never map-iteration order** (§6.8). Because the scheduler
+  tiebreak (§11.3) and the report's "Seen here" block are the **same list**, location-order precedence (e.g.
+  who `HARVEST`s first — [orders.md](docs/content/rules/orders.md)) is exactly what the player reads. ✅
+
+### 12.5 Formatting contract: the canonical text product ✅
+
+The text report is the canonical human format; its layout is **infra (the text renderer's contract)**, not a
+domain concern. Standardized for opyl:
+
+- **80-column width.** The rulebook's writer wraps at column 79; opyl assumes the same 80-column field — not
+  a hard limit of the medium, but it reads well and keeps reports diff-stable. ✅
+- **Automatic wrap with aligned continuation.** A line too long to fit wraps onto continuation lines indented
+  to align under the wrapped content — as in the prisoner example, where a long "Seen here" entry wraps and
+  the continuation sits under the name ([combat.md](docs/content/rules/combat.md)). ✅
+- **2-space tab stops, standardized.** The rulebook examples mix 2- and 4-space indents; opyl uses a **single
+  2-space indent unit** for every nesting level (routes under a location, stacked units under their parent,
+  listings under their heading). ✅
+- **Entity codes in brackets** trail every name (`Osswid the Destroyer [5499]`, `Gold [1]`, `City of the
+  Lost [gx14]`), per [playing.md](docs/content/rules/playing.md). ✅
+- The **PDF** product is a typeset rendering of the same `PlayerReport` and is **not** column-bound; the
+  **JSON** product (§12.6) is structured data and carries no layout at all. The 80-column / 2-space contract
+  binds the **text renderer only**. ✅
+
+### 12.6 Three delivery products: text, PDF, JSON ✅ (text/PDF) / 🟡 (JSON shape)
+
+All three are **renderings of one `domain.PlayerReport`** behind the **`ReportRenderer`** port (turn data →
+bytes + MIME type); none re-derives game state, and adding a format is an infra change only (AGENTS.md):
+
+- **Text** — the canonical human report (§12.5), `text/plain`. ✅
+- **PDF** — typeset human report, `application/pdf`; the PDF library choice stays an open infra decision
+  (AGENTS.md). ✅
+- **JSON** — **machine-readable turn results, emailed alongside the human report** (a modern addition), MIME
+  `application/json`. It is the most faithful serialization of `PlayerReport`, for players who script against
+  their results. Its concrete schema is **🟡** — it should be a stable projection of `PlayerReport`, versioned
+  so format changes do not silently break consumers. 🟡
+- A future **SQLite export** of results is **explicitly out of scope** — it depends on too many unsettled
+  factors to design now; noted only so the JSON schema is not over-fitted to email. ❓ (deferred)
+
+### 12.7 Reports are always generated and stored 🟡
+
+A modern departure from re-rendering on demand:
+
+- **Every turn's reports are rendered and persisted** when the turn resolves, in all delivered formats, so a
+  later code change can **never alter a past turn's results** — the stored report is the player's record of
+  what happened, frozen against renderer evolution. ✅
+- **The resolved snapshot remains the source of truth**; a stored report is a reproducible projection of it
+  (§12.1). This is why storage is safe: regenerating from the same snapshot with the same renderer yields the
+  same bytes. ✅
+- **The GM can remove and regenerate a bad report.** Regeneration re-renders from the stored snapshot with
+  current renderer code — a deliberate operator act, distinct from re-running the turn (§11.8). It does **not**
+  re-resolve the month; only a global turn re-run (§11.8) changes results, and that regenerates **all**
+  players' reports. ✅
+- Persisting rendered artifacts is a capability the current port set does not cover — it implies a new
+  **report-store port** (§12.9). 🟡
+
+### 12.8 Delivery: the registered address, render and dispatch kept separate ✅
+
+- Reports and JSON results are **sent to the player's registered email address** — identity is **routing
+  metadata** (`domain.PlayerID` → email), not a security principal (AGENTS.md operator-trust model). **Updating
+  a player's email address is out of scope** for the engine. ✅
+- **Render and dispatch are two ports, never one** (CLAUDE.md/AGENTS.md): `ReportRenderer` produces bytes;
+  **`ReportDispatcher`** sends an attachment to a recipient. `DispatchReports` wires them, so a **dry run —
+  render and store without sending — is free** (and is exactly what §12.7's always-store path does even when
+  dispatch is skipped). ✅
+- **`DispatchReports` is idempotent** (AGENTS.md): re-invoking for the same `(gameID, turn)` must not double-send.
+  Like `ProcessTurn` it short-circuits via `TurnLedger` + an input hash (here over the stored report set), so an
+  operator rerun of the dispatch stage is safe. ✅
+- The mail transport (SMTP vs. SES/SendGrid vs. drop-EML-to-`/outbox`) stays an open infra decision behind
+  `ReportDispatcher` (AGENTS.md). ✅
+
+### 12.9 Architectural implications
+
+These follow from §12 and join §2.9 / §3.8 / … / §11.9 in AGENTS.md's "Open architectural decisions" table:
+
+- **Visibility is a domain rule, not a renderer responsibility.** Building the per-player `domain.PlayerReport`
+  — fog of war (§12.2), prisoner opacity (§8.7), per-faction hidden-route disclosure (§2.6) — is a **pure
+  domain projection** of the resolved snapshot. A `ReportRenderer` receives an **already-filtered**
+  `PlayerReport` and only formats it; it must never hold "is this secret?" logic. If a formatter ever needs to
+  decide what a player may see, the filter is in the wrong layer.
+- **A new report-store port is needed** (§12.7). The current ports — `ReportRenderer`, `ReportDispatcher` —
+  cover *make bytes* and *send bytes*, not *durably keep bytes*. Add a small port in `app/ports.go` (working
+  name **`ReportStore`**: persist, retrieve, and remove rendered artifacts keyed by `(gameID, turn, playerID,
+  format)`) before implementing an adapter. Whether stored reports live with the per-turn snapshots
+  (`GameStateStore`) or in their own store interacts with the open **State storage** decision (SQLite vs.
+  per-turn directory).
+- **JSON is a third `ReportRenderer` format, not a new pipeline.** It plugs in behind the existing port
+  (bytes + `application/json`); the render/dispatch split (§12.8) and the always-store path (§12.7) apply
+  unchanged. The deferred SQLite export (§12.6) is a *different* capability and must not warp the JSON schema.
+- **Location order is single-sourced and feeds two consumers** (§12.4): the §11.3 scheduler tiebreak and the
+  report's "Seen here" block read the **same** recorded ordering. It must be derived from recorded
+  arrival/unstack events in domain, never recomputed independently in the renderer — or the precedence a
+  player reads could drift from the precedence the engine ran.
+- **The order template closes the orders loop** (§12.3): the bottom-of-report template is the editable
+  successor to this turn's queue (§10.5) including carried-over in-flight commands (§11.5), so the snapshot's
+  per-unit pending-queue and in-flight state (§11.9) must be projectable back into the report.
+
+> **Not yet distilled.** §12's decided facts (rendering as a pure projection of the resolved snapshot; the
+> domain `PlayerReport` vs. infra `ReportRenderer` split; the per-faction visibility, prisoner-opacity and
+> hidden-route rules; the single location-ordering shared with §11.3; the 80-column / 2-space text contract;
+> the text/PDF/JSON product set; always-generate-and-store with GM regenerate; delivery to the registered
+> address with the render/dispatch split) wait on the **report-store port** and the **JSON schema** before
+> promotion to a `reference/model/` page (and a how-to for "switch the PDF renderer" / "regenerate a turn's
+> reports"). Still 🟡 and carried forward: the **top-level section roster/ordering** of the report (§12.3),
+> the **own-vs-foreign unit detail depth** (§12.2), the **versioned JSON schema** (§12.6), the **report-store
+> placement** against the open State-storage decision (§12.7/§12.9), and the deferred **SQLite export** (§12.6).
+> With §12 settled to here, §11's decided facts are now unblocked for joint promotion (§11.9's note).
 
 ## 13. Open decisions carried from AGENTS.md ❓

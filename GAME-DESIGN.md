@@ -49,8 +49,8 @@ garrisons, rank — are political/economic and live in §5 (Provinces & territor
 - Loading the artifact is an **infra concern** (an adapter); `domain` holds the in-memory
   province-graph type and treats it as immutable input to turn resolution. See
   [Architectural implications](#29-architectural-implications) — this likely wants a new
-  `MapSource` port; the on-disk **format is undecided** (carry to AGENTS.md's open-decisions
-  table).
+  `MapSource` port; the on-disk **format is undecided** (see [`docs/adr/`](docs/adr/README.md),
+  the "Map artifact format" register row).
 - Map **dimensions are a property of the authored map**, not fixed by the rules.
 - Beyond geometry, the authored artifact also carries **seed data** the engine loads as immutable
   input but whose mechanics live elsewhere: **region membership** (§2.8), the **locations of the
@@ -152,17 +152,16 @@ garrisons, rank — are political/economic and live in §5 (Provinces & territor
 
 ### 2.9 Architectural implications
 
-These follow from §2 and belong in AGENTS.md's "Open architectural decisions" table (not yet
-added — offer pending):
+The architectural consequences of §2 have moved to their correct homes per the routing rule in
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (other sections link to its anchor):
 
-- **Map artifact format + loader.** A `MapSource` port read at composition time; the on-disk
-  format (JSON/YAML/custom) is undecided. The province graph is immutable input to the domain.
-- **Randomness source (decided — see §11.7).** Stochastic outcomes are drawn through an **`RNG`
-  port** (`app/ports.go`) implemented by the **`internal/infra/prng`** adapter, mirroring the
-  `Clock` port; **RNG state round-trips with the game-state snapshot via `GameStateStore`**.
-  Randomness stays a pure function of recorded state — no component imports an entropy source.
-  (Earlier drafts placed the seed in the `TurnLedger` and had the *domain* hold the PRNG; the
-  implemented ports supersede that — draws are a use-case concern through the port, §11.7/§11.9.)
+- **Map artifact format + `MapSource` port** → [`docs/adr/`](docs/adr/README.md): the "Map
+  artifact format" register row (on-disk format still open) and the planned `MapSource` port
+  noted in AGENTS.md's Ports section. The descriptive model is in
+  [reference/model/map.md](docs/content/reference/model/map.md).
+- **Randomness source** (decided) → [`docs/adr/`](docs/adr/README.md) ADR 0003: the `RNG` port
+  (`app/ports.go`) realized by `internal/infra/prng`, with RNG state round-tripping through
+  `GameStateStore`. Cross-ref §11.7/§11.9.
 
 ## 3. Factions and Nobles 🟡
 

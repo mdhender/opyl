@@ -1338,12 +1338,171 @@ architectural decisions" table:
 > (§7.6), the §2.4 weather-variance model feeding missile penalties (§8.5), and the §11 placement of
 > combat within the turn remain 🟡/❓ and are carried forward.
 
-## 9. Ships ❓
+## 9. Ships 🟡
 
-Ships as combined movement + economic entities: galley and roundship, sailing requirements and
-cargo capacity, **ferries** (`FEE`/`BOARD`/`FERRY`/`UNLOAD`), and docking (cross-ref §2.5). A ship
-is an ordinary entity in the entity-number space (§3.2), not a sub-location. Primary source:
-[ships.md](docs/content/rules/ships.md). May fold into §6 if it stays thin.
+Ships as **mobile, crewed entities** that bridge §2's map (ocean travel), §6's economy (construction,
+ferries), and §8's combat (battle at sea). This section owns the **two ship types** and their authored
+stats; how a ship is **owned and what it holds** (occupants + cargo, measured in §4.3 weight); how one
+is **built** (the §6.4 construction machinery, gated by Shipbuilding and confined to port cities); how
+it **sails** (the crew gate, the §2.5 dock, the §2.4 wind-modified travel time); how it takes and sheds
+**damage** (storms, rocks, `REPAIR`); and the **ferry** model (`FEE`/`BOARD`/`FERRY`/`UNLOAD`). It
+**reuses, never re-decides**: ocean movement and docking are §2.4/§2.5, the fifths-staged build is §6.4,
+and **all battle-at-sea rules are §8** (the galley/roundship defensive rating and 50-occupant shelter
+§8.6, the pirate `+10` / knight–elite-guard `−25` shipboard modifiers §8.1, no siege engines at sea
+§8.6, a freed prisoner leaping overboard §8.7). A ship's identity is an **entity number** (§3.2), not a
+sub-location code — but it *acts as* a location that stacks hold and occupants ride. Like combat, the
+travel hazards here are **seeded** (§2.9), never live entropy. Primary source:
+[ships.md](docs/content/rules/ships.md); [tables.md](docs/content/rules/tables.md) supplies the
+Shipcraft skill rows and the shelter capacity. Cross-refs: §2.4/§2.5 (ocean travel, docking), §3.2
+(entity number), §4.3 (weight/capacity), §4.5 (per-instance state), §6.3/§6.4 (training sailors,
+construction), §7 (Shipcraft mechanics, storm magic), §8 (combat at sea), §10 (`SAIL`/`BOARD`/… syntax),
+§11 (resolution timing).
+
+### 9.1 The two ship types ✅ (authored table)
+
+- Two ship types exist — the **galley** (warship: slender, rowed) and the **roundship** (merchantman:
+  deep, wide, sail-driven). Their stats are **authored reference data**, a fixed ship-type table read
+  immutably by resolution, never mutated by it — the same treatment as the item-type table (§4.2) and
+  skill table (§7.2): ✅
+
+  | ship      | cargo capacity | crew (to sail) | build effort    | build material | combat shelter / defense |
+  | --------- | -------------- | -------------- | --------------- | -------------- | ------------------------ |
+  | galley    | 5,000          | 14 sailors     | 250 worker-days | 50 wood `[77]` | first 50 occupants (§8.6) |
+  | roundship | 25,000         | 8 sailors      | 500 worker-days | 100 wood `[77]`| first 50 occupants (§8.6) |
+
+- **Cargo capacity is a §4.3 weight budget**, not a unit count — the rulebook's "units of cargo" are
+  the universal weight units (§4.3), the same scale that drives carry capacity and ferry fees. A
+  ship's effective capacity is reduced by damage (§9.5). ✅
+- A **damaged** ship's capacity falls **in proportion to its damage percentage**: a galley at 10%
+  damage carries `5,000 × 0.9 = 4,500`. ✅
+
+### 9.2 Ships as entities: ownership, occupants & cargo ✅ (model) / 🟡 (capacity accounting)
+
+- A ship is an **entity** in the entity-number space (§3.2), minted a fresh number when built — **not**
+  a province `(row, col)` and **not** a static sub-location. Yet functionally it **acts as a location**:
+  nobles (with their men and items) stack *inside* it, and when it sails the whole contents move with
+  it. The map model (§2) must therefore represent "inside ship `[n]`" as a **containment edge keyed by
+  entity number**, distinct from province coordinates and authored sub-location codes. ✅
+- **Ownership is positional**, as for buildings (§6.4): the **captain** is the controlling unit aboard,
+  and entry by another faction's character is gated by `ADMIT` (§5.3, §8.8) — except via the ferry
+  `BOARD` path (§9.6). ✅
+- A ship carries **per-instance state** (§4.5-style): its **name** (player-supplied, sanitized at
+  ingest §10), **damage percentage** (§9.5), **construction progress** while in-progress (§9.3), and
+  the **occupants + cargo** it holds. This is distinct from the **authored** type stats of §9.1 —
+  capacity/crew/cost are read from the table, never stored per ship. ✅
+- **Capacity accounting (🟡):** capacity is spent by the weight of everything aboard. Whether the
+  **required crew's own weight** (a sailor weighs 100, §4.3) counts against the cargo budget, or rides
+  "for free" as part of the vessel, is left 🟡 — settled with the §2.4 overload model it feeds.
+
+### 9.3 Building a ship ✅
+
+Ship construction **reuses the §6.4 machinery** — it is not a second build system:
+
+- Requires the **Shipbuilding `[602]`** sub-skill of Shipcraft `[600]` (§7.2), at least **three
+  workers**, and the §9.1 materials. The builder **unstacks** to the outer level and issues
+  `BUILD GALLEY "name"` / `BUILD ROUNDSHIP "name"`. ✅
+- **Materials stage in fifths** exactly as §6.4: **one-fifth of the wood is deducted immediately**
+  (10 wood for a galley, of 50 total), the next fifth at 20% complete, etc.; construction **halts**
+  if the builder runs out. The builder and workers are placed **inside** the new ship, which displays
+  as `…-in-progress, NN% completed` until the worker-days are invested, then is **christened
+  seaworthy**. Resume a partial hull by **entering** it and re-issuing the `BUILD` order. ✅
+- **Ships may be built only in port cities** (§2.5) — the one placement rule §6.4's building catalog
+  does not already cover. ✅
+
+### 9.4 Sailing ✅ (gates) / 🟡 (travel-time model)
+
+- **Ocean travel requires a ship** (§2.4); piloting one requires the **Sailing `[601]`** sub-skill
+  (§7.2), learnable in any port city. The pilot must be aboard. ✅
+- **Crew is a movement gate, not an existence gate.** A ship may sit in port under-crewed, but `SAIL`
+  **fails** unless the full complement is aboard — **14 sailors for a galley, 8 for a roundship**
+  (§9.1). Sailors are men trained from peasants via `TRAIN` under Sailing `[601]` (§6.3). ✅
+- **`SAIL <direction | destination>`** is order priority **4** (§10); it moves the ship (and all it
+  holds) along ocean routes. **Docking** is §2.5: a ship in an ocean province sails into an adjoining
+  **land** province (1 day) and **cannot dock against mountains** (ocean↔mountain routes are
+  `impassable`). ✅
+- **Travel time is wind-modified (🟡).** Ocean routes are authored for "an ordinary ship in normal
+  weather" (§2.4); wind speeds or slows a vessel, and a **roundship makes better time than a galley
+  under favorable winds even when fully loaded**. §9 records *that* wind favors roundships; the
+  concrete distribution is the **§2.4 variance model** (❓), deterministic from the §2.9 seed. The
+  overload rules (§4.3) apply to a ship's contents as to any stack.
+
+### 9.5 Damage & repair ✅ (model) / 🟡 (hazard rates)
+
+- A sailing ship may be **damaged by storms or by submerged rocks in coastal waters** — a
+  travel-resolution hazard, **deterministic from the §2.9 turn seed** (the same discipline as combat
+  §8 and weather §2.4; the domain imports no entropy). The resulting **damage percentage** is
+  per-instance ship state (§9.2) and **reduces effective capacity proportionally** (§9.1). ✅
+- **`REPAIR [days]`** (order priority 3, §10) restores a damaged ship and **consumes one unit of
+  pitch `[261]`**. ✅
+- The **per-turn probability and magnitude** of storm/rock damage are **🟡** — they belong with the
+  §2.4 weather-variance model (and interact with the storm-magic skills `[822]`/`[827]`/… of §7 that
+  bind, direct, or dissipate storms). §9 records the hazard's *existence and effect*, not its rates.
+
+### 9.6 Ferries ✅ (model) / 🟡 (order syntax & sync, with §10/§11)
+
+A ship becomes a **commercial ferry** when its captain sets a fee:
+
+- **`FEE <gold>`** sets the charge as **gold per 100 weight** of a passenger's stack (§4.3) — e.g.
+  `fee 50` is ½ gold per weight. The **fee is a property of the captain (a noble), not the ship**
+  (§9.2): it lives on the noble and is read from whichever captain is aboard. **`fee 0`** clears it;
+  with **no fee set the ship is not a ferry** and `BOARD` is refused. ✅
+- **`BOARD <ship> [max fee]`** (priority 2) pays the co-located captain the required fee, then moves
+  the passenger's stack aboard. It **fails** if the ship is absent or not operating as a ferry. The
+  captain **must not `ADMIT` paying passengers** — an `ADMIT`ted character could enter with `MOVE` and
+  bypass the fee, so the ferry path deliberately routes around `ADMIT` (§9.2). ✅
+- **Synchronization:** on arrival the captain issues **`UNLOAD`** (priority 3) to eject the current
+  passengers, then **`FERRY`** (priority 1) to signal those waiting that they may now board; passengers
+  use **`WAIT FERRY <ship>`** (never `WAIT SHIP`, which would `BOARD` before `UNLOAD` clears room).
+  This four-order handshake is recorded here as a **model**; its exact syntax is finalized with §10 and
+  its within-turn **ordering** (the priorities above, and `UNLOAD`-before-`FERRY`-before-`BOARD`) is a
+  §11 resolution concern that bears on idempotency. 🟡
+
+### 9.7 Combat at sea — owned by §8
+
+§9 introduces **no** new battle rules; it only marks the ship-specific cross-refs already decided in §8:
+
+- A galley/roundship has a **defensive rating** that shelters its **first 50 occupants** in a battle
+  fought aboard (§8.6) — the same fortification mechanic as a castle/tower, at capacity 50.
+- The **shipboard combat modifier** (§8.1) applies: a **pirate gains `+10`** attack/defense, while
+  **knights and elite guard take `−25`** — pirates are trained from sailors *on a ship* (§6.3).
+- **Siege engines are not used at sea** (§8.6); a freed prisoner aboard a ship **leaps overboard and
+  swims to a nearby shore** (§8.7). ✅
+
+### 9.8 Architectural implications
+
+These follow from §9 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 / §7.9 / §8.10 in AGENTS.md's "Open
+architectural decisions" table:
+
+- **Ship-type stats are authored reference data, not stored state.** The §9.1 table (capacity, crew,
+  cost, shelter) is loaded immutably alongside the map (§2.1), item-type table (§4.2), and skill table
+  (§7.2) — most likely through the same authored-data source/adapter (the `MapSource`-class concern),
+  and inheriting its open on-disk-format question (§3.2). Resolution reads these stats, never mutates
+  them.
+- **A ship is a mobile container entity.** Its identity is an entity number (§3.2), but the location
+  model (§2) must express **"inside ship `[n]`"** as a containment edge — distinct from province
+  coordinates and from authored sub-location codes — so that a single `SAIL` transform relocates the
+  vessel and everything stacked within it. This is the one place the entity-number space and the
+  spatial graph genuinely meet.
+- **Per-instance ship state lives on the entity; type stats do not.** Name, damage %, construction
+  progress, captain (positional, §6.4), and the occupant/cargo manifest are carried per ship (the
+  §4.5 per-instance-state pattern); capacity/crew/cost are read from the authored table. Effective
+  capacity is a *derived* value (`base × (1 − damage)`), computed at use, not persisted.
+- **Build and travel introduce no new timers or entropy.** Ship construction reuses §6.4's
+  fifths-staged progress (no new persisted countdown), and storm/rock damage is a **pure function of
+  recorded state + the §2.9 seed** — re-running `(gameID, turn)` reproduces the same hull damage and
+  the same sailing outcomes, which is what keeps ship movement idempotent under the `TurnLedger`.
+- **The ferry fee is per-captain (noble) state, read at `BOARD` time.** It is *not* a property of the
+  ship entity (§9.6); the `BOARD` use case reads the co-located captain's fee and effects a
+  pay-then-move. The `FEE`/`BOARD`/`UNLOAD`/`FERRY`/`WAIT FERRY` handshake is order-driven (§10), and
+  its priority ordering within a turn is a §11 concern.
+
+> **Not yet distilled.** Like §2–§8, §9's decided facts (the two ship types, the entity/container
+> model, the §6.4-reusing build, the crew gate and dock, the damage/repair and ferry models) wait on
+> the orders pass (§10) before promotion to a `reference/model/` page — the orders that drive them
+> (`BUILD`, `SAIL`, `REPAIR`, `FEE`, `BOARD`, `UNLOAD`, `FERRY`, `WAIT FERRY`) may still reshape the
+> slots. The wind-modified ocean **travel-time model** and the storm/rock **hazard rates** (both §2.4's
+> ❓ variance model), the **capacity accounting** for crew weight (§9.2), and the **§11 placement** of
+> sailing, ferry sync, and damage within the turn remain 🟡/❓ and are carried forward.
 
 ## 10. Orders ❓
 

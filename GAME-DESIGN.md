@@ -1120,11 +1120,18 @@ timing).
   `(10,10,75)`. ✅
 - A **noble's innate rating is `(80,80,0)`** — a noble attribute (§3.3), not a table row; an unarmed,
   untrained noble is still a formidable combatant. ✅
-- **Authored rating modifiers** (static, from the table notes): a **blessed soldier** fights as a
-  regular soldier but has a **50% chance of surviving a hit** (§8.3); a **pirate** fights `(15,15,0)`
-  **shipboard** but `(5,5,0)` on land (§9); **knights and elite guard take −25 to both attack and
-  defense when fighting on a ship or in a swamp province** (closing §2.3's terrain-combat deferral —
-  swamp is the only terrain with a combat effect, and it bites only these two unit types). ✅
+- **Authored rating modifiers** (static, from the table notes). The **shipboard** and **swamp**
+  modifiers are tracked as **two independent modifiers** — they happen to share the same −25 value for
+  knights/elite guard today, but recording them separately lets play-testing tune one without
+  disturbing the other:
+  - a **blessed soldier** fights as a regular soldier but has a **50% chance of surviving a hit**
+    (§8.3);
+  - **shipboard modifier** — applied when the battle is fought on a ship (§9): a **pirate gains +10**
+    to attack and defense (land `(5,5,0)` → ship `(15,15,0)`), while **knights and elite guard take
+    −25** (knight `45 → 20`, elite guard `90 → 65`);
+  - **swamp modifier** — applied in a swamp province (closing §2.3's terrain-combat deferral; swamp is
+    the only terrain with a combat effect): **knights and elite guard take −25** to attack and defense,
+    and it bites only those two unit types (no effect on pirates or anyone else). ✅
 - **Engagement rule:** **peasants, workers, and sailors fight only when attacked** — i.e. only when
   their party is the *target* of an attack, never as initiators. ✅
 - **Item bonuses (✅ model):** a noble automatically wields combat items it holds — **one item per

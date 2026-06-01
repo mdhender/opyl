@@ -102,26 +102,31 @@ However, a character in a sub-location may not interact with characters in the s
 
 Olympian provinces are arranged in a square grid. Travel is possible in the four main compass points. Thus, to move diagonally, two move orders are required. To move northwest, for instance, one would first need to `MOVE n`, then `MOVE w`.
 
-The map coordinates for a province may be read from the province's entity number. The row is represented by the leading two letters, the column by the two digits. The northwest corner is [aa00], with rows increasing to the south, and columns increasing to the east.
+A province's map coordinate can be read from its bracketed code. The leading letters give the row; the trailing number gives the column. The northwest corner of the grid is [a1], with rows increasing to the south and columns increasing to the east. So `Plain [ad48]` lies directly north of `Plain [ae48]`, and `[ae49]` directly east of it.
 
 ```
-    00  01    02  ... 79
-  +----------------------
-aa|
-ab|          ab02
-ac|    ac01  ac02    ac99
-ad|          ad02
-af|
-...
-...
-dz|          dz02
+      1    2    3   ...
+    +---------------------
+ a  |  a1   a2   a3
+ b  |  b1   b2   b3
+ c  |  c1   c2   c3
+ .  |
+ z  |  z1   z2   z3
+ aa |  aa1  aa2  aa3
+ ab |  ab1  ab2  ab3
 ```
 
-Row sequence is: "abcdfghjkmnpqrstvwxz" (some letters are purposely excluded).
+Rows are lettered with a sequence that skips the letters most easily confused with digits — `i`, `j`, `l`, and `o` are left out:
+
+```
+a b c d e f g h k m n p q r s t u v w x y z
+```
+
+Columns are plain numbers. Neither part is padded with leading zeros, so the corner is `a1`, not `a01` or `aa01`. After the single letter `z` — the 22nd row — rows continue with two letters, `aa`, `ab`, and so on, so the map has no fixed size limit.
 
 Entity numbers for sub-locations do not correspond to any coordinate system.
 
-The edges of the map are not passable, so for example it is not possible to travel either north or west from aa00.
+The edges of the map are not passable, so for example it is not possible to travel either north or west from [a1].
 
 ### Holes in the Map
 

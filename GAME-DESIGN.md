@@ -67,10 +67,11 @@ buildable model. Spatial flavor (terrain *yields*, special realms) is deferred w
 - Map edges are impassable. Sub-location codes are arbitrary and carry **no** coordinate
   meaning.
 
-> **Rulebook items still to reconcile:** the rulebook's coordinate prose (`aa00` origin,
-> two-letters-plus-two-digits, the `abcdfghjkmnpqrstvwxz` row sequence) and its ASCII grid all
-> predate §2.2 and must be regenerated against this one-based, compressed scheme — 🟡 TODO.
-> Already applied this pass: the `sail south` typo fix in `geography.md` (was `sail e`).
+> **Rulebook reconciled ✅:** the coordinate prose, ASCII grid, row sequence, and edge example
+> in `geography.md`, plus the *Map coordinates* glossary entry, have been regenerated against
+> this one-based, compressed scheme — `a1` origin, variable width, no leading zeros, and the
+> `abcdefghkmnpqrstuvwxyz` row letters. The earlier `sail south` typo fix in `geography.md`
+> (was `sail e`) landed in the same pass.
 
 ### 2.3 Terrain ✅ / 🟡
 

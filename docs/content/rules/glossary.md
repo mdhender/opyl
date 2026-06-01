@@ -233,8 +233,8 @@ the section where the term is described in full.
   starvation. See [Loyalty, Stacking & Upkeep](../logistics/).
 
 **Map coordinates**
-: A province's position, read from its [entity number](#e): the two leading letters
-  give the row, the two digits the column, with `[aa00]` at the northwest corner. See
+: A province's position, read from its [entity number](#e): the leading letters give
+  the row and the trailing number the column, with `[a1]` at the northwest corner. See
   [Geography & Movement](../geography/).
 
 **Market**

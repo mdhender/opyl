@@ -22,7 +22,7 @@ The castle owner gains status from the number of provinces under control:
 | --------- | --------------------------------------------- |
 | 1-5       | lord                                          |
 | 6-12      | knight                                        |
-| 13-25     | baron                                         |
+| 13-24     | baron                                         |
 | 25-37     | count                                         |
 | 38-50     | earl                                          |
 | 51-63     | marquess                                      |
@@ -153,7 +153,7 @@ The number of provinces a noble controls determines his status or rank:
 | --------- | --------------------------------------------- |
 | 1-5       | lord                                          |
 | 6-12      | knight                                        |
-| 13-25     | baron                                         |
+| 13-24     | baron                                         |
 | 25-37     | count                                         |
 | 38-50     | earl                                          |
 | 51-63     | marquess                                      |

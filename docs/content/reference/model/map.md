@@ -5,8 +5,8 @@ prev: /reference/model
 ---
 
 The world is a square grid of **provinces**. Each province has a terrain type, a
-civilization level, a region label, a set of outgoing routes, and zero or more
-inner sub-locations.
+civilization level, the **region** it belongs to, a set of outgoing routes, and
+zero or more inner sub-locations.
 
 ## The map artifact
 
@@ -15,6 +15,14 @@ inner sub-locations.
 - Loading the artifact is an infra concern; the on-disk format is not specified
   in this reference.
 - Map **dimensions are a property of the artifact**, not fixed by the rules.
+- **Regions** are named collections of provinces, authored with the map: every
+  province is assigned to exactly one region. Region membership is loaded as
+  immutable map data; how regions function politically (garrison binding,
+  king-hood) belongs to the rules, not this reference.
+- The artifact also carries **seed data** loaded as immutable input: the
+  locations of the **initial settlements** where new factions begin, and the
+  list of **cities that are safe havens**. Their mechanics belong to the rules,
+  not this reference.
 
 ## Province identity and coordinates
 

@@ -35,9 +35,11 @@ garrisons, rank — are political/economic and live in §5 (Provinces & territor
 > [Map reference](docs/content/reference/model/map.md) — the sole source the engine builds
 > from. Promoted so far: representation (§2.1), coordinates (§2.2), terrain types (§2.3), the
 > decided parts of movement (§2.4), inner locations & ports (§2.5), holes & hidden routes
-> (§2.6), and the civilization formula (§2.7). **Not yet distilled** (revisit on each pass):
-> the §2.4 variance model and `FLY` rules (❓), and §2.8 regions/special realms (deferred).
-> When any of these are decided here, promote them into the Map reference before coding.
+> (§2.6), the civilization formula (§2.7), and the **authored seed data** (§2.1/§2.8 — region
+> membership, initial-settlement locations, and safe-haven cities). **Not yet distilled** (revisit on
+> each pass): the §2.4 variance model and `FLY` rules (❓), and §2.8's **richer region attributes &
+> special realms** (deferred). When any of these are decided here, promote them into the Map reference
+> before coding.
 
 ### 2.1 Representation & source ✅
 
@@ -50,6 +52,10 @@ garrisons, rank — are political/economic and live in §5 (Provinces & territor
   `MapSource` port; the on-disk **format is undecided** (carry to AGENTS.md's open-decisions
   table).
 - Map **dimensions are a property of the authored map**, not fixed by the rules.
+- Beyond geometry, the authored artifact also carries **seed data** the engine loads as immutable
+  input but whose mechanics live elsewhere: **region membership** (§2.8), the **locations of the
+  initial settlements** where new factions begin (game setup; cross-ref §3.6), and the list of
+  **cities that are safe havens** (§2.8).
 
 ### 2.2 Coordinates & addressing ✅
 
@@ -129,15 +135,20 @@ garrisons, rank — are political/economic and live in §5 (Provinces & territor
 - Initialization: turn-zero civ comes from the authored map; absent an authored value, the
   first computation uses `buildings(p)` only.
 
-### 2.8 Regions & special realms ❓ (deferred)
+### 2.8 Regions & special realms 🟡
 
-- **Regions** are named province groupings; whether a region is a mechanical entity with
-  attributes (vs. a label) is undecided — deferred.
+- **Regions** are **named collections of provinces, authored as part of the map** (§2.1): the map
+  author supplies the province→region mapping, and **every province belongs to exactly one region**.
+  Membership is therefore a loaded, immutable map fact — enough for the §5 political rules that read it
+  (garrison binding "same region", king-hood over a whole region). ✅ Whether a region carries **further
+  attributes** beyond its name and membership is still deferred. ❓
 - **Hades, Faery, the Cloudlands** are lore-specified with partial mechanics (Faery Hunt
   combat ratings, flight-only Cloudlands). Treated as **later content**, not part of the core
   map pass.
-- **Safe haven** placement/count and "no combat or magic" enforcement: noted, designed with
-  the combat/realm passes.
+- **Safe havens** are **authored**: the map author supplies the list of **cities that are safe
+  havens** (a designation on a city, feeding §2.7's civ contribution of 2). ✅ placement. Their count,
+  the "no combat or magic" enforcement, and any special-realm behavior are deferred to the
+  combat/realm passes. ❓
 
 ### 2.9 Architectural implications
 
@@ -521,7 +532,7 @@ state is what resolution mutates.
   things: the **civ contribution** `1.5 + level/4` (§2.7), the **garrison capacity / rank band** it can
   anchor (§5.6), and **protection** (a castle shelters the first **500** men in combat — §8).
 
-### 5.5 Garrisons ✅ (model) / 🟡 (entity status)
+### 5.5 Garrisons ✅
 
 - A **garrison** is installed with **`GARRISON CASTLE`**, requires **≥10 soldiers**, and is **bound to a
   castle in the same region**. **One garrison per province** — so it is referable by the bare keyword
@@ -535,10 +546,11 @@ state is what resolution mutates.
 - **Limited reporting:** garrisons report only resource-depletion activity and **large/unusual parties**
   (any stack of ≥5 units, any party of ≥20 men, most monsters) — not full location reports, and never
   activity in hidden locations (§2.6).
-- **Entity-model question 🟡:** a garrison appears as a unit with an entity number (`Garrison [780]`)
-  holding typed soldiers, "on guard," bound to a castle — yet it takes **no player orders** (it obeys
-  ruler decrees). Whether it is a **noble variant** or a **distinct station entity** in the
-  entity-number space (§3.2) is open — resolve before the orders/combat passes.
+- **Entity model ✅:** a garrison is **not a noble**. It is a **distinct station entity** in the
+  entity-number space (§3.2): a unit with an entity number (`Garrison [780]`) holding typed soldiers,
+  "on guard," bound to a castle, that takes **no player orders** — it acts only on its rulers' decrees
+  (§5.7). Modeling it as its own kind keeps the noble type uniform (no order-taking exceptions) and
+  spares the garrison every noble-only attribute (loyalty bonds, aura, noble health, NP).
 
 ### 5.6 Rank, rulers & pledge chains ✅ (bands) / reconciled
 
@@ -554,11 +566,6 @@ state is what resolution mutates.
   | 51–63     | marquess |
   | 64+       | duke     |
   | whole region (≥15 provinces) | king |
-
-  > **Rulebook reconciled ✅:** `provinces.md` prints the baron band as **13–25** and the count band as
-  > **25–37**, overlapping at 25. The non-overlapping `tables.md` "Castle garrisons" values
-  > (**13–24 baron, 25–37 count**) are taken as authoritative; the `provinces.md` `13–25` is a typo to
-  > regenerate on the next docs pass.
 
 - **King** requires controlling **every** province of a region that has **≥15 provinces**.
 - **Castle improvement gates territorial reach:** the same bands cap how many provinces a single castle
@@ -607,12 +614,13 @@ These follow from §5 and join §2.9 / §3.8 / §4.9 in AGENTS.md's "Open archit
   controlled-province sets, rank, rulers, and king-hood are computed each turn as a **pure function** of
   castle ownership + garrison bindings + pledge edges — consistent with §3.1 ("territory a faction
   controls is derived").
-- **Garrison entity status** (§5.5) is an open §3.2 modeling question (noble variant vs. station
-  entity); settle it before the orders and combat passes consume garrisons.
-- **Regions become a partial mechanical entity.** Garrison binding ("same region") and king-hood
-  ("every province in a region, ≥15 provinces") force a region to carry **at least a province-membership
-  set and a count** — promoting it from §2.8's "label" toward an entity, though richer region attributes
-  stay §2.8-deferred.
+- **Garrisons are a distinct station entity**, not a noble variant (§5.5) — a separate kind in the
+  entity-number space (§3.2) that carries soldiers but none of a noble's order-taking, loyalty, aura,
+  or NP machinery.
+- **Region membership is authored map data.** Every province is assigned to **exactly one** region by
+  the map author (§2.8), loaded immutably with the map (§2.1). Garrison binding ("same region") and
+  king-hood ("every province in a region, ≥15 provinces") read this membership set directly — no
+  separate region-ownership state is stored. Richer region attributes stay §2.8-deferred.
 - **Depression & timer state in the snapshot.** Pillage recovery (4 months each), opium demand, and mine
   collapse (vanishes after 8 months) join §4's decomposition/return timers as recorded, deterministic
   countdowns.

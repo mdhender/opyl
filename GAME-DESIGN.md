@@ -458,19 +458,29 @@ Unique items each carry state beyond their type code:
 
 ### 4.9 Architectural implications
 
-These follow from §4 and join §2.9 / §3.8 in AGENTS.md's "Open architectural decisions" table:
+The architectural consequences of §4 have moved to their correct homes per the routing rule in
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (§13.1 links to its anchor):
 
-- **The item-type table is authored reference data**, loaded immutably like the map (§2.1) — the same
-  artifact-and-loader concern as the `MapSource` port, or a sibling to it. The domain holds it as a
-  static lookup that resolution reads but never mutates.
-- **Fungible items are typed counts, not entities.** With men-as-counts (§3.8) this keeps the
-  entity-number table small — only nobles, **unique** items, skills, and sub-locations are minted. The
-  men/item distinction is a *combat/identity* split over one shared schema, not two data models.
-- **Unique-item minting reuses the §3.8 discipline** — a scribed scroll or forged artifact advances
-  the same deterministic counter the domain uses for `FORM`.
-- **Bodies and relics carry timers in the snapshot.** Decomposition (12 turns) and relic return
-  (12–24 turns) must be reconstructible from recorded death/appearance turns; any randomized window
-  derives from the §2.9 turn seed, never live entropy.
+- **The item-type table as authored reference data** → the descriptive fact (an immutable static
+  lookup resolution reads but never mutates, loaded like the map of §2.1) belongs in `reference/model/`,
+  awaiting the item model page (see the deferral note below). Its on-disk format and loader are the
+  **same open artifact-and-loader concern** as the "Map artifact format" register row and the planned
+  `MapSource` port in [`docs/adr/`](docs/adr/README.md) — a sibling to it, not yet surfaced as a
+  separate decision (§13.7).
+- **Fungible items are typed counts, not entities** — with men-as-counts (§3.8) this keeps the
+  entity-number space to nobles, **unique** items, skills, and sub-locations; the men/item distinction
+  is a *combat/identity* split over one shared schema, not two data models. The descriptive fact belongs
+  in `reference/model/` and its rationale in `explanation/`; both ride with the deferred model page below,
+  as men-as-possessions does (§3.8).
+- **Unique-item minting reuses the §3.8 discipline** → [`docs/adr/`](docs/adr/README.md): a scribed
+  scroll or forged artifact advances the same deterministic entity-number counter the domain uses for
+  `FORM`, already pinned in the State-storage snapshot constraints (numbers minted at `FORM`/item
+  creation are a pure function of recorded state).
+- **Bodies and relics carry timers in the snapshot** → [`docs/adr/`](docs/adr/README.md): decomposition
+  (12 turns) and relic return (12–24 turns) must be reconstructible from recorded death/appearance turns,
+  with any randomized window derived from the turn seed (§2.9), never live entropy. Already pinned in the
+  State-storage snapshot constraints — dead-body items with their death turn explicitly, relic-return
+  timers under the "all timer/countdown state" the snapshot must round-trip.
 
 > **Not yet distilled.** Like §3, §4's decided facts wait on the orders pass (§10) before promotion to
 > a `reference/model/` page — the item slots that orders read and mutate (`MAKE`, `GIVE`, `DROP`,

@@ -97,8 +97,8 @@ garrisons, rank — are political/economic and live in §5 (Provinces & territor
   rough terrain may negate the horse benefit). Ocean travel requires a ship. ✅
 - Each route carries a **nominal cost in days** (authored per route). ✅
 - Actual cost = nominal, modified by transport mode, terrain, and **weather**. Per the
-  travel-time decision, this variance is **deterministic given a per-turn seed recorded in
-  the `TurnLedger`** (see §2.7). ✅ *mechanism* — the concrete **variance model**
+  travel-time decision, this variance is **deterministic given the recorded RNG state in the
+  game-state snapshot** (drawn through the `RNG` port, §2.9/§11.7). ✅ *mechanism* — the concrete **variance model**
   (distributions, per-mode/terrain modifiers, wind for ocean) is ❓ and designed later.
 - `FLY` exists in the command set but its movement rules are unspecified here — cross-ref the
   Orders section (§10). ❓
@@ -157,10 +157,12 @@ added — offer pending):
 
 - **Map artifact format + loader.** A `MapSource` port read at composition time; the on-disk
   format (JSON/YAML/custom) is undecided. The province graph is immutable input to the domain.
-- **Turn seed source.** `ProcessTurn` takes a recorded seed as **input** (from the
-  `TurnLedger`); the domain derives all travel-time variance from it via a seeded PRNG.
-  Randomness stays a pure function of recorded state — the domain still imports no entropy
-  source. This is the same discipline the `Clock` port applies to time.
+- **Randomness source (decided — see §11.7).** Stochastic outcomes are drawn through an **`RNG`
+  port** (`app/ports.go`) implemented by the **`internal/infra/prng`** adapter, mirroring the
+  `Clock` port; **RNG state round-trips with the game-state snapshot via `GameStateStore`**.
+  Randomness stays a pure function of recorded state — no component imports an entropy source.
+  (Earlier drafts placed the seed in the `TurnLedger` and had the *domain* hold the PRNG; the
+  implemented ports supersede that — draws are a use-case concern through the port, §11.7/§11.9.)
 
 ## 3. Factions and Nobles 🟡
 
@@ -1829,19 +1831,30 @@ Collects the entry/exit events earlier sections deferred to the turn boundary (�
   - **Genuinely stochastic mechanics** — combat hit rolls and random target selection (§8.2), the 25%/week
     skill-acquisition roll (§7.3), randomized return/decay windows (§4.5/§5.8), exploration/quest outcomes.
     These draw from the **seeded PRNG**.
-- **The seed discipline is already established in §2.9:** `ProcessTurn` takes a **recorded turn seed** as
-  input (from the `TurnLedger`), and the domain derives every stochastic outcome from it via a seeded
-  PRNG — importing **no entropy source**, the same discipline `Clock` applies to time. The scaffolded
-  **`internal/prng`** package realizes this primitive: a **splittable PCG** with save/restore state and
-  `Split()` into independent substreams. **Splitting per event (per battle, per unit, per location)** gives
-  **order-independent reproducibility** — a battle's stream does not shift because an unrelated unit rolled
-  more dice earlier in the month. The **seed-derivation rule** (from `(gameID, turn)` vs. stored) and the
-  **substream-assignment scheme** are 🟡, to settle when resolution is built. ✅ (rule) / 🟡 (integration)
+- **Randomness is a port, realized now.** `app/ports.go` declares an **`RNG` port** (`Roll`, `RollDice`) —
+  "a deterministic random source used by use cases that involve dice or stochastic decisions" —
+  implemented by the **`internal/infra/prng`** adapter, a **splittable PCG** that marshals its state. This
+  mirrors the **`Clock` port**: stochastic draws are a **use-case (app) concern reached through a port**,
+  so the **domain imports no RNG and no entropy source**, and the SOUSA domain-import check needs no
+  exception. **RNG state persists in the game-state snapshot, round-tripped by `GameStateStore`** — *not*
+  the `TurnLedger`, whose key stays `(gameID, turn, inputHash)` — and the port deliberately hides
+  marshal/scan. **Substream `Split()`** (per game / stage / player, for order-independent reproducibility —
+  a battle's stream does not shift because an unrelated unit rolled earlier) is a **Runtime wiring-time**
+  operation on the concrete adapter today, promoted to the port only if a use case needs mid-turn fan-out.
+  🟡 remains on the **seed-derivation rule** and the **substream-assignment scheme**. ✅ (the port & its
+  realization) / 🟡 (seeding/splitting policy)
+  > **Reconciles §2.9 / §2.4 ✅:** those sections, written before the ports existed, placed the seed "in
+  > the `TurnLedger`" and had "the domain derive variance via a seeded PRNG." The implemented ports refine
+  > both — RNG **state lives in the snapshot (`GameStateStore`)**, and draws are a **use-case concern
+  > through the `RNG` port**, never a domain import. The determinism *intent* (recorded state, no live
+  > entropy) is unchanged; only the mechanism is now concrete.
 
 ### 11.8 Idempotency: `ProcessTurn`, the input hash & global-only re-runs ✅
 
 - `ProcessTurn` is the state-mutating use case, and **idempotency is an Application concern** (CLAUDE.md,
-  the idempotency explanation doc): it hashes `(prior state, validated orders, seed)`, asks
+  the idempotency explanation doc): it hashes `(prior state, validated orders)` — and the **prior state
+  already includes the RNG state** carried in the snapshot (§11.7), so the random stream is part of the
+  hashed input without a separate seed field — asks
   `TurnLedger.AlreadyProcessed(gameID, turn, inputHash)`, **short-circuits** with
   `cerr.ErrTurnAlreadyProcessed` on a match, otherwise resolves and `Record`s the hash. Re-running after an
   operator fixes garbled orders **changes the hash**, so it does **not** short-circuit — exactly the
@@ -1850,8 +1863,9 @@ Collects the entry/exit events earlier sections deferred to the turn boundary (�
   possible to re-run a turn for a single player … only for all players"). This matches the hash model
   directly: the hash is over the **whole assembled mailbox plus prior state**, so the idempotency unit is
   the **turn**, not the player. ✅
-- **The seed must be part of (or deterministically derived from) the hashed input** (§11.7) so a re-run
-  reproduces the same stochastic draws — otherwise an idempotent re-run could silently diverge. ✅
+- Because **RNG state travels inside the snapshot** (§11.7), a re-run from the same prior state replays the
+  same stochastic draws automatically — there is no separate seed to forget to hash, and an idempotent
+  re-run cannot silently diverge. ✅
 - Mail-arrival ordering feeds the `UNIT`-replace race **at ingest** (§10.8); by the time `ProcessTurn`
   runs, the bundle set is fixed and resolution is pure. **Late orders simply queue for the next turn**
   ([playing.md](docs/content/rules/playing.md)) — they never retroactively alter a resolved turn. ✅
@@ -1866,21 +1880,25 @@ These follow from §11 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 / §7.9 / 
   through `GameStateStore`, consults `TurnLedger` for idempotency, and touches no renderer, mailer, or
   clock. If resolution ever "needs" `time.Now`, live entropy, or a concrete store, the boundary moved to
   the wrong layer.
-- **The seeded-PRNG location collides with the domain-import check.** §2.9 commits the **domain** to
-  deriving randomness from a seeded PRNG, yet the SOUSA conformance command
-  (`go list -deps ./internal/domain/... | … | grep -v /domain`) forbids domain importing any internal
-  package outside `/domain`. A sibling `internal/prng` would trip it. Resolution: either **relocate the
-  PRNG under `internal/domain/`**, or have domain define a minimal `Roller` interface that `prng.PRNG`
-  satisfies and inject the (split) stream as a value. This is the one new structural decision §11 surfaces.
+- **Randomness is a port, like time — decided.** The question §2.9 left open (where the seeded PRNG lives
+  without tripping the domain-import check) is **settled**: `app/ports.go` declares an **`RNG` port**
+  (`Roll`/`RollDice`) and the seeded-PCG adapter lives in **`internal/infra/prng`**, exactly mirroring
+  `Clock`. Use cases draw through the port; the domain imports no concrete RNG, so the conformance command
+  (`go list -deps ./internal/domain/... | … | grep -v /domain`) passes with **no relocation and no
+  domain-side `Roller` interface**. RNG state round-trips with the snapshot via `GameStateStore`. The
+  remaining 🟡 is *where the draw happens for domain-resident math* (the combat exchange §8.2) — whether
+  the use case rolls and feeds outcomes into the domain transform, or a narrow domain-defined interface is
+  injected — plus the seed-derivation and substream-assignment policy.
 - **The intra-turn tick model is the largest undecided mechanic** (§11.3): day-by-day loop vs. event-merge.
   It gates the still-open interleavings of §6.1 (money-flow slot), §6.2 (upkeep slot), §8.2 (battle
   placement), and §6.6 (market clearing) — none of those can be fully pinned until the tick model is.
 - **In-flight command progress is persisted turn state** (§11.5 carry-over): the per-turn snapshot must
   carry each unit's *remaining days on the running command*, not just its pending queue — otherwise a turn
   cannot resume a multi-day order, and the snapshot is not a faithful save point.
-- **The idempotency hash must include the seed** (§11.7/§11.8): hashing only `(state, orders)` would let a
-  re-run with a fresh seed produce different combat/skill outcomes while the ledger reported "already
-  processed." The seed is part of the input identity.
+- **RNG state lives in the snapshot, so the idempotency hash captures it for free** (§11.7/§11.8): because
+  `GameStateStore` round-trips RNG state as part of game state, hashing `(prior state, orders)` already
+  pins the random stream — there is no separate seed field to forget, and a re-run from the same prior
+  state reproduces the same combat/skill draws. (This refines §2.9's earlier "seed in the `TurnLedger`.")
 - **Money-flow and upkeep slot placement (§6.1/§6.2) is the last turn-timing decision** feeding the Close
   phase, and it "matters for idempotency" exactly as those sections warned — the same recorded state must
   always debit and pay in the same order.

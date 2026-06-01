@@ -25,6 +25,14 @@ contain **inner locations** (cities, inns, ports, …). This section records the
 that turn the [Geography & Movement](docs/content/rules/geography.md) rulebook draft into a
 buildable model. Spatial flavor (terrain *yields*, special realms) is deferred where noted.
 
+> **Distilled →** the decided (✅) facts of this section are published as the
+> [Map reference](docs/content/reference/model/map.md) — the sole source the engine builds
+> from. Promoted so far: representation (§2.1), coordinates (§2.2), terrain types (§2.3), the
+> decided parts of movement (§2.4), inner locations & ports (§2.5), holes & hidden routes
+> (§2.6), and the civilization formula (§2.7). **Not yet distilled** (revisit on each pass):
+> the §2.4 variance model and `FLY` rules (❓), and §2.8 regions/special realms (deferred).
+> When any of these are decided here, promote them into the Map reference before coding.
+
 ### 2.1 Representation & source ✅
 
 - The map is a **fixed, authored artifact** loaded by the engine — a static province graph,

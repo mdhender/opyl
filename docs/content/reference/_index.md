@@ -16,6 +16,8 @@ reader is at work and needs an accurate fact.
 - File formats: order files, state snapshots
 - Sentinel errors and their meanings
 - Configuration: flags, env vars, defaults
+- The game model the engine simulates: entities, attributes, and the
+  deterministic rules over them, as they are decided
 
 ## What does **not** belong here
 
@@ -36,4 +38,5 @@ reader is at work and needs an accurate fact.
   {{< card link="cli" title="CLI" subtitle="Subcommands, flags, exit codes." >}}
   {{< card link="ports" title="Application ports" subtitle="Interfaces declared by internal/app." >}}
   {{< card link="errors" title="Sentinel errors" subtitle="Canonical errors from internal/cerr." >}}
+  {{< card link="model" title="Game model" subtitle="The map and other game-world facts the engine simulates." >}}
 {{< /cards >}}

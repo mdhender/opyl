@@ -32,4 +32,5 @@ place for opinion, history, and discussion of alternatives.
   {{< card link="sousa-in-opyl" title="SOUSA in opyl" subtitle="Why opyl uses strict Onion/Clean layering, and how it adapts SOUSA to a batch CLI shape." >}}
   {{< card link="idempotency" title="Idempotency by design" subtitle="Why ProcessTurn must be safe to rerun and where that responsibility lives." >}}
   {{< card link="use-cases" title="How use cases work" subtitle="Why each pipeline stage is one method on app.Services, and what that shape buys us." >}}
+  {{< card link="map-coordinates" title="Map coordinate compression" subtitle="Why provinces are numbers internally and compact codes on screen, and how the bijective base-22 code works." >}}
 {{< /cards >}}

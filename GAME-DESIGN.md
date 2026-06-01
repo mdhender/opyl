@@ -39,23 +39,30 @@ buildable model. Spatial flavor (terrain *yields*, special realms) is deferred w
 
 ### 2.2 Coordinates & addressing ✅
 
-- Internally a province is identified by **numeric `(row, col)`**. The bracketed code
-  (`[ae48]`) is **cosmetic display formatting**, not the identity.
-- Display format: **two letters (row) + two digits (column)**. NW corner is `[aa00]`; rows
-  increase **south**, columns increase **east**.
-- Row/column letters are drawn from the 22-letter alphabet **a–z excluding `i`, `j`, `l`,
-  `o`** (they read as `1`/`0`). This **supersedes** the rulebook's stated
-  `abcdfghjkmnpqrstvwxz` exclusion list, which conflicted with its own examples (it excluded
-  `e`, yet `[ae48]` is the rulebook's primary example). Keeping `e` and dropping `i/j/l/o`
-  makes every existing example valid.
-- The 2+2 code caps at 22² = 484 rows × 100 columns. Extend the format only if a larger
-  world is ever authored.
+- A province's identity is **numeric, one-based `(row, col)`**. The bracketed code (`[a1]`,
+  `[aa1]`) is **cosmetic display formatting**, not the identity.
+- The coordinate space runs from `(1, 1)` in the **top-left (NW) corner** to `(n, n)`; rows
+  increase **south**, columns increase **east**. Map dimensions are the GM's choice (§2.1).
+- **Display code = row letters + column number**, "compressed" — no fixed width, no leading
+  zeros. The top-left province `(1, 1)` renders as **`a1`**, *not* the rulebook's `aa00`
+  (which is dropped).
+  - **Row** is a **bijective base-22** numeral over the alphabet
+    `a b c d e f g h k m n p q r s t u v w x y z` (a–z minus `i`, `j`, `l`, `o`, which read as
+    `1`/`0`). So `a`=1 … `z`=22, then `aa`=23, `ab`=24, …; **two-letter rows begin at row 23**
+    (bijective numbering has no zero digit). No hard cap — the code simply grows a letter
+    (`aaa`=507) for very large maps. This alphabet **supersedes** the rulebook's
+    `abcdfghjkmnpqrstvwxz` list, which excluded `e` yet used `[ae48]` as its main example.
+  - **Column** is a plain decimal ordinal (`1`, `2`, …), written without leading zeros.
+- **GM convention:** the world origin is the GM's choice, but maps are typically laid out with
+  **`aa1` at the upper-left = `(row 23, col 1)`**, leaving rows 1–22 (`a`–`z`) as northern
+  margin. The engine stores only `(row, col)` and is indifferent to the convention.
 - Map edges are impassable. Sub-location codes are arbitrary and carry **no** coordinate
   meaning.
 
-> **Rulebook fixes applied this pass:** the coordinate alphabet above; and the `sail south`
-> direction-comment typo in `geography.md` (was `sail e`, now `sail s`). The ASCII grid in
-> the rulebook still skips `ae` and should be regenerated against the new alphabet — 🟡 TODO.
+> **Rulebook items still to reconcile:** the rulebook's coordinate prose (`aa00` origin,
+> two-letters-plus-two-digits, the `abcdfghjkmnpqrstvwxz` row sequence) and its ASCII grid all
+> predate §2.2 and must be regenerated against this one-based, compressed scheme — 🟡 TODO.
+> Already applied this pass: the `sail south` typo fix in `geography.md` (was `sail e`).
 
 ### 2.3 Terrain ✅ / 🟡
 
@@ -130,11 +137,11 @@ added — offer pending):
   Randomness stays a pure function of recorded state — the domain still imports no entropy
   source. This is the same discipline the `Clock` port applies to time.
 
-## 3. Nations and Nobles ❓
+## 3. Factions and Nobles ❓
 
 | Concept             | Specified                                              | Open |
 | ------------------- | ------------------------------------------------------ | ---- |
-| **Nation**          | A **collection of player-controlled noble characters** | ❓   |
+| **Faction**         | All units controlled by a player; the player's faction.| ❓   |
 | **Noble Character** | The core entity and the unit that accepts orders.      | ❓   |
 
 ## 4. Orders ❓

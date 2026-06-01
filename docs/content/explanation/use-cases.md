@@ -2,6 +2,7 @@
 title: How use cases work
 weight: 3
 prev: /explanation/idempotency
+next: /explanation/map-coordinates
 ---
 
 A "use case" in opyl is a method on `app.Services` that owns exactly one

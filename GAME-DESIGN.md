@@ -630,15 +630,236 @@ These follow from §5 and join §2.9 / §3.8 / §4.9 in AGENTS.md's "Open archit
 > read and mutate them (`GARRISON`, `PLEDGE`, `DECREE`, `BUILD`, `IMPROVE`, `PILLAGE`) may still reshape
 > the slots.
 
-## 6. Economy ❓
+## 6. Economy 🟡
 
-The monthly flow of money and materials: tax base → income, building **construction** (effort in
-worker-days), **markets** (`BUY`/`SELL` matched in a shared city), **trade goods**, the
-**maintenance/upkeep** of men, and **training** peasants into other kinds of men. Primary sources:
-[buildings-economy.md](docs/content/rules/buildings-economy.md),
+The monthly flow of money and materials, layered on §5's tax base and §3/§4's possessions. This
+section closes the deferrals routed here from elsewhere: upkeep math (§3.4, §4.3), production rates
+(§4.7), the tax **collection & distribution flow** (§5.2, §5.4, §5.5), and the recruit/train
+mechanics (§3.4). It owns **how gold and materials move each month** — income collection and payout,
+paying and training men, constructing buildings and improving castles, extracting and making
+resources, and clearing city markets. Most *values* are fixed by the rulebook tables and decided
+here; *when* each step runs within a turn is a §11 (turn resolution) concern, marked where it bites.
+Primary sources: [buildings-economy.md](docs/content/rules/buildings-economy.md),
 [markets.md](docs/content/rules/markets.md), [provinces.md](docs/content/rules/provinces.md) (tax
-base), [logistics.md](docs/content/rules/logistics.md) (upkeep, training). Ships' economic role
-cross-refs §9.
+base), [logistics.md](docs/content/rules/logistics.md) (upkeep, training),
+[tables.md](docs/content/rules/tables.md). Cross-refs: §5 (tax-base value, garrisons, castles), §7
+(skill mechanics & per-use yields), §9 (ships' economic role), §11 (resolution timing).
+
+### 6.1 The monthly money flow ✅ (split) / 🟡 (un-garrisoned castle, timing)
+
+§5.2 fixed the tax-base **value** (`50 + 50·civ`, +100 per city) and deferred the **flow** here. The
+end-to-end path for a **garrisoned province** bound to a castle:
+
+1. the province generates its tax base (§5.2);
+2. the garrison pays its own men's **maintenance** from the tax base (§6.2);
+3. the castle owner receives **⌊(tax base − garrison maintenance) / 2⌋**;
+4. the **un-forwarded half stays in the province and is lost** — gold does not accumulate (§4.4, §5.2).
+
+Worked example (from [provinces.md](docs/content/rules/provinces.md)): a civ-5 province (base 300)
+with a 10-soldier garrison (upkeep 20) leaves 280; the castle owner receives 140; the other 140 is
+lost.
+
+- **Reconciliation (decided ✅):** [provinces.md](docs/content/rules/provinces.md) says both that "a
+  castle automatically collects **all** of the gold in its province" and that "the owner receives
+  **half** of the remaining tax base." These describe **two different things, not a conflict**:
+  "automatically … all" means collection is **passive** — the castle sweeps the province's gold with
+  **no order required** (there is no `COLLECT` command) — while "half" governs **how much the owner
+  keeps**. So the castle collects automatically, and the owner receives half of `(base − garrison
+  upkeep)`; the un-kept half is lost, consistent with the no-accumulation rule.
+- **Pillaging** (§5.2) **seizes the whole tax base** for the month (a pillager must first defeat any
+  guarding garrison, §8) and lowers *future* revenue (4 months' recovery per pillaging).
+- **Open (🟡):** what a castle collects from its **own province when no functional garrison** is
+  stationed there is unsettled — the rulebook ties protection (and, ambiguously, collection) to a
+  garrison's presence. Pinned with §11: a castle with no functional garrison (≥10 men) in its
+  province is undefended and its tax goes uncollected. **Confirm.**
+- **Timing (🟡):** the order of operations within a turn — when tax is computed, when upkeep debits,
+  when the owner is paid — is a §11 concern and matters for idempotency (the `TurnLedger`).
+
+### 6.2 Maintenance / upkeep of men ✅
+
+This closes the upkeep deferral from §3.4 and §4.3. Men cost gold **per month**, charged to the
+**holding noble** at end of month:
+
+| man                         | gold/mo |
+| --------------------------- | ------- |
+| peasant `[10]`              | 1       |
+| worker `[11]`, sailor `[19]`, crossbowman `[21]`, soldier `[12]` | 2 |
+| archer `[13]`, pikeman `[16]`, blessed soldier `[17]`, swordsman `[20]`, pirate `[24]` | 3 |
+| knight `[14]`, elite archer `[22]` | 4 |
+| elite guard `[15]`          | 5       |
+
+- **Stack-aggregate billing (§3.4):** if the holding noble lacks gold, it draws from **same-faction
+  stack-mates**; one stack-mate carrying gold can pay the whole stack's upkeep. Nobles never share
+  gold across factions.
+- **Partial payment:** if a noble can pay only some of its men, **one-third of those unpaid leave**
+  service at month's end. **Peasants do not desert but starve** if unpaid. Which men leave/starve is
+  the engine's choice — and so must be a **deterministic** selection from recorded state, never
+  `rand` (§6.8).
+- `DROP` releases men deliberately (§4.7). **Upkeep is gold-per-man only** — item *weight* drives
+  carry capacity and ferry fees (§4.3, §9) but never upkeep.
+
+### 6.3 Recruiting & training men ✅ (table) / ❓ (recruit supply)
+
+- **`RECRUIT`** draws **peasants `[10]`** from the surrounding province. It is a production command:
+  it **fails immediately (zero time)** where there are no peasants. The **province peasant supply
+  model** and any gold cost are **unspecified ❓** — recorded as a gap to settle with §11 (does
+  recruiting deplete a province pool, scale with civ level, cost gold?).
+- **`TRAIN`** converts one kind of man into another at **one day per man**, consuming an **input man**
+  (and, for some, an **input item**), gated by a **skill** and sometimes a **location**:
+
+  | output                  | skill  | input man    | input item        | where  |
+  | ----------------------- | ------ | ------------ | ----------------- | ------ |
+  | worker `[11]`           | none   | peasant      | —                 | —      |
+  | soldier `[12]`          | 610    | peasant      | —                 | —      |
+  | sailor `[19]`           | 601    | peasant      | —                 | —      |
+  | crossbowman `[21]`      | 610    | peasant      | crossbow `[85]`   | —      |
+  | archer `[13]`           | 615    | soldier      | longbow `[72]`    | —      |
+  | pikeman `[16]`          | 610    | soldier      | pike `[75]`       | —      |
+  | swordsman `[20]`        | 616    | soldier      | longsword `[74]`  | —      |
+  | blessed soldier `[17]`  | 750    | soldier      | —                 | temple |
+  | knight `[14]`           | 616    | swordsman    | warmount `[53]`   | —      |
+  | elite archer `[22]`     | 615    | archer       | —                 | castle |
+  | elite guard `[15]`      | 616    | knight       | plate armor `[73]`| castle |
+  | pirate `[24]`           | 616    | sailor       | longsword `[74]`  | ship   |
+
+  The peasant→soldier→swordsman→knight→elite-guard spine, plus the worker / sailor / crossbowman /
+  archer / pikeman / blessed-soldier branches, matches the training tree in
+  [logistics.md](docs/content/rules/logistics.md). The skill numbers are recorded here; the **skill
+  mechanics** (experience gating, what each subskill of Combat/Shipcraft/Religion permits) are §7.
+
+### 6.4 Construction & castle improvement ✅
+
+Closes the construction-mechanics deferral from §5.3/§5.4. Building requires **Construction `[680]`**
+(a mine may also use **Mining `[720]`**), at least **three workers**, and the materials below; the
+builder issues a `BUILD` order at the outer level of the province (unstacked):
+
+| building | effort (worker-days) | material   | where                      |
+| -------- | -------------------- | ---------- | -------------------------- |
+| inn      | 300                  | 75 wood    | province or city           |
+| mine     | 500                  | 25 wood    | mountain or rocky hill     |
+| temple   | 1,000                | 50 stone   | anywhere                   |
+| tower    | 2,000                | 100 stone  | anywhere                   |
+| castle   | 10,000               | 500 stone  | province or city (§5.3)    |
+
+- **Materials are staged in fifths:** the builder must hold ≥1/5 of the materials to start (deducted
+  immediately); the next fifth is due at 20% complete, the next at 40%, etc. Construction **halts**
+  if materials run out. The building completes when the required worker-days are invested; the
+  builder and workers are placed **inside** the new structure. Resume a partial build by **entering**
+  it and re-issuing the `BUILD` order.
+- **Placement & cardinality** are §5.3 (one castle per province; one mine per mountain/rocky-hill;
+  no nesting except up to six towers in a castle). **Ownership** is positional — first character
+  inside owns it, gated by `ADMIT` (§5.3).
+- **Castle improvement** (`IMPROVE [days]`, runs to the next level or the day budget) climbs **levels
+  1–6**, each costing stone + worker-days:
+
+  | level | stone | worker-days |
+  | ----- | ----- | ----------- |
+  | 1     | 50    | 1,000       |
+  | 2     | 60    | 1,250       |
+  | 3     | 70    | 1,500       |
+  | 4     | 80    | 1,750       |
+  | 5     | 90    | 2,000       |
+  | 6     | 100   | 2,500       |
+
+  Improvement level drives the **civ contribution** `1.5 + level/4` (§2.7), the **rank/garrison reach
+  band** (§5.6), and **combat protection** (a castle shelters the first 500 men — §8).
+
+### 6.5 Resource extraction & production ✅ (shape) / 🟡 (yields, terrain)
+
+All items enter play through **skill-driven production** (§4.7), never randomly — each command
+**consumes typed inputs and yields typed outputs**, taking time:
+
+- **Gathering**, gated by terrain and skill: Forestry `[700]` (harvest lumber `[702]`, yew `[703]`,
+  mallorn `[705]`, rare foliage `[704]`, opium `[706]`); Mining `[720]` (iron `[721]`, gold `[722]`,
+  mithril `[723]`); Fishing `[603]`; Stone quarrying `[682]`; Collect rare elements `[695]`. **Per-use
+  yields are unspecified ❓** and deferred to §7; this section records only that gathering produces
+  typed item rows. The **terrain→which-gathering-works-where** linkage (opium in swamp, mines in
+  mountain, lumber in forest) partially closes §2.3's terrain-yield deferral; a fuller terrain-yield
+  model stays 🟡.
+- **Mines** (§5.3): a new mine starts at **depth 1**; it deepens **one level per three extraction
+  uses**. The **resource mix shifts with depth** — iron near the surface, gold deeper, rare elements
+  deepest. Deeper mines suffer **cave-ins more often**, raising a **damage percentage**; `REPAIR`
+  arrests it, and an unrepaired mine eventually **collapses**. A collapsed mine blocks entry/use and
+  **vanishes after one game year (8 months)**, after which a new mine may be built. The collapse timer
+  joins §5.9's recorded countdowns.
+- **`MAKE`** (Weaponsmithing `[617]`) turns **one input material into one item per day**:
+
+  | item             | material   |
+  | ---------------- | ---------- |
+  | longbow `[72]`   | yew `[68]` |
+  | plate armor `[73]`, longsword `[74]` | iron `[79]` |
+  | pike `[75]`, crossbow `[85]` | wood `[77]` |
+
+- **Turn lead into gold** (Alchemy `[697]`) is an alchemical gold source. Other production (scroll
+  scribing, potion brewing, artifact forging, `BREED`) is catalogued in §4.7 with mechanics in §7.
+- Any production that **mints a unique entity** (scribed scroll, forged artifact) advances the
+  **deterministic counter** of §3.8 — never `rand`/`time` (§4.9).
+
+### 6.6 Markets & trade goods ✅
+
+- **`BUY`/`SELL` match only in cities** (§2.5), at the local bazaar; `GIVE` moves items between
+  co-located nobles anywhere and is the off-market transfer path (§4.7). A trade executes when the
+  seller's price ≤ the buyer's max, the buyer can afford ≥1 unit, the seller holds ≥1 unit, and both
+  are in the **same city**. It settles **at the seller's price**.
+- **Partial trades execute** (buy 25 of 100 wanted; the pending order shrinks). Unmatched orders
+  become **standing orders** until executed or cleared (`buy <item> 0` clears). Orders the unit
+  **cannot currently honor** (penniless buyer, empty seller) are omitted from the market report.
+- **Deterministic clearing (a §11 ordering fact):** a buyer with multiple sellers takes the **lowest
+  price**, ties broken by **position in the location's character list** (units resident longest sit
+  toward the top and win ties); a seller with multiple buyers takes the **highest** in that list.
+  **City self-trades have lowest priority** — cities defer to player units. The clearing must be a
+  pure, reproducible pass over the recorded per-location character order (§6.8).
+- **Privacy:** middlemen can hide a trader's identity (Conceal identity of trader `[731]`); some
+  trades are omitted from the report entirely.
+- **Trade goods (§4.8):** a tradegood is a *role over the item table*, not a new entity. Trade `[730]`
+  sub-skills surface opportunities — **Find tradegood for sale `[732]`**, **Find market for tradegood
+  `[733]`** — and profit comes from moving goods between city markets. **Cities issue their own
+  `BUY`/`SELL`** on certain goods, resolved identically to player trades (but at lowest priority).
+
+### 6.7 Opium & tax depression ✅ (mechanism) / ❓ (magnitudes)
+
+- **Opium `[93]`** is produced in **swamp** provinces (Harvest opium `[706]`; Improve opium
+  production `[707]`) and **consumed by markets in desert, plain, forest, and mountain** provinces —
+  **not** swamp markets. Every non-swamp market carries **some opium demand**, hidden in the report at
+  low levels.
+- **Demand is a feedback loop:** satisfying demand **raises next month's** demand (peasants grow
+  addicted); leaving it unmet lets demand **fall**. Demand becomes visible in the market report once
+  high enough.
+- **Opium consumption depresses the province's tax base**, scaling with the volume sold — the exact
+  magnitude is **unspecified ❓**. This depression sits alongside **pillage recovery** (§5.2) as a
+  recorded **depression/timer state** on the province (§5.9).
+
+### 6.8 Architectural implications
+
+These follow from §6 and join §2.9 / §3.8 / §4.9 / §5.9 in AGENTS.md's "Open architectural
+decisions" table:
+
+- **The economy is pure resolution arithmetic over the snapshot.** Income collection, upkeep,
+  training, production, and market clearing are deterministic transforms of recorded state — the
+  domain imports **no** entropy or clock. Every "the computer chooses" in the rulebook (which unpaid
+  men starve, which of several equal trades matches) resolves from **recorded order**, not `rand`.
+- **Market clearing depends on per-location character-list order.** Tie-breaks read "position in the
+  location's character list," which reflects **arrival order** — so the snapshot must preserve a
+  stable per-location ordering of occupants, and clearing is a single deterministic pass over it.
+- **Upkeep billing is a stack-aggregate, debited to a specific holder.** Capacity/upkeep are computed
+  for the stack (§3.4) but gold leaves a concrete noble's inventory; the "ask same-faction stack-mates
+  for gold" step is a deterministic gather over the stack, faction-scoped.
+- **Production reuses the typed-count and unique-mint models.** Gathering/`MAKE`/`TRAIN` mutate
+  **fungible rows** (§4.1); scribing/forging mint **unique entities** via the §3.8 counter. No new
+  data model — economy is arithmetic over §3/§4's possessions.
+- **Money flow is a §11 ordering invariant.** Garrison upkeep before the castle's half before the
+  owner's payout; tax computed, spent, and discarded within the same turn (no carryover). The
+  sequence is what makes a re-run of `(gameID, turn)` reproduce the same balances — it belongs to the
+  resolution order recorded against the `TurnLedger`.
+- **Depression and mine-collapse timers live in the snapshot**, joining §4's decomposition/return and
+  §5's pillage-recovery countdowns as recorded, deterministic state.
+
+> **Not yet distilled.** Like §3–§5, §6's decided facts (the upkeep, training, construction, and
+> improvement tables; the money-flow split; the market-clearing rule) wait on the orders pass (§10)
+> before promotion to a `reference/model/` page — the orders that drive them (`RECRUIT`, `TRAIN`,
+> `BUILD`, `IMPROVE`, `MAKE`, `BUY`/`SELL`, `PILLAGE`) may still reshape the slots. The recruit-supply
+> model (§6.3), un-garrisoned-castle collection (§6.1), and the opium/yield magnitudes (§6.5, §6.7)
+> remain ❓ and are carried forward.
 
 ## 7. Skills, magic & religion ❓
 

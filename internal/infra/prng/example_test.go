@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 
-	"github.com/mdhender/opyl/internal/prng"
+	"github.com/mdhender/opyl/internal/infra/prng"
 )
 
 // Basic seeded use. Construct a PRNG from a 128-bit seed and roll some dice.

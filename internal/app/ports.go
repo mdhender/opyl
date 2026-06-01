@@ -58,3 +58,24 @@ type TurnLedger interface {
 type Clock interface {
 	NowUnix() int64
 }
+
+// RNG is a deterministic random source used by use cases that involve
+// dice or stochastic decisions.
+//
+// Implementations live in infra/prng. The choice of generator (PCG,
+// Xoshiro, etc.) and the mechanism for deriving independent substreams
+// are infra concerns. Persistence of RNG state across turns is also an
+// infra concern: GameStateStore round-trips RNG state alongside game
+// state, and the port here intentionally does not expose marshal/scan.
+//
+// Splitting a master generator into per-game, per-stage, or per-player
+// substreams is currently a wiring-time operation performed by Runtime
+// on the concrete adapter; promote a Split method to this port only
+// when a use case demonstrably needs mid-execution fan-out.
+type RNG interface {
+	// Roll returns a uniformly distributed integer in [low, high].
+	Roll(low, high int) int
+	// RollDice returns the sum of rolling n dice each with the given
+	// number of sides.
+	RollDice(n, sides int) int
+}

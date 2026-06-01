@@ -1,8 +1,13 @@
-# `internal/prng`
+# `internal/infra/prng`
 
 A deterministic random-number stream backed by [PCG][pcg] from `math/rand/v2`,
 with state that can be saved and restored through every standard Go encoding
 contract.
+
+This is the infrastructure adapter that satisfies the `app.RNG` port.
+Application use cases depend on the narrow `app.RNG` interface, never on this
+concrete type. Runtime constructs a `*prng.PRNG` with a configured seed and
+injects it into `app.Services.RNG`.
 
 ## What it is
 
@@ -47,7 +52,7 @@ Runnable examples live in
 pkg.go.dev. View them with:
 
 ```sh
-go doc -all github.com/mdhender/opyl/internal/prng
+go doc -all github.com/mdhender/opyl/internal/infra/prng
 ```
 
 Covered:

@@ -39,6 +39,7 @@ The practical invariant: **a decision that lives only in `GAME-DESIGN.md` (or th
 | Infra (text)   | `internal/infra/render/text/`                 | `domain.PlayerReport` → text bytes                         |
 | Infra (PDF)    | `internal/infra/render/pdf/`                  | `domain.PlayerReport` → PDF bytes                          |
 | Infra (mail)   | `internal/infra/mail/`                        | Deliver `domain.Attachment` to a `domain.Recipient`        |
+| Infra (rng)    | `internal/infra/prng/`                        | PCG-backed `app.RNG` adapter with persistable state        |
 | Delivery       | `internal/delivery/cli/`                      | Thin CLI subcommand handlers                               |
 | Runtime        | `cmd/opyl/`                                   | Composition root: parse config, wire adapters, dispatch    |
 | Documentation  | `docs/`                                       | Hugo + Hextra site organised by Diataxis (see below)       |
@@ -53,6 +54,7 @@ These are the seams between layers. Application owns them; infra implements them
 - `ReportDispatcher` — send attachment to recipient
 - `TurnLedger` — record processed turns for idempotency
 - `Clock` — abstract time for determinism
+- `RNG` — abstract randomness for deterministic dice / stochastic decisions
 
 If you need a new external capability, add a small port here first, then implement it in `internal/infra/<adapter>/`.
 

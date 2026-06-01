@@ -8,10 +8,14 @@ import (
 	"encoding"
 	"encoding/json"
 	"testing"
+
+	"github.com/mdhender/opyl/internal/app"
 )
 
-// Compile-time assertions that PRNG satisfies the encoding contracts.
+// Compile-time assertions that PRNG satisfies its contracts: the
+// app.RNG port and the standard encoding interfaces.
 var (
+	_ app.RNG                    = (*PRNG)(nil)
 	_ encoding.BinaryMarshaler   = (*PRNG)(nil)
 	_ encoding.BinaryUnmarshaler = (*PRNG)(nil)
 	_ json.Marshaler             = (*PRNG)(nil)

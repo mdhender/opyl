@@ -16,6 +16,7 @@ type Services struct {
 	Dispatcher ReportDispatcher
 	Ledger     TurnLedger
 	Clock      Clock
+	RNG        RNG
 }
 
 // IngestOrders reads and validates player orders for (gameID, turn).

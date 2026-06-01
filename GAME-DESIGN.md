@@ -1504,22 +1504,191 @@ architectural decisions" table:
 > ❓ variance model), the **capacity accounting** for crew weight (§9.2), and the **§11 placement** of
 > sailing, ferry sync, and damage within the turn remain 🟡/❓ and are carried forward.
 
-## 10. Orders ❓
+## 10. Orders 🟡
 
-> **Early decision (recorded ahead of the full orders pass).**
->
-> **Player-supplied names are untrusted and must be sanitized.** ✅ Players name nobles — and other
-> createable entities — through orders (e.g. `NAME`/`FORM`). Because order files are the engine's
-> **untrusted-input boundary** (`internal/infra/orderfile/`), a name carries whatever bytes a player
-> typed and must be neutralized before it is ever embedded in a report (text, PDF, or any HTML view),
-> where it could otherwise inject markup/script (XSS) or terminal/PDF control sequences. Only a safe,
-> typed name reaches `domain`.
->
-> **Mechanism ✅:** names are **sanitized at ingest**, in the orderfile adapter — consistent with
-> CLAUDE.md's rule that `orderfile/` is *the* validation boundary, so only safe, typed names cross into
-> `domain` and every render target inherits a clean string. Render-time escaping, if added, is
-> defense-in-depth, not the primary control. The exact allowed character set and transform (reject vs.
-> strip vs. escape on the way in) is 🟡 — settled with the rest of §10.
+Orders are the engine's **sole input channel** and its **untrusted-input boundary**. A player composes a
+plain-text order file and mails it in; the engine ingests it, queues per-unit commands, and resolves them
+on the turn run. §10 owns the **order file itself** — its grammar (the `begin`/`unit`/`end` envelope),
+the **command catalog** (the ~80 verbs, each with a fixed *priority* and *time* attribute), the
+**per-unit command queue** (250-deep, `UNIT`-replaced, `STOP`-interruptible), the **two-stage validation
+split** (what the scanner checks at parse time vs. what is checked only at execution), the **player-entity
+admin order set**, and the **sanitization of player-supplied names**. It **reuses, never re-decides**:
+every command's *meaning* lives in the section that owns its mechanic — `MOVE`/`FLY` travel is §2.4,
+docking §2.5, `FORM`/`PLEDGE`/permissions §3/§5.3/§8.8, item transfer (`GET`/`GIVE`/`BUY`/`SELL`/…) §4/§6.6,
+construction (`BUILD`/`RAZE`/`IMPROVE`) §6.4, `STUDY`/`RESEARCH`/`USE` §7, `ATTACK` and its flags §8,
+`SAIL`/`BOARD`/`FEE`/`FERRY`/`UNLOAD`/`REPAIR` §9 — so §10 records only the **vocabulary and grammar**
+that carry those mechanics, never their resolution. The hand-off is sharp: §10 assigns each command its
+**priority value**; **§11 owns the scheduler** that consumes those values, the within-turn *ordering*,
+*time accrual*, `STOP`/interrupt timing, and the idempotency placement. Primary source:
+[orders.md](docs/content/rules/orders.md). Cross-refs: §2.4/§2.5 (`MOVE`/`FLY`/`SAIL` semantics), §3.1/§3.2
+(player entity, entity-number space, `FORM`), §3.4 (faction→noble hierarchy the `unit` sections address),
+§4–§9 (the owning section of every command's mechanic), §11 (the scheduler, timing, idempotency), §12
+(the acknowledgement reply, the order template, the seen-here list).
+
+### 10.1 The order file: structure & grammar ✅
+
+- An order file is a **line-oriented text DSL** with a fixed envelope: a single `begin <player-number>
+  [password]` header, then one `unit <number>` block per unit (its queued commands indented beneath it),
+  closed by a **single `end`** — the parser stops reading at `end`, and there is **never** an `end` per
+  `unit`. The first `unit` block is the **player (faction) entity** itself (§10.6); subsequent blocks are
+  its characters (§3.4). ✅
+- The grammar is **forgiving by design**: case-insensitive, whitespace/indentation-insensitive, `#`
+  begins an end-of-line **comment** the engine never interprets, and a multi-word argument **must be
+  quoted** (`name "Osswid the Constructor"`). The mail **Subject:** line is ignored. ✅
+- **`UNIT` replaces, it does not append.** Re-sending a `unit` block **clears that unit's pending queue**
+  and queues the new commands; units omitted from a later file keep their existing queue untouched. A unit
+  may hold at most **250 queued orders**; excess is silently dropped (a gap §10.8 flags for an explicit
+  ingest warning). ✅
+- This DSL — not YAML, not a structured-field email schema — is the **decided order-file content format**,
+  which **settles AGENTS.md's "Order file format" open decision** toward the rulebook's custom
+  line-oriented DSL. Mail *transport* (how the file arrives) is the separate "Mail transport" decision; the
+  DSL is simply the body it carries. The **exact tokenizer/grammar spec** (quoting edge cases, numeric vs.
+  entity-code argument forms) is 🟡 — pinned down when the orderfile adapter is built. ✅ (format) / 🟡 (spec)
+
+### 10.2 The untrusted-input boundary ✅
+
+- `internal/infra/orderfile/` is **the** validation boundary, exactly as CLAUDE.md and AGENTS.md mandate:
+  it owns the raw bytes, parses the DSL, and **rejects malformed input with `cerr.ErrInvalidOrders`** —
+  no raw bytes ever reach `app` or `domain`. Only typed, validated **`domain.OrderBundle`** values cross
+  inward; the bundle is **per-player** (the `OrderSource.ReadOrders` port returns `[]domain.OrderBundle`,
+  one per submitting player), each carrying that player's parsed `unit`-keyed command queues. ✅
+- Because the bundle is the **only** form orders take inside the engine, every later concern — scheduling
+  (§11), idempotency hashing (§10.8/§11), report echoing of the queue (§12) — operates on typed values, not
+  text. The adapter is **dumb** (no game rules), per CLAUDE.md's "keep infra adapters dumb." ✅
+
+### 10.3 Two-stage validation: parse-time vs. execute-time ✅
+
+The scanner deliberately does **not** fully validate orders, and this split maps cleanly onto the SOUSA
+layer boundary:
+
+- **Parse time (orderfile / infra):** the scanner checks only that each **command exists** and that the
+  parameters of the **scan-affecting orders** are well-formed — those involved in parsing (`begin`,
+  `unit`, `password`, `email`, `vis_email`), in report formatting (`format`, `notab`), and those with
+  **immediate secondary effects** (`resend`, `lore`). A structural or lexical failure here is
+  **`cerr.ErrInvalidOrders`**. This is *lexical/structural* validity only. ✅
+- **Execute time (app/domain resolution, §11):** every *other* command's parameters are validated **only
+  when the command runs** during the turn — does the location offer this skill, are there peasants to
+  recruit, does the target exist. These are *semantic* checks against world state, so they belong to
+  resolution, not the parser, and surface as the **business-meaning `cerr` sentinels** (§ `cerr`), not
+  `ErrInvalidOrders`. A command that fails semantically **takes zero time** (§10.4) and does not consume
+  the unit's monthly study/production budget. ✅
+- Consequence: a file can parse cleanly (every verb known, envelope well-formed) yet have individual
+  orders fail at run — the **acknowledgement reply** (§12) reports parse-time errors immediately, while
+  run-time failures appear in the turn report. The two error channels are distinct on purpose. ✅
+
+### 10.4 The command catalog: priority & time as authored attributes ✅ (shape) / 🟡 (per-command meaning)
+
+- Every command carries two **fixed, authored attributes** — a **priority** in `0–4` and a **time class** —
+  independent of any single invocation. This catalog is **reference data** (the same treatment as the
+  item-type §4.2, skill-type §7.2, and ship-type §9.1 tables): read immutably, never mutated by resolution.
+  The full table is [orders.md](docs/content/rules/orders.md)'s command summary; §10 records the **rules
+  that generate it**, not a second copy. ✅
+- **Priority** is assigned by rule: permission commands (`ADMIT`, `HOSTILE`, `NEUTRAL`, `DEFEND`, …) are
+  **0**; zero-time commands and `WAIT` are **1**; `MOVE`/`FLY` are **2**; everything else is **3**; `SAIL`
+  alone is **4**. §10 owns these *values*; the **§11 scheduler** consumes them (start all ready prio-0
+  before any prio-1, …; ties broken by **location order**, §11/§12) — that algorithm is *not* §10's. ✅
+- **Time class** is one of: **`0 days`** (instantaneous), a **fixed** count (e.g. `1 day`, `7 days`),
+  **`as given`** (the player supplies the day count as an argument, e.g. `RECRUIT [days]`), or **`varies`**
+  (computed from world state, e.g. `BUILD`, `MOVE`, `USE`). **Failed orders generally take zero time**
+  (§10.3). *How* time accrues across the turn and *when* a multi-day order is interruptible are **§11**. ✅
+- Each verb's **semantics stay in its owning section** (§10 intro). The catalog is **vocabulary**: it tells
+  the parser each verb's arity and the scheduler each verb's priority/time, nothing about what the verb
+  *does*. 🟡 marks that those per-command meanings are distributed, not centralized here.
+
+### 10.5 The per-unit command queue ✅ (model) / 🟡 (`STOP`/interrupt timing → §11)
+
+- Commands **queue per unit** and execute in submitted order. A unit already mid-command is **not
+  interrupted** by a freshly-submitted `unit` block **unless the first new order is `STOP`**; `STOP` itself
+  **queues like any other order** and only takes effect when the turn runs (so a later file can still
+  replace it before the deadline). The precise moment `STOP` bites, and how the queue drains against the
+  day clock, are **§11** resolution concerns. ✅ (model) / 🟡 (timing)
+- Orders may be queued for units **not yet under control** (a `BRIBE`/`TERRORIZE`/`PLEDGE` target, §3/§8) —
+  they begin executing the moment the unit joins the faction. ✅
+- Orders may be queued for a **noble that does not yet exist**: the turn report lists the **next entity
+  numbers** that `FORM` will mint (§3.2's reserved entity-number space), the player `FORM`s one with that
+  number, and a `unit <that-number>` block queues the newborn's first orders. This is the one place ingest
+  must accept a `unit` number that is not yet a live entity. ✅
+- **Same-priority ties resolve by location order** — the order units are listed in a location ("seen
+  here"), oldest-resident first, a freshly-arrived or freshly-`UNSTACK`ed unit reinserted per the §12
+  rules. §10 only notes that location order is the tiebreaker the **§11 scheduler** reads; maintaining the
+  list is §11/§12. ✅ (the tiebreaker exists) / 🟡 (consumed in §11)
+
+### 10.6 The player (faction) entity & its restricted order set ✅
+
+- The faction is itself an **entity** (§3.1/§3.2) — invisible, in no location, receiving no location
+  report — used mostly as a placeholder. It may issue **only administrative orders**: `ACCEPT`, `ADMIT`,
+  `DEFAULT`, `DEFEND`, `FORMAT`, `HOSTILE`, `MESSAGE`, `NAME`, `NEUTRAL`, `NOTAB`, `PRESS`, `REALNAME`,
+  `RUMOR`, `TIMES`, `QUIT`. **Characters** issue everything else; one must **not** `FORM` or `RECRUIT` with
+  the player entity. Renaming the faction is `NAME` issued in the player entity's own `unit` block. ✅
+- **`QUIT`** is issued for the player entity to leave the game; **no turn report is sent** for the turn in
+  which a player quits. ✅
+- A distinct sub-class of orders acts at **scan/account level, not as queued unit commands**: `begin`/`unit`
+  (envelope/routing), `password`/`email`/`vis_email`/`realname`/`format`/`notab`/`times` (player-account &
+  report-format settings), and `resend`/`lore`/`players`/`public` (immediate secondary effects — re-mail a
+  past report, request a lore sheet, the player list). These configure the **account and the scan reply**,
+  not the per-turn world simulation — a seam §10.8 calls out. Changing `email`/`vis_email`/`password` mails
+  a confirmation to **both** the old and new addresses as a security measure. ✅
+
+### 10.7 Player-supplied names are untrusted → sanitized at ingest ✅ / 🟡 (charset)
+
+*(Promoted from the early decision recorded ahead of this pass.)*
+
+- Players name nobles and other createable entities through orders (`NAME`, `FORM`, `BANNER`, ship names in
+  `BUILD`, §9.2). Because the order file is the **untrusted-input boundary** (§10.2), a name carries
+  whatever bytes a player typed and could otherwise inject markup/script (XSS) or terminal/PDF control
+  sequences when embedded in a report (text, PDF, HTML view). ✅
+- **Mechanism:** names are **sanitized at ingest**, in the orderfile adapter — so only a safe, typed name
+  reaches `domain` and **every render target (§12) inherits a clean string**. Render-time escaping, if
+  added, is defense-in-depth, not the primary control. The exact **allowed character set and transform**
+  (reject vs. strip vs. escape on the way in) is 🟡 — fixed with the §10.1 tokenizer spec. ✅ (boundary) /
+  🟡 (charset)
+
+### 10.8 Architectural implications
+
+These follow from §10 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 / §7.9 / §8.10 / §9.8 in AGENTS.md's "Open
+architectural decisions" table:
+
+- **The order file is the engine's one untrusted boundary, and it lives entirely in `orderfile/`.** Raw
+  bytes exist *only* inside `internal/infra/orderfile/`; it parses the DSL, rejects malformed input with
+  `cerr.ErrInvalidOrders`, and emits typed `domain.OrderBundle` values through the `OrderSource` port
+  (`ReadOrders → []domain.OrderBundle`, one per player). `app` and `domain` never see text. This is the
+  literal realization of CLAUDE.md's "order files are untrusted / `orderfile/` is the validation boundary."
+- **Two-stage validation *is* the layer boundary.** Lexical/structural validity (verb exists, envelope
+  well-formed, scan-order params) is the **parser's** job and fails as `ErrInvalidOrders`; semantic
+  validity (skill offered here? peasants present? target real?) is **resolution's** job (§11) and fails as
+  the business-meaning `cerr` sentinels at run, taking zero time. Keeping these on opposite sides of the
+  port stops infra from needing game rules and stops the resolver from re-parsing text.
+- **The command catalog is authored reference data with two consumers.** Each verb's priority and time
+  class are immutable authored facts (like the item/skill/ship-type tables); the **parser** reads arity and
+  parse-time params from it, the **§11 scheduler** reads priority and time. Where this catalog physically
+  lives — a domain constant table vs. an authored artifact loaded like the map (§2.1) — inherits the same
+  **authored-data-source / on-disk-format** open question carried since §3.2/§9.8.
+- **Account/scan directives are not per-turn unit commands — likely a separate channel.** `begin`/`unit`/
+  `end`, `password`/`email`/`vis_email`/`realname`/`format`/`notab`/`times`, and `resend`/`lore`/`players`/
+  `public` configure the *account and the scan reply*, not the simulated turn (§10.6). They probably should
+  **not** ride inside the `OrderBundle` the §11 resolver drains; the bundle wants the per-unit *command
+  queue*, while these are ingest-time settings/effects. Whether that means a second typed value out of the
+  parser (an "account directives" struct alongside the bundle) is an open shape to settle when the adapter
+  and the `OrderSource` port are fleshed out.
+- **`OrderBundle` + an input hash is the idempotency key's raw material.** The bundle is the deterministic
+  digest of one player's intent for `(gameID, turn)`; hashing the accumulated, parsed bundles gives the
+  `TurnLedger` its input hash (the Application-level idempotency concern, CLAUDE.md). Note that **which**
+  bundles accumulate by the deadline depends on mail arrival — a `UNIT`-replace race the rulebook's
+  `PASSWORD` trick exploits — so arrival ordering is an **ingest-time** input to the hash, deterministic
+  *given* the assembled mailbox; the resolver downstream stays a pure function of that hash.
+- **The 250-order cap and silent drops want an explicit ingest warning.** Truncation that reads as
+  "accepted everything" violates the no-silent-caps discipline; the acknowledgement reply (§12) should
+  surface dropped orders rather than discarding them quietly.
+
+> **Not yet distilled.** Like §2–§9, §10's decided facts (the `begin`/`unit`/`end` DSL and its
+> forgiving grammar, the untrusted boundary and `OrderBundle` flow, the parse-time/execute-time split,
+> the priority/time catalog rules, the per-unit queue and `STOP` model, the player-entity admin set, and
+> name sanitization at ingest) wait on **§11 (turn resolution)** before promotion to a `reference/model/`
+> page — the scheduler that consumes priorities, the `STOP`/interrupt and time-accrual timing, and the
+> idempotency hashing may still reshape the slots. The **tokenizer/grammar spec** and **sanitization
+> charset** (§10.1/§10.7), the **physical home of the command catalog** (§10.8), and whether
+> **account/scan directives** travel as a separate typed channel out of the parser (§10.8) remain 🟡 and
+> are carried forward.
 
 ## 11. Turn resolution ❓
 

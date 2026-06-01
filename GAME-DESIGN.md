@@ -861,14 +861,234 @@ decisions" table:
 > model (§6.3), un-garrisoned-castle collection (§6.1), and the opium/yield magnitudes (§6.5, §6.7)
 > remain ❓ and are carried forward.
 
-## 7. Skills, magic & religion ❓
+## 7. Skills, magic & religion 🟡
 
-The skill model: the category/sub-skill tree, `STUDY`/`RESEARCH`, **experience** levels
-(apprentice → grand master), the six **schools of magic** and the **aura** they spend (§3.3
-reserved the skills and aura slots), and **religion** — priests, prayers, and temple offerings,
-with **no separate piety rating** (§3.3). Primary sources:
-[skills-magic.md](docs/content/rules/skills-magic.md),
-[tables.md](docs/content/rules/tables.md).
+The knowledge model every other subsystem reads from: the **category / sub-skill tree**,
+`STUDY` and `RESEARCH`, per-skill **experience** (apprentice → grand master), the **schools of
+magic** and the **aura** they spend, and **religion** — priests, prayers, and temple offerings.
+§3.3 reserved each noble's **skills + experience** and **aura (current/max)** slots and deferred
+their mechanics here; this section closes those, plus the deferrals routed in from elsewhere:
+**per-skill NP costs** (§3.7), **resurrection / `LAY TO REST`** acting on `Body` items (§3.6,
+§4.6), the **Skull of Bastrestric** aura burst (§5.8), and the production skills whose *yields*
+were left to §7 (§4.7, §6.5). It owns **what a skill is, how it is learned, and how magic and
+religion spend aura and NP**; per-use *yields* of the economic skills stay with §6, and **when**
+study/casting/replenishment resolve within a turn is a §11 concern, marked where it bites.
+Primary sources: [skills-magic.md](docs/content/rules/skills-magic.md),
+[tables.md](docs/content/rules/tables.md) ("Skill listing and learning times"); the glossary
+entries for *Aura*, *Apprentice*, *Grand master*, *Magician status*, *Prayer*, and *Priest*
+anchor the vocabulary. Cross-refs: §3.3 (slots), §3.7 (NP), §4.5 (scrolls), §6 (production
+yields), §5.8 (Skull), §8 (combat skills), §9 (ship skills).
+
+### 7.1 The skill tree & knowledge states ✅ (model) / 🟡 (per-skill mechanics)
+
+- Skills form a **two-level tree**: **category skills** (Shipcraft `[600]`, Combat `[610]`,
+  Stealth `[630]`, Beastmastery `[650]`, Persuasion `[670]`, Construction `[680]`, Alchemy
+  `[690]`, Forestry `[700]`, Mining `[720]`, Trade `[730]`, Religion `[750]`, the magic schools
+  `[800]`–`[920]`) and **sub-skills** beneath them. **The category must be known before any of
+  its sub-skills may be studied** (a hard invariant). ✅
+- A skill is identified by its **entity number** — a low fixed fixture in the entity-number
+  namespace (§3.2), exactly like an item *type* (§4.1). A noble does not *own* a skill entity;
+  its **skills + experience** slot (§3.3) holds a **per-noble set of references** to skill numbers,
+  each carrying that noble's own state. This is the same reference-to-authored-type model as
+  fungible items and men (§4.1, §3.4) — skills are authored rows; knowledge is per-noble. ✅
+- A noble's relationship to a skill is one of **four states**, all recorded per-noble in the
+  snapshot:
+  - **unknown** — not referenced;
+  - **studying** — `STUDY` issued, accumulating study-days toward the skill's required total
+    (the report's `7/14`);
+  - **partially known** — surfaced by `RESEARCH` (the report's `0/7`); discovered but not yet
+    usable, and **must still be `STUDY`-ed** to become known;
+  - **known** — fully learned and usable, carrying the **experience use-count** (§7.5).
+- **Most skills are invoked with `USE <skill> [args]`**; each known skill yields a **lore sheet**
+  in the turn report describing its arguments and limits. The lore-sheet *content* is reporting
+  (§12); §7 fixes only that knowing a skill unlocks its `USE`. The **per-skill mechanics** (what
+  each `USE` consumes and yields) live with the consuming section — production with §6, combat
+  with §8, ships with §9 — and are 🟡 here.
+
+### 7.2 The authored skill-type table ✅ (shape) / 🟡 (numbering, full roster)
+
+- Like the map (§2.1) and the item-type table (§4.2), the **skill catalog is a fixed authored
+  artifact** — immutable input to resolution, never mutated by it. The master roster is
+  [tables.md](docs/content/rules/tables.md)'s "Skill listing and learning times". Each skill row
+  carries static attributes the engine reads:
+  - **category vs. sub-skill** (and, for a sub-skill, its parent category);
+  - **learning time** (authored in weeks; §7.3 converts to study-days);
+  - **NP cost to begin study** (0 for most; §7.3);
+  - whether it is **rated for experience** (§7.5);
+  - **source constraints** — commonly known (studyable anywhere once the category is known),
+    location-taught, or research-/scroll-only (§7.3).
+- The roster spans the production and combat skills already referenced by earlier sections
+  (Weaponsmithing `[617]`, the gathering skills `[700]`–`[723]`, the `TRAIN` skills `[610]`/`[615]`/
+  `[616]`/`[601]`/`[750]` of §6.3, Beastmastery `[650]`+ for beasts §3.4, Record skill on scroll
+  `[692]` §4.5) — so §7's table is the **single source those sections' skill numbers resolve
+  against**. The on-disk numbering scheme inherits §3.2's open question (decimal vs. base-N
+  alphanumeric), and the full sub-skill roster is illustrative, not closed. 🟡
+
+### 7.3 STUDY ✅ (mechanics) / 🟡 (values)
+
+- **`STUDY <skill> [fast-days]`** learns a skill over time. To *begin* study the first time, a
+  **source of instruction** must be available — one of: the skill is **commonly known** (listed
+  on the known category's lore sheet, then studyable anywhere); the noble is **in a city that
+  teaches it**; the skill is **partially known** via prior `RESEARCH`; or the noble **holds a
+  book or scroll** that teaches it (§4.5). Sub-skills *not* on the category lore sheet are
+  **research-/scroll-only** and cannot be studied from the parent alone, even if their number is
+  known from another player. ✅
+- **Fees & gates:** beginning study of any skill costs a **flat 100 gold** (charged once, when
+  `STUDY` is first issued for that skill); **advanced skills also cost Noble Points** (§3.7),
+  authored per-skill in the catalog — Beastmastery `[650]`, Religion `[750]`, and the magic
+  schools each require **1 NP**, Necromancy `[900]` **2 NP**; sub-skills are mostly free, a few
+  heroic-combat and advanced-magic spells excepted. NP is spent from the **faction pool** (§3.7),
+  gold from the **studying noble** (drawing on same-faction stack-mates, §6.2). ✅
+- **Study limit:** a noble may apply at most **14 study-days per turn** to study. Learning times
+  are authored in **weeks**; the engine reads them as **7 study-days per week** (so a 3-week
+  category skill needs 21 days — at least two turns of study). The worked examples in
+  [skills-magic.md](docs/content/rules/skills-magic.md) use simplified day counts that differ from
+  the table; the **"Skill listing and learning times" table is authoritative**, the prose examples
+  illustrative. 🟡 (the exact starting NP/gold balances and the final per-sub-skill NP list are
+  §3.7/§10 values.)
+- **Fast study:** a faction begins with **200+ "fast-study" points** (a faction-level pool, like
+  NP). A fast-study point applied via `STUDY <skill> <n>` substitutes for a day of study, **does
+  not count against the 14-day limit**, and lets the order complete in **0 days**. ✅ model; the
+  exact starting amount is 🟡.
+- **Idempotence of knowledge:** once a skill is **known**, further `STUDY` of it has no effect.
+  Direct character-to-character teaching does not exist — knowledge moves between nobles **only**
+  via scribed scrolls (Record skill on scroll `[692]`, §4.5). ✅
+
+### 7.4 RESEARCH ✅
+
+- **`RESEARCH <category>`** hunts for **hidden sub-skills** not granted by the category lore
+  sheet — chiefly magic spells, but any category (Shipcraft, Combat, Construction, …) may hide
+  sub-skills. **Category skills themselves cannot be discovered by research.** ✅
+- **Mechanics:** research costs a **flat 25 gold** (materials) and yields a **25% chance per week**
+  of discovering one new sub-skill, which lands in the noble's **partially-known** list (§7.1) and
+  must then be `STUDY`-ed to become usable. ✅ The 25%/week roll is **randomness ⇒ derived from the
+  recorded per-turn seed** (§2.9), never live entropy.
+- **Location gate:** research for every category **except Religion** must be done in a **tower**,
+  by the **tower's owner** (the first character inside, §5.3) — other occupants may not research.
+  **Religion `[750]` research is done in a temple**, by the temple's owner. **Black-circle
+  restriction:** a mage of **maximum aura ≥ 31** ("6th black circle and above") may research only
+  in a province of **civ level ≤ 1** (§2.7). ✅
+
+### 7.5 Experience & skill levels ✅
+
+- Each **known** skill carries a per-noble **use-count**; one **successful use per turn** counts
+  (further uses that turn do not). **Multi-turn projects** (shipbuilding, castle construction)
+  count **only when the project finishes**. ✅
+- Use-count maps to a **level label**, shown in the skill listing:
+
+  | uses  | level        |
+  | ----- | ------------ |
+  | 0–4   | apprentice   |
+  | 5–11  | journeyman   |
+  | 12–20 | adept        |
+  | 21–34 | master       |
+  | 35+   | grand master |
+
+- **Experience speeds work** for some skills (a master shipbuilder builds a galley faster than an
+  apprentice); how much each skill benefits is a §6/§8/§9 per-skill detail. ✅ **Some skills are
+  not rated for experience** (e.g. Survive fatal wound `[611]`, Fight to the death `[612]`); their
+  level is **omitted** from the report and the experience use-count is not tracked — an authored
+  flag on the skill row (§7.2). ✅
+
+### 7.6 Magic: aura, schools & casting ✅ (model) / 🟡 (per-spell values)
+
+- **Casting needs three ingredients:** *knowledge* of the spell, *possession* of any **required
+  item** (usually **consumed** by the attempt, §4.7), and a *sufficient current aura* level. ✅
+- **Aura** is the per-noble **(current, maximum)** pair reserved in §3.3 — `0` for non-mages.
+  §7 closes its dynamics:
+  - **learning a spell raises both current and maximum aura by 1** (so aura grows with the spell
+    book, not with study days);
+  - **current aura replenishes +2 per turn**, capped at maximum;
+  - **casting a spell debits current aura** by the spell's authored cost (minor spells 1, powerful
+    spells 10+);
+  - other aura sources exist (Meditate `[801]`, Tap health for aura `[808]`, the Skull `[403]`,
+    an **auraculum** `[881]`) — modifiers on the same pair, mechanics 🟡.
+  This makes aura **pure resolution arithmetic** over the recorded pair; the **per-spell aura
+  costs and required items** are authored per-skill and 🟡 here. The **Skull of Bastrestric**
+  (§5.8: `USE 403` → +50–75 current aura, capped at **5× maximum**, **25% chance it kills the
+  mage**) is one such modifier; its kill roll derives from the §2.9 seed.
+- **Schools.** Magic is **sub-skills of a magic-school category**, each needing NP to learn
+  (§7.3): Magic `[800]`, Weather magic `[820]`, Scrying `[840]`, Gatecraft `[860]`, Artifact
+  construction `[880]`, Necromancy `[900]`. Only some spells are commonly known; the rest are
+  `RESEARCH`- or scroll-gated (§7.4). The prose names **six schools**, but the catalog also lists
+  **Advanced sorcery `[920]`** (a 7th category, no NP); the **authored table wins** (920 exists),
+  with the prose/table count noted as 🟡.
+- **Where each school is taught is authored city data** (Magic in most cities; Weather in the
+  Cloudlands cities; Scrying in the Faery Cities; Gatecraft in all safe-haven cities; Artifact &
+  Necromancy in Hades cities — each also "randomly in non-safe-haven cities"). City skill-teaching
+  is **seed data on the authored map** (§2.1, like safe-haven designation §2.8); the special-realm
+  cities (Cloudlands, Faery, Hades) are **§2.8-deferred content**, so the precise teaching map is
+  🟡.
+
+### 7.7 Magician status & the black circle ✅ (display) / 🟡 (above 30)
+
+- A **magician-status label** is a **cosmetic display** computed from **maximum aura**, shown in
+  the turn report (`Osswid the Brave [5639], wizard, …`):
+
+  | maximum aura | label    |
+  | ------------ | -------- |
+  | 6–10         | conjurer |
+  | 11–15        | mage     |
+  | 16–20        | wizard   |
+  | 21–30        | sorcerer |
+  | 31+          | (unlabeled — "black circle" tiers) |
+
+  Below 6 there is no label. The spell **Appear common `[803]`** suppresses the label. ✅ The label
+  above 30 is unspecified in the rulebook (shown as `??`); only the **black-circle research
+  restriction** (§7.4, aura ≥ 31) is a real mechanic — the display label there is 🟡.
+
+### 7.8 Religion: priests, prayers & resurrection ✅ (model) / 🟡 (prayer mechanics)
+
+- **Learning Religion `[750]` makes a noble a priest** — there is **no separate piety rating**
+  (§3.3); priesthood *is* knowing `[750]`. It costs **1 NP + 5 weeks**, is **studied only in a
+  temple** (cities never teach it), and its **research is done in a temple** (§7.4). Its
+  sub-skills are **prayers**. ✅
+- **Temple offerings:** a temple yields **100 gold/month to its owner if the owner is a priest**
+  (§5.3, §6) — the priesthood gate on that income lives here. ✅
+- **Resurrection / `LAY TO REST`** (the deferral from §3.6 / §4.6): the prayers **Lay to rest
+  `[752]`** and **Resurrect dead noble `[754]`** act on a `Body` **item** (§4.6). `Resurrect`
+  **reverses the death type-transition** — a `Body` becomes a living noble again — so the `Body`
+  must retain enough of the dead noble's state (identity, skills, NP, aura) to reconstitute it
+  (the snapshot already carries this, §3.8 / §4.6); `Lay to rest` hastens the spirit's passing,
+  bearing on the **12-turn decomposition timer** (§3.6). The exact ranges and success conditions
+  are 🟡. Related prayers — Receive vision `[751]`, Remove blessing from soldiers `[755]`,
+  Immunity from Vision `[756]` — and the **blessed-soldier** `TRAIN` at a temple (§6.3) read this
+  catalog; mechanics 🟡.
+
+### 7.9 Architectural implications
+
+These follow from §7 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 in AGENTS.md's "Open architectural
+decisions" table:
+
+- **The skill catalog is authored reference data**, loaded immutably like the map (§2.1) and the
+  item-type table (§4.2) — the same artifact-and-loader concern (a `SkillSource` port, or a
+  sibling of `MapSource`). The domain holds it as a static lookup resolution reads but never
+  mutates: per skill, its category, learning-days, NP cost, experience-rated flag, source
+  constraints, and per-use aura/item costs.
+- **Skill knowledge is per-noble state referencing authored types** — the same reference-to-type
+  model as fungible items and men (§4.1, §3.4). The snapshot carries, per noble, each skill's
+  **state** (studying *n*/required, partially-known *n*/required, or known), and for known
+  experience-rated skills a **use-count**. The entity-number table still mints only nobles, unique
+  items, and sub-locations — skills are fixtures, not minted (§3.8, §4.9).
+- **Study, research, aura, and experience are pure resolution arithmetic.** Gold/NP/fast-study
+  debits, study-day accumulation, the +2/turn aura replenish capped at maximum, the +1/+1 on
+  learning a spell, and use-count increments are all deterministic transforms of recorded state —
+  the domain imports **no** entropy or clock. The two randomness sources here — **`RESEARCH`'s
+  25%/week** discovery and the **Skull's 25% kill** — derive from the recorded **§2.9 turn seed**.
+- **Death is reversible by a priest.** `Resurrect` (§7.8) turns a `Body` item back into a living
+  noble, so the death type-transition (§3.6, §4.6) must be **losslessly reconstructible** from the
+  `Body`'s recorded state; `Lay to rest` and the 12-turn decomposition both write the same
+  body-timer the snapshot already tracks (§5.9).
+- **Fast-study is a new faction-level pool** alongside NP (§3.7) — a per-faction counter spent by
+  any member noble's `STUDY`. Gold study/research fees debit the **studying noble** (stack-aggregate
+  billing, §6.2); NP debits the **faction**.
+
+> **Not yet distilled.** Like §3–§6, §7's decided facts (the knowledge-state model, the
+> experience-level table, the aura dynamics, the STUDY/RESEARCH fees and gates) wait on the orders
+> pass (§10) before promotion to a `reference/model/` page — the orders that drive them (`STUDY`,
+> `RESEARCH`, `USE`) may still reshape the slots. The full per-sub-skill NP costs (§7.3), per-spell
+> aura/item costs (§7.6), prayer mechanics (§7.8), and the special-realm teaching map (§7.6) remain
+> 🟡/❓ and are carried forward.
 
 ## 8. Combat ❓
 

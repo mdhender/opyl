@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Read first
 
-**[AGENTS.md](AGENTS.md) is the authoritative source for this project's rules** — layer table, ports, project-specific overrides, open architectural decisions, and documentation conventions. Read it before writing code or docs. This file is a quick orientation; AGENTS.md wins on any conflict.
+**[AGENTS.md](AGENTS.md) is the authoritative source for this project's rules** — layer table, ports, project-specific overrides, and documentation conventions (including the routing rule that gives every doc one home). Architecture decisions and the open-decisions register live in **[`docs/adr/`](docs/adr/README.md)**. Read both before writing code or docs. This file is a quick orientation; AGENTS.md wins on any conflict.
 
 Before writing code, load the **[`applying-sousa`](.agents/skills/applying-sousa/SKILL.md)** skill. Before writing docs, load the **[`diataxis`](.agents/skills/diataxis/SKILL.md)** skill. opyl follows both strictly — it is greenfield with no legacy exemption.
 
 ## What this is
 
-opyl is a turn-based play-by-email game engine in Go (`module github.com/mdhender/opyl`, go 1.23). It ingests player order files, resolves turns deterministically, renders per-player reports (text + PDF), and dispatches them by email. **No HTTP server, no UI, no auth** — operators run CLI subcommands by hand or cron. The codebase is currently mostly stubs (`doc.go` per infra package; `main.go` prints usage); most architectural decisions in AGENTS.md's "Open architectural decisions" table are not yet settled.
+opyl is a turn-based play-by-email game engine in Go (`module github.com/mdhender/opyl`, go 1.23). It ingests player order files, resolves turns deterministically, renders per-player reports (text + PDF), and dispatches them by email. **No HTTP server, no UI, no auth** — operators run CLI subcommands by hand or cron. The codebase is currently mostly stubs (`doc.go` per infra package; `main.go` prints usage); most architecture decisions in the [`docs/adr/`](docs/adr/README.md) open-decisions register are not yet settled.
 
 ## Commands
 

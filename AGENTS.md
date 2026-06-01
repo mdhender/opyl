@@ -42,7 +42,8 @@ The practical invariant: **a decision that lives only in `GAME-DESIGN.md` (or th
 | Infra (rng)    | `internal/infra/prng/`                        | PCG-backed `app.RNG` adapter with persistable state        |
 | Delivery       | `internal/delivery/cli/`                      | Thin CLI subcommand handlers                               |
 | Runtime        | `cmd/opyl/`                                   | Composition root: parse config, wire adapters, dispatch    |
-| Documentation  | `docs/`                                       | Hugo + Hextra site organised by Diataxis (see below)       |
+| Documentation  | `docs/content/`                               | Hugo + Hextra site organised by Diataxis (see below)       |
+| Arch. decisions| `docs/adr/`                                   | ADRs + open-decisions register; outside Diataxis & the site |
 
 ## Ports declared by `internal/app`
 
@@ -87,55 +88,49 @@ There is no end-user-facing surface, so there are no JWT, session, or authz conc
 
 ## Open architectural decisions
 
-These should be decided explicitly before substantial implementation begins. Add a short ADR-style note here when each is settled. Status is reconciled against the design work in GAME-DESIGN §13.
+Architecture decisions — the choices that shape how the engine is built, the records of the settled ones, and the register of those still open — live in **[`docs/adr/`](docs/adr/README.md)**, not in this file. AGENTS.md holds the rules that are **always true** (the layer table, ports, SOUSA discipline, the invariants above); `docs/adr/` holds the choices that **could have gone another way**. See the routing rule under [Documentation](#documentation) for the full split.
 
-| Decision               | Status     | Options / resolution                                                                                                             |
-| ---------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| State storage          | open       | SQLite (queryable, concurrent) **vs.** directory of versioned JSON/YAML per turn (human-inspectable, git-diffable audit trail)   |
-| PDF library            | open       | `gofpdf` / `signintech/gopdf` (pure Go) **vs.** `typst` CLI (rich layout, external binary) **vs.** `chromedp` (HTML → PDF, heavy)|
-| Order file format      | **decided**| Custom line-oriented DSL (rulebook envelope) — *not* YAML, *not* structured email body. See ADR below.                          |
-| Mail transport         | open       | Direct SMTP **vs.** SES / SendGrid API **vs.** "drop EML files in `/outbox` for an external mailer"                              |
-| CLI framework          | open       | stdlib `flag` (matches Diacous) **vs.** `cobra` (matches GemGem) — design-neutral, decide at implementation time                |
-| Concurrency model      | **confirmed**| Turns serial per game; games in parallel; **no goroutines inside a single turn's resolution**. See ADR below.                 |
-| Map artifact format    | open       | On-disk format (JSON/YAML/custom) for the authored province graph behind the planned `MapSource` port (GAME-DESIGN §2.1/§13.7) |
-| Report store format    | open       | Where/how rendered reports persist behind the planned `ReportStore` port; interacts with State storage (GAME-DESIGN §12.7/§13.7)|
-| JSON results schema    | open       | Versioned projection of `domain.PlayerReport` emailed as machine-readable results (GAME-DESIGN §12.6/§13.7)                     |
+Currently open (decide before substantial implementation): **state storage**, **PDF library**, **mail transport**, **CLI framework**, **map-artifact format**, **report-store format**, and the **JSON results schema**. Decided: **order file format** (custom line-oriented DSL, ADR 0001), **concurrency model** (serial-per-game, ADR 0002), **randomness source** (`RNG` port, ADR 0003). The live register — options, statuses, and the constraints the design work has pinned on still-open rows — is in [`docs/adr/README.md`](docs/adr/README.md).
 
-Whichever choices land, they should affect **only** the relevant `internal/infra/<adapter>/` package. If a decision starts requiring changes outside its infra package, that is a signal the port boundary is wrong — stop and fix the port first.
-
-**Constraints noted on still-open rows (GAME-DESIGN §13):**
-
-- **State storage** — backend open, but the per-turn snapshot's *contents* are pinned: it must round-trip RNG state, per-unit in-flight command progress, all timer/countdown state, and the per-location arrival-order list (GAME-DESIGN §13.1). `TurnLedger`, `ReportStore`, and `MapSource` are separate stores, not part of this one.
-- **PDF library** — reports are stored and GM-regenerable (GAME-DESIGN §12.7), so deterministic, version-stable byte output (same snapshot + code → same bytes) favors a pure-Go library over an external binary or headless browser (GAME-DESIGN §13.2).
-- **Mail transport** — sits behind *two* ports: `ReportDispatcher` (outbound) and `OrderSource` (inbound order files). `DispatchReports` idempotency lives in app, above transport (GAME-DESIGN §13.4).
-
-**ADR — Order file format (decided):** the order file is the rulebook's custom **line-oriented DSL** — a `begin <player> [password]` … `unit <number>` blocks … single `end` envelope, forgiving grammar (`#` comments, quoted multi-word args), `UNIT`-replaces-not-appends semantics, 250 orders/unit cap. Parsed only in `internal/infra/orderfile/`, the untrusted-input boundary. The exact tokenizer/grammar spec is pinned when that adapter is built. (GAME-DESIGN §10.1/§13.3.)
-
-**ADR — Concurrency model (confirmed):** `ProcessTurn` is a pure sequential transform — turn N's snapshot is turn N+1's input, so turns of one game cannot overlap; distinct games share no state and may resolve in parallel. A single turn's resolution adds **no goroutines**; RNG substream `Split()` keeps any future within-turn fan-out deterministic. (GAME-DESIGN §11/§13.6.)
-
-**Resolved & promoted:** the former *Randomness source* row is closed — stochastic draws go through the `RNG` port (above), realized by the `internal/infra/prng` PCG adapter, with RNG state round-tripped in the snapshot via `GameStateStore`. (GAME-DESIGN §11.7/§11.9.)
+Whichever choices land, each should affect **only** the relevant `internal/infra/<adapter>/` package. If a decision starts requiring changes outside its infra package, that is a signal the port boundary is wrong — stop and fix the port first.
 
 ## Documentation
 
-opyl documentation lives in [`docs/`](docs/) as a Hugo site using the [Hextra](https://imfing.github.io/hextra/) theme (loaded as a Hugo module). The **engine documentation** is organised by the [Diataxis](https://diataxis.fr) framework. Before writing or editing any engine documentation, load the [`diataxis`](.agents/skills/diataxis/SKILL.md) skill and follow its compass.
+Engine documentation lives in [`docs/content/`](docs/content/) as a Hugo site using the [Hextra](https://imfing.github.io/hextra/) theme (loaded as a Hugo module), organised by the [Diataxis](https://diataxis.fr) framework. Before writing or editing any engine documentation, load the [`diataxis`](.agents/skills/diataxis/SKILL.md) skill and follow its compass. But Diataxis governs only the **engine-as-a-product** docs — the routing rule below places the game-world and the project-governance writing that sits outside it.
+
+### The routing rule — every doc has one home
+
+Every piece of writing in this repo has **exactly one home**. Decide it with two questions, in order:
+
+1. **Whose need does it serve?** The *game world* (players/GMs), the *engine as a product* (operators, integrators, and the coding agents that build against it), or the *project itself* (how we build it — contributors and agents)?
+2. **If it serves the engine-as-a-product, run the Diataxis compass** — action vs. cognition × acquisition vs. application — to pick among the four types.
+
+| Home | What belongs here (and its voice) | Never goes here |
+| --- | --- | --- |
+| `docs/content/rules/` | The **game-world rulebook** — the fiction and rules opyl simulates. Player & GM facing. Outside Diataxis. *Narrative/rules voice.* | Engine facts, architecture, code or agent guidance. |
+| `GAME-DESIGN.md` | Resolved **game-design** decisions converging the draft rulebook into concrete mechanics (values, phase order, attributes). A workbench for devs/testers — **not a build source**. *"We decided the game does X."* | Engine architecture, ports, infra choices, ADRs. "Architectural implications" → `docs/adr/`, `reference/`, or `explanation/` per the three-way split below. |
+| `docs/content/reference/` | Austere **description** of the engine machinery a reader consults while working — CLI, error codes, the ports catalog, the domain model. **The sole authority engine code & tests build from.** *"X is. X does."* | "You must…", "we decided…", rationale, open questions, trade-offs. |
+| `docs/content/explanation/` | The **why**: design rationale, trade-offs, how the pieces connect. Answers *"Can you tell me about…?"* Architecture *rationale* lives here. *Discussion.* | Step-by-step procedure, austere fact catalogs, binding rules. |
+| `docs/content/how-to/` | Goal-oriented **recipes** for an operator or developer completing a real task. *"If you want X, do Y."* | Background teaching, machinery tours. |
+| `docs/content/tutorials/` | Guided, perfectly-reliable **first-run learning** for newcomers. *"We will…"* | Options, alternatives, explanation, edge cases. |
+| `AGENTS.md` | **Standing rules that are always true** regardless of any choice — the layer table, ports list, SOUSA/Diataxis discipline, the untrusted-input and idempotency invariants, validation commands, this routing rule, the change procedure. Governance; outside Diataxis. | Decisions among alternatives & their records → `docs/adr/`. Game mechanics → `GAME-DESIGN.md`. |
+| `docs/adr/` | **Architecture decisions** — settled ADRs (choice + rationale of record), the open-decisions register, binding build-time constraints. Governance; outside Diataxis **and** outside the Hugo site. | Game mechanics, product-user docs, standing always-true discipline (that is AGENTS.md's). |
+
+### "Architecture" is not one thing — triage it three ways
+
+When a game-design decision has an engine consequence, that consequence does **not** belong in one place. It splits across the Diataxis edge, and letting all three sit together as an "architectural implications" blob is the mixing-types mistake the compass forbids — applied to docs that straddle the framework's boundary:
+
+- **Descriptive** — *"the `OrderSource` port reads orders for a turn"* → **`reference/`** (it mirrors the product structure; consulted at work).
+- **Rationale** — *"why idempotency lives in app, and the trade-off"* → **`explanation/`** (*"Can you tell me about…?"*).
+- **Decision / constraint** — *"SQLite vs. per-turn JSON — open"*; *"never combine render + dispatch"* → **`docs/adr/`**, unless it is a standing always-true rule, in which case **AGENTS.md**.
+
+The bright line between the two governance homes: **AGENTS.md holds rules you follow (always true); `docs/adr/` holds choices you made (could have gone another way), and the ones still open.**
 
 ### The rulebook sits outside Diataxis
 
-`docs/content/rules/` holds the **player-facing rulebook** — game-world rules (the subject opyl simulates), not documentation of the engine. It is intentionally **outside** the Diataxis taxonomy: Diataxis organises docs *about the tool*, and the rules describe the game itself. The rulebook is the **primary entry point for players and game-masters**, surfaced through its own card in [`docs/content/_index.md`](docs/content/_index.md), kept separate from the four-type Diataxis card block below it. Do **not** fold `rules/` into the four sections below or classify its pages by Diataxis type.
+`docs/content/rules/` holds the **player-facing rulebook** — game-world rules (the subject opyl simulates), not documentation of the engine. It is intentionally **outside** the Diataxis taxonomy: Diataxis organises docs *about the tool*, and the rules describe the game itself. The rulebook is the **primary entry point for players and game-masters**, surfaced through its own card in [`docs/content/_index.md`](docs/content/_index.md), kept separate from the four-type Diataxis card block below it. Do **not** fold `rules/` into the four engine sections or classify its pages by Diataxis type.
 
 The rulebook is **not authoritative for the engine** — engine code and tests derive **only** from the reference docs, never from `rules/` or `GAME-DESIGN.md` (see item 5 at the top of this file for the full authority pipeline). This is why a glossary of *game-world* terms belongs here in `rules/`, not in the engine `reference/` section, even though Diataxis would otherwise file a glossary under reference. By contrast, the **reference** section documents the engine for **coding agents first** — it is the sole authority they build from — but it is also where players and game-masters look for engine-facing facts they need (CLI usage, error codes), so reference pages serve that wider audience too.
-
-### The four sections — what goes where
-
-These four sections cover **engine documentation only**. The rulebook (above) is separate.
-
-
-| Section | Path | Purpose | Voice |
-| --- | --- | --- | --- |
-| Tutorials | `docs/content/tutorials/` | Learning by guided practice. New operators. | "We will…" |
-| How-to guides | `docs/content/how-to/` | Goal-oriented recipes. Competent reader, real task. | "If you want X, do Y." |
-| Reference | `docs/content/reference/` | Austere, complete description of the machinery. | "X is. X does." |
-| Explanation | `docs/content/explanation/` | Context, design decisions, trade-offs, opinion. | Discussion. |
 
 ### Hard rules for documentation
 

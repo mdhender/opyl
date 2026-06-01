@@ -1355,32 +1355,48 @@ This closes the §3.3 **combat attitude** slot. Both a **noble** and the **facti
 
 ### 8.10 Architectural implications
 
-These follow from §8 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 / §7.9 in AGENTS.md's "Open
-architectural decisions" table:
+The architectural consequences of §8 have moved to their correct homes per the routing rule in
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (later chapters' §X.9/§X.8 sibling
+lists reference its anchor, e.g. §9.8, §10.8, §11.9). Combat introduces **no new** port, open
+decision, or snapshot field — it is the densest *consumer* of seams §2–§7 already established, so
+every consequence routes to a home those chapters already populated:
 
 - **Combat is the densest consumer of the §2.9 turn seed.** Random attacker/target selection, the
   `Ar/(Ar+Dr)` hit roll, the 1–100 wound and instant-kill chance, the illness check, the
-  blessed-soldier 50%, siege 5–10 damage, prisoner capture, and every prisoner-escape roll are **pure
-  functions of recorded state + the recorded seed** — the domain imports **no** entropy or clock.
-  Re-running `(gameID, turn)` reproduces the same battle outcomes; that reproducibility is what makes
-  combat idempotent (the `TurnLedger`).
+  blessed-soldier 50%, siege 5–10 damage, prisoner capture, and every prisoner-escape roll are
+  **pure functions of recorded state + the recorded seed**. This is the standing **domain-purity**
+  rule (the domain imports no entropy or clock — [AGENTS.md](AGENTS.md)); the draws go through the
+  `RNG` port ([ADR 0003](docs/adr/README.md)), seeded from the recorded turn seed whose state the
+  per-turn snapshot round-trips ([`docs/adr/`](docs/adr/README.md) State-storage constraints). That
+  re-running `(gameID, turn)` reproduces the same battle outcomes is what makes combat idempotent —
+  the `TurnLedger` rationale already lives in [explanation/idempotency.md](docs/content/explanation/idempotency.md).
 - **Combat ratings are authored reference data, not stored state.** Per-unit-type `(attack, defense,
-  missile)` and the shipboard/swamp/blessed modifiers live in the §4.2 item-type table; the
-  noble's innate `(80,80,0)` and any **magical-item bonuses** (§4.5) are the only combat values
-  carried on entities. Resolution reads ratings, never mutates them.
+  missile)` and the shipboard/swamp/blessed modifiers live in the §4.2 item-type table; the noble's
+  innate `(80,80,0)` and any **magical-item bonuses** (§4.5) are the only combat values carried on
+  entities, and resolution reads ratings without mutating them. The descriptive ratings model
+  belongs in `reference/model/` with the deferred page (see the note below); its on-disk format and
+  loader are the **same open authored-data artifact-and-loader concern** as the "Map artifact
+  format" row and the planned `MapSource` port in [`docs/adr/`](docs/adr/README.md) (a sibling
+  loader, not a separate decision — §13.7, exactly as the item-type and skill tables are routed in
+  §4.9/§7.9).
 - **A battle is a transform over a location's occupants.** It reads the per-location character list
-  (the same ordered list §6.6 market clearing depends on), the stack trees (§3.3), `BEHIND` flags,
-  attitude lists, and structure defense ratings; it writes wounds, deaths (noble → `Body`, §4.6),
-  killed-men counts, prisoner links, loot transfers, and structure damage. No new aggregate — combat
-  mutates the §3/§4/§5 state already in the snapshot.
+  (the §6.6 ordered arrival list already pinned in the snapshot constraints in
+  [`docs/adr/`](docs/adr/README.md)), the stack trees (§3.3), `BEHIND` flags, attitude lists, and
+  structure defense ratings; it writes wounds, deaths (noble → `Body`, §4.6), killed-men counts,
+  prisoner links, loot transfers, and structure damage. No new aggregate — combat mutates the
+  §3/§4/§5 state already in the snapshot. This descriptive resolution model belongs in
+  `reference/model/` with the deferred page.
 - **Attitudes and `BEHIND` are recorded per-noble and per-faction.** The three attitude lists live on
   both the noble and the faction player entity (§3.1); `BEHIND` and the (now-closed) combat-attitude
-  slot occupy the §3.3 reservation. Concealment (§7 Stealth) gates whether an attitude can even be
-  applied — a cross-subsystem read combat must perform at resolution.
-- **Structure damage and the kill rule reuse existing timers/transitions.** A collapsed building ejects
-  occupants (no new state beyond §5's damage/collapse tracking); a killed noble reuses the §3.6/§4.6
-  death transition and decomposition timer. Combat introduces **no new persisted timer** — it feeds
-  the ones §3–§6 already record.
+  slot occupy the §3.3 reservation; concealment (§7 Stealth) gates whether an attitude can even be
+  applied. These descriptive per-noble/faction slots belong in `reference/model/` with the deferred
+  page, alongside the §3 attribute model.
+- **Structure damage and the kill rule reuse existing timers/transitions.** A collapsed building
+  ejects occupants (no new state beyond §5's damage/collapse tracking); a killed noble reuses the
+  §3.6/§4.6 death transition and decomposition timer. Combat introduces **no new persisted timer** —
+  it feeds the timer/countdown state and the dead-body-with-death-turn fields the snapshot already
+  carries, **already pinned** in [`docs/adr/`](docs/adr/README.md)'s State-storage constraints
+  (routed in §5.9/§7.9).
 
 > **Not yet distilled.** Like §3–§7, §8's decided facts (the ratings model, the hit sequence and
 > break point, the wound rule, fortification capacities, the prisoner/escape and attitude rules) wait

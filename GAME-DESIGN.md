@@ -321,7 +321,7 @@ These follow from §3 and belong with §2.9 in AGENTS.md's "Open architectural d
 > (orders) confirms the attributes orders actually read and mutate — drafting that page now would
 > freeze slots the orders pass may still reshape.
 
-## 4. Items & possessions ❓
+## 4. Items & possessions 🟡
 
 The item entity model — what an item *is*, and the shared table of item types (gold `[1]`,
 weapons, armor, scrolls, raw materials, and `Body` items). §3 reserved each noble's item and men
@@ -330,6 +330,129 @@ themselves: weight/carry ratings, stacking of identical items, and creation via 
 sources: [logistics.md](docs/content/rules/logistics.md) (carrying capacity, making weapons &
 armor), [tables.md](docs/content/rules/tables.md) (item table); trade-good aspects are shared
 with §6.
+
+### 4.1 What an item is: the fungible / unique split ✅
+
+This resolves the apparent tension between §3.2 (which lists items in the entity-number namespace)
+and §3.4 (which calls items *possessions, not entities*). Items take **two representations**:
+
+- **Fungible items** — identified solely by a **type code** from the shared table (gold `[1]`,
+  iron `[79]`, longsword `[74]`). A holder carries a **quantity** of a type; identical units are
+  indistinguishable and **combine into one count** (three longbows are `+3` on the longbow row, not
+  three entities). This is the **same mechanism** as typed-count men (§3.4) — men are simply rows in
+  the same table that happen to fight.
+- **Unique items** — each a distinct entity with its own **minted entity number** (a scroll
+  `[yq12]`, a magical weapon, a relic, a `Body`). They carry **per-instance state** and never combine.
+
+- **Reconciliation (decided):** the number on a fungible item (`gold [1]`) is its **type** code,
+  shared by every holder — *not* a per-instance identity. So fungible items are "possessions modeled
+  as typed quantities," exactly like men (§3.4); only **unique** items occupy the entity-number
+  namespace as individual entities, subject to the deterministic minting of §3.8.
+- A holder is always a **noble** (§3.4) — a faction holds no items. Carrying capacity and upkeep are
+  computed for the **stack as a whole** (§3.4), so which stack-mate holds a given item is irrelevant
+  to logistics.
+
+### 4.2 The shared item-type table ✅ (shape) / 🟡 (numbering & contents)
+
+- A single **authored table** keys every item *kind* by code and supplies its static ratings —
+  weight, the three carry capacities, and (for men/beasts) combat values. This is the master table
+  [tables.md](docs/content/rules/tables.md) calls "Weights"; **men (codes `[10]`–`[34]`) are rows in
+  it** (§3.4), unifying men and items under one schema.
+- Kinds present (illustrative, per tables.md): currency (gold `[1]`); men, beasts & mounts
+  (`[10]`–`[34]`, `[51]`–`[55]`, `[76]`, `[271]`–`[295]`); siege engines (`[60]`–`[62]`); raw
+  materials & trade goods (`[63]`–`[102]`, `[261]`); weapons & armor (`[72]`–`[75]`, `[85]`); blank
+  scroll `[84]`; magic items (mithril `[82]`, gate crystal `[83]`, crystal orb `[290]`); relics
+  (Imperial Throne `[401]`, Crown of Prosperity `[402]`).
+- Like the map (§2.1), the table is a **fixed authored artifact** — immutable input to resolution,
+  never mutated by it. The exact roster and the on-disk numbering scheme inherit §3.2's open question
+  (decimal vs. base-N alphanumeric). 🟡
+
+### 4.3 Weight & carrying capacity ✅ (ratings) / cross-ref §2.4, §6
+
+- Every item and man carries a **weight** and three carry capacities — **land/walk, ride, fly** —
+  read from the table. Capacity **excludes the item's own weight**; a `-1` capacity means "carries its
+  own weight but nothing more" (wild horses, oxen, most beasts).
+- A stack **rides** only if total ride capacity covers the weight of all non-riders, else it
+  **walks**; it **flies** only if fly capacity covers all non-flyers. Land travel auto-selects the
+  fastest available mode (§2.4).
+- **Overload is deterministic:** ≥150% of walking capacity ⇒ +50% travel time; >200% ⇒ cannot move.
+  ✅ The interpolation between 100% and 200% is 🟡 — designed with §2.4's variance model.
+- Weight is the universal logistics unit: it drives carry capacity here and ferry fees (gold per 100
+  weight, §9) — and nothing else. **Upkeep is paid in gold and applies to men only** (§6), never by
+  item weight.
+
+### 4.4 Gold `[1]` ✅
+
+- Gold is the currency: **type `[1]`, weight 0**, fungible (§4.1). It is the medium for upkeep (§6),
+  `HONOR`/bribes (§3.5), market trades (§6), and ferry fees (§9).
+- **Gold left loose in a province does not carry across the turn boundary** — unheld gold is not
+  banked; gold held by a noble persists normally. (A resolution detail flagged here for §11.)
+
+### 4.5 Unique items & per-instance state 🟡
+
+Unique items each carry state beyond their type code:
+
+- **Scrolls / books** — the **skill they teach**; a noble may `STUDY` from one (§7). A blank scroll
+  `[84]` becomes a unique taught-skill scroll when scribed (Record skill on scroll `[692]`).
+- **Magical weapons / armor / bows, auraculum, palantir** — bonuses plus a **creator** identity
+  (Artifact construction `[880]` has reveal/cloak-creator spells). Mechanics deferred to §7.
+- **Relics** — unique quest artifacts with bespoke effects (the Crown of Prosperity raises its
+  province's civ by +2 each turn it ends there) and a **return timer** (the Crown returns 12–24 turns
+  after appearing; the Imperial Throne never returns). The randomized return window is a §11
+  resolution concern; the relic's per-instance carry-state is fixed here. 🟡
+- **Body** — see §4.6.
+
+### 4.6 Bodies as items ✅ (cross-ref §3.6)
+
+- A noble's death is a **type transition** to a unique `Body` item dropped in its province (§3.6),
+  recoverable with `EXPLORE` (an executioner receives it directly). The body carries the **dead
+  noble's identity, death turn, and invested NP** so the engine applies the **12-turn decomposition**
+  and **NP return** deterministically (§3.6, §3.8). Resurrection / `LAY TO REST` reads the body —
+  deferred to §7.
+
+### 4.7 Creation, transfer & consumption 🟡
+
+- Items enter play only through **skill-driven production**, never randomly: `MAKE` (weapons/armor
+  from raw materials — one input unit → one item per day, requires Weaponsmithing `[617]`), gathering
+  (`COLLECT`/`HARVEST`/`MINE`/`QUARRY`/`FISH`/`CATCH`), `BREED` (beasts, §3.4), scroll scribing,
+  potion brewing (Alchemy), artifact forging (`[880]`), and turn-lead-into-gold (`[697]`). §4 fixes
+  the shape — production **consumes typed inputs and yields typed outputs**; per-skill rates and
+  requirements are §6/§7.
+- **Transfer:** `GIVE` moves items between co-located nobles anywhere (unlike market `BUY`/`SELL`,
+  which match only in a city — §6); its low order-priority lets a same-day `GIVE` settle before
+  `MOVE` (§10).
+- **Consumption / loss:** `DROP` releases items (and men) from a noble; spell-required and
+  training/`MAKE` input items are **consumed on use**; gold is spent. The fungible-count model makes
+  each of these simple arithmetic on a holder's row.
+- Any creation/destruction that **mints or frees a unique entity number** must be a **pure function of
+  recorded state** (§3.8) — no `rand`/`time`.
+
+### 4.8 Trade goods — shared with §6 🟡
+
+- A **tradegood** is an ordinary item with a **market role**: found for sale or in demand via the
+  Trade `[730]` sub-skills and moved between city markets for profit (§6). It is structurally nothing
+  new — no distinct entity, no extra slot — so §4 records only that "tradegood" is a *role over the
+  item table*, leaving matching, pricing, and the `BUY`/`SELL` economy to §6.
+
+### 4.9 Architectural implications
+
+These follow from §4 and join §2.9 / §3.8 in AGENTS.md's "Open architectural decisions" table:
+
+- **The item-type table is authored reference data**, loaded immutably like the map (§2.1) — the same
+  artifact-and-loader concern as the `MapSource` port, or a sibling to it. The domain holds it as a
+  static lookup that resolution reads but never mutates.
+- **Fungible items are typed counts, not entities.** With men-as-counts (§3.8) this keeps the
+  entity-number table small — only nobles, **unique** items, skills, and sub-locations are minted. The
+  men/item distinction is a *combat/identity* split over one shared schema, not two data models.
+- **Unique-item minting reuses the §3.8 discipline** — a scribed scroll or forged artifact advances
+  the same deterministic counter the domain uses for `FORM`.
+- **Bodies and relics carry timers in the snapshot.** Decomposition (12 turns) and relic return
+  (12–24 turns) must be reconstructible from recorded death/appearance turns; any randomized window
+  derives from the §2.9 turn seed, never live entropy.
+
+> **Not yet distilled.** Like §3, §4's decided facts wait on the orders pass (§10) before promotion to
+> a `reference/model/` page — the item slots that orders read and mutate (`MAKE`, `GIVE`, `DROP`,
+> `STUDY`) may still reshape per-instance state.
 
 ## 5. Provinces & territory control ❓
 

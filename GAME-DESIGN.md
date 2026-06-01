@@ -1096,31 +1096,44 @@ yields), §5.8 (Skull), §8 (combat skills), §9 (ship skills).
 
 ### 7.9 Architectural implications
 
-These follow from §7 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 in AGENTS.md's "Open architectural
-decisions" table:
+The architectural consequences of §7 have moved to their correct homes per the routing rule in
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (later chapters' §X.9 sibling lists
+reference its anchor, e.g. §8.9):
 
-- **The skill catalog is authored reference data**, loaded immutably like the map (§2.1) and the
-  item-type table (§4.2) — the same artifact-and-loader concern (a `SkillSource` port, or a
-  sibling of `MapSource`). The domain holds it as a static lookup resolution reads but never
-  mutates: per skill, its category, learning-days, NP cost, experience-rated flag, source
-  constraints, and per-use aura/item costs.
+- **The skill catalog is authored reference data** → the descriptive fact (an immutable static
+  lookup resolution reads but never mutates, loaded like the map of §2.1 and the item-type table of
+  §4.2 — per skill its category, learning-days, NP cost, experience-rated flag, source constraints,
+  and per-use aura/item costs) belongs in `reference/model/`, awaiting the deferred model page (see
+  the note below). Its on-disk format and loader are the **same open artifact-and-loader concern**
+  as the "Map artifact format" register row and the planned `MapSource` port in
+  [`docs/adr/`](docs/adr/README.md) — a sibling to it (a `SkillSource`-style loader), not yet
+  surfaced as a separate decision (§13.7), exactly as the item-type table is (§4.9).
 - **Skill knowledge is per-noble state referencing authored types** — the same reference-to-type
-  model as fungible items and men (§4.1, §3.4). The snapshot carries, per noble, each skill's
-  **state** (studying *n*/required, partially-known *n*/required, or known), and for known
-  experience-rated skills a **use-count**. The entity-number table still mints only nobles, unique
-  items, and sub-locations — skills are fixtures, not minted (§3.8, §4.9).
-- **Study, research, aura, and experience are pure resolution arithmetic.** Gold/NP/fast-study
+  model as fungible items and men (§4.1, §3.4). The descriptive per-noble slots (each skill's state
+  — studying *n*/required, partially-known *n*/required, or known — and a use-count for known
+  experience-rated skills) belong in `reference/model/` with the deferred page. That skills are
+  **fixtures, not minted** — the entity-number table mints only nobles, unique items, and
+  sub-locations — rides on the **entity-number allocation counter** already pinned in the
+  State-storage snapshot constraints in [`docs/adr/`](docs/adr/README.md) (§3.8, §4.9).
+- **Study, research, aura, and experience are pure resolution arithmetic** — gold/NP/fast-study
   debits, study-day accumulation, the +2/turn aura replenish capped at maximum, the +1/+1 on
-  learning a spell, and use-count increments are all deterministic transforms of recorded state —
-  the domain imports **no** entropy or clock. The two randomness sources here — **`RESEARCH`'s
-  25%/week** discovery and the **Skull's 25% kill** — derive from the recorded **§2.9 turn seed**.
-- **Death is reversible by a priest.** `Resurrect` (§7.8) turns a `Body` item back into a living
-  noble, so the death type-transition (§3.6, §4.6) must be **losslessly reconstructible** from the
-  `Body`'s recorded state; `Lay to rest` and the 12-turn decomposition both write the same
-  body-timer the snapshot already tracks (§5.9).
+  learning a spell, and use-count increments are deterministic transforms of recorded state. This
+  is the standing **domain-purity** rule (the domain imports no entropy or clock —
+  [AGENTS.md](AGENTS.md)); the two randomness sources here — **`RESEARCH`'s 25%/week** discovery and
+  the **Skull's 25% kill** — go through the `RNG` port ([ADR 0003](docs/adr/README.md)), derived
+  from the recorded **§2.9 turn seed**, never live entropy. The descriptive arithmetic awaits the
+  deferred `reference/model/` page.
+- **Death is reversible by a priest** — `Resurrect` (§7.8) turns a `Body` item back into a living
+  noble, so the §3.6/§4.6 death type-transition must be **losslessly reconstructible** from the
+  `Body`'s recorded state. Already pinned in [`docs/adr/`](docs/adr/README.md): the State-storage
+  snapshot constraints round-trip **dead-body items with their death turn**, and `Lay to rest` plus
+  the 12-turn decomposition write the same body-timer under the "all timer/countdown state" the
+  snapshot must carry (§5.9 already routed this).
 - **Fast-study is a new faction-level pool** alongside NP (§3.7) — a per-faction counter spent by
-  any member noble's `STUDY`. Gold study/research fees debit the **studying noble** (stack-aggregate
-  billing, §6.2); NP debits the **faction**.
+  any member noble's `STUDY`, while gold study/research fees debit the **studying noble**
+  (stack-aggregate billing, §6.2) and NP debits the **faction**. The who-gets-debited routing is
+  descriptive game mechanics (§7.3/§6.2 body); the faction-scoped pool is authoritative snapshot
+  state alongside NP, carried by `GameStateStore`. Both await the deferred `reference/model/` page.
 
 > **Not yet distilled.** Like §3–§6, §7's decided facts (the knowledge-state model, the
 > experience-level table, the aura dynamics, the STUDY/RESEARCH fees and gates) wait on the orders

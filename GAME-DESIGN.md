@@ -625,26 +625,31 @@ state is what resolution mutates.
 
 ### 5.9 Architectural implications
 
-These follow from §5 and join §2.9 / §3.8 / §4.9 in AGENTS.md's "Open architectural decisions" table:
+The architectural consequences of §5 have moved to their correct homes per the routing rule in
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (§6.8, §7.9, and §13.1 link to its
+anchor):
 
-- **Province gains a mutable political state** distinct from its immutable §2 geometry: tax base,
-  buildings, garrison, controlling castle, ruler chain, civ level, and depression timers — all carried
-  in the per-turn snapshot and rewritten by resolution. The authored map (§2.1) seeds the initial
-  buildings and civ; geometry never changes.
-- **Control and rank are derived, not stored.** A pledge chain is a forest of edges over nobles;
-  controlled-province sets, rank, rulers, and king-hood are computed each turn as a **pure function** of
-  castle ownership + garrison bindings + pledge edges — consistent with §3.1 ("territory a faction
-  controls is derived").
+- **Province carries a mutable political state** distinct from its immutable §2 geometry — tax base,
+  buildings, garrison, controlling castle, ruler chain, civ level, depression timers, all in the
+  per-turn snapshot and rewritten by resolution, with the authored map (§2.1) seeding initial
+  buildings and civ. This is descriptive model awaiting the deferred `reference/model/` page (see the
+  note below); its snapshot-carried timers are already pinned under "all timer/countdown state" in
+  the [`docs/adr/`](docs/adr/README.md) State-storage constraints.
+- **Control and rank are derived, not stored** — controlled-province sets, rank, rulers, and king-hood
+  are a **pure function** of castle ownership + garrison bindings + pledge edges, recomputed each turn,
+  consistent with the §3.8 "territory a faction controls is derived" fact. Descriptive model, awaiting
+  the same deferred `reference/model/` page.
 - **Garrisons are a distinct station entity**, not a noble variant (§5.5) — a separate kind in the
-  entity-number space (§3.2) that carries soldiers but none of a noble's order-taking, loyalty, aura,
-  or NP machinery.
-- **Region membership is authored map data.** Every province is assigned to **exactly one** region by
-  the map author (§2.8), loaded immutably with the map (§2.1). Garrison binding ("same region") and
-  king-hood ("every province in a region, ≥15 provinces") read this membership set directly — no
-  separate region-ownership state is stored. Richer region attributes stay §2.8-deferred.
-- **Depression & timer state in the snapshot.** Pillage recovery (4 months each), opium demand, and mine
-  collapse (vanishes after 8 months) join §4's decomposition/return timers as recorded, deterministic
-  countdowns.
+  entity-number space (§3.2) carrying soldiers but none of a noble's order-taking, loyalty, aura, or NP
+  machinery. Descriptive model, stated in the §5.5 body, awaiting the deferred `reference/model/` page.
+- **Region membership is authored map data** → already distilled in
+  [reference/model/map.md](docs/content/reference/model/map.md): every province is assigned to exactly
+  one region, loaded immutably with the map; garrison binding ("same region") and king-hood read this
+  membership set directly, with no separate region-ownership state stored.
+- **Depression & timer state in the snapshot** → [`docs/adr/`](docs/adr/README.md): pillage recovery (4
+  months each), opium demand, and mine collapse (8 months) are recorded, deterministic countdowns —
+  already pinned under the "all timer/countdown state" the snapshot must round-trip in the State-storage
+  constraints (§13.1 names them explicitly, alongside §4's decomposition/return timers).
 
 > **Not yet distilled.** Like §3 and §4, §5's decided facts (the rank bands, tax-base table, building
 > catalog) wait on the orders pass (§10) before promotion to a `reference/model/` page — the orders that

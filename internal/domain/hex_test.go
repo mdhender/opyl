@@ -133,6 +133,29 @@ func TestParseDirection(t *testing.T) {
 	}
 }
 
+// TestCoordIsMapKey documents that Coord is comparable and usable as a
+// map key directly. Two Coord values with the same Q and R hash and
+// compare equal, so a second insert overwrites the first entry.
+func TestCoordIsMapKey(t *testing.T) {
+	m := map[Coord]string{}
+	m[Coord{Q: 0, R: 0}] = "origin"
+	m[Coord{Q: 1, R: -1}] = "NE"
+	m[Coord{Q: 0, R: 0}] = "origin again" // same key: overwrites
+
+	if len(m) != 2 {
+		t.Fatalf("len(m) = %d, want 2", len(m))
+	}
+	if got := m[Coord{Q: 0, R: 0}]; got != "origin again" {
+		t.Errorf("m[origin] = %q, want %q", got, "origin again")
+	}
+	if got := m[Coord{Q: 1, R: -1}]; got != "NE" {
+		t.Errorf("m[NE] = %q, want %q", got, "NE")
+	}
+	if _, ok := m[Coord{Q: 99, R: 99}]; ok {
+		t.Errorf("unexpected hit for absent key")
+	}
+}
+
 func TestOffsetAxialRoundTrip(t *testing.T) {
 	// The provenance example from reference/model/map-artifact.md: the
 	// origin block pins Worldographer (5, 8) — but that is a re-centred

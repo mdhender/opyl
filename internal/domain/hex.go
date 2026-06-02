@@ -30,6 +30,9 @@ import (
 // S = −Q − R and is never stored. The origin (0, 0) sits near the centre
 // of the authored world; coordinates run negative and positive in every
 // direction, so the world extends outward without renumbering.
+//
+// Coord is a struct of two ints, so it is comparable and usable as a map
+// key directly — write map[Coord]T{} without any wrapper or helper.
 type Coord struct {
 	Q, R int
 }

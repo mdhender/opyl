@@ -57,7 +57,7 @@ These are the seams between layers. Application owns them; infra implements them
 - `Clock` — abstract time for determinism
 - `RNG` — abstract randomness for deterministic dice / stochastic decisions
 
-Two more ports are **planned but not yet declared**, surfaced by the design work (GAME-DESIGN §13.7); add them here when their adapters are built:
+Two more ports are **planned but not yet declared**, surfaced by the design work (see the open-decisions register in [`docs/adr/`](docs/adr/README.md)); add them here when their adapters are built:
 
 - `MapSource` — load the authored province graph as immutable domain input (GAME-DESIGN §2.1/§2.9)
 - `ReportStore` — persist / retrieve / remove rendered reports keyed `(gameID, turn, playerID, format)` (GAME-DESIGN §12.7/§12.9)

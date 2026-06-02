@@ -10,7 +10,7 @@ Diataxis docs in `docs/content/`:
 
 - Mechanical facts (order syntax, phase order, entity attributes) → **reference** pages
 - Rationale and trade-offs ("why X resolves before Y") → **explanation** pages
-- It also resolves the open decisions tracked in [AGENTS.md](AGENTS.md).
+- Architecture decisions, constraints, and still-open choices the design surfaces → **[`docs/adr/`](docs/adr/README.md)** (the ADRs and open-decisions register)
 
 Status legend: ✅ decided · 🟡 partially specified · ❓ open question, undecided.
 
@@ -459,14 +459,14 @@ Unique items each carry state beyond their type code:
 ### 4.9 Architectural implications
 
 The architectural consequences of §4 have moved to their correct homes per the routing rule in
-[AGENTS.md](AGENTS.md); this section remains only as a pointer (§13.1 links to its anchor):
+[AGENTS.md](AGENTS.md); this section remains only as a pointer:
 
 - **The item-type table as authored reference data** → the descriptive fact (an immutable static
   lookup resolution reads but never mutates, loaded like the map of §2.1) belongs in `reference/model/`,
   awaiting the item model page (see the deferral note below). Its on-disk format and loader are the
   **same open artifact-and-loader concern** as the "Map artifact format" register row and the planned
   `MapSource` port in [`docs/adr/`](docs/adr/README.md) — a sibling to it, not yet surfaced as a
-  separate decision (§13.7).
+  separate decision.
 - **Fungible items are typed counts, not entities** — with men-as-counts (§3.8) this keeps the
   entity-number space to nobles, **unique** items, skills, and sub-locations; the men/item distinction
   is a *combat/identity* split over one shared schema, not two data models. The descriptive fact belongs
@@ -626,7 +626,7 @@ state is what resolution mutates.
 ### 5.9 Architectural implications
 
 The architectural consequences of §5 have moved to their correct homes per the routing rule in
-[AGENTS.md](AGENTS.md); this section remains only as a pointer (§6.8, §7.9, and §13.1 link to its
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (§6.8 and §7.9 link to its
 anchor):
 
 - **Province carries a mutable political state** distinct from its immutable §2 geometry — tax base,
@@ -649,7 +649,7 @@ anchor):
 - **Depression & timer state in the snapshot** → [`docs/adr/`](docs/adr/README.md): pillage recovery (4
   months each), opium demand, and mine collapse (8 months) are recorded, deterministic countdowns —
   already pinned under the "all timer/countdown state" the snapshot must round-trip in the State-storage
-  constraints (§13.1 names them explicitly, alongside §4's decomposition/return timers).
+  constraints (named explicitly there, alongside §4's decomposition/return timers).
 
 > **Not yet distilled.** Like §3 and §4, §5's decided facts (the rank bands, tax-base table, building
 > catalog) wait on the orders pass (§10) before promotion to a `reference/model/` page — the orders that
@@ -858,7 +858,7 @@ All items enter play through **skill-driven production** (§4.7), never randomly
 ### 6.8 Architectural implications
 
 The architectural consequences of §6 have moved to their correct homes per the routing rule in
-[AGENTS.md](AGENTS.md); this section remains only as a pointer (§6.2, §6.6, §11, and §13 link to its
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (§6.2, §6.6, and §11 link to its
 anchor, as do later chapters' §X.9 sibling lists):
 
 - **The economy is pure resolution arithmetic over the snapshot** — income collection, upkeep,
@@ -1107,7 +1107,7 @@ reference its anchor, e.g. §8.9):
   the note below). Its on-disk format and loader are the **same open artifact-and-loader concern**
   as the "Map artifact format" register row and the planned `MapSource` port in
   [`docs/adr/`](docs/adr/README.md) — a sibling to it (a `SkillSource`-style loader), not yet
-  surfaced as a separate decision (§13.7), exactly as the item-type table is (§4.9).
+  surfaced as a separate decision, exactly as the item-type table is (§4.9).
 - **Skill knowledge is per-noble state referencing authored types** — the same reference-to-type
   model as fungible items and men (§4.1, §3.4). The descriptive per-noble slots (each skill's state
   — studying *n*/required, partially-known *n*/required, or known — and a use-count for known
@@ -1377,7 +1377,7 @@ every consequence routes to a home those chapters already populated:
   belongs in `reference/model/` with the deferred page (see the note below); its on-disk format and
   loader are the **same open authored-data artifact-and-loader concern** as the "Map artifact
   format" row and the planned `MapSource` port in [`docs/adr/`](docs/adr/README.md) (a sibling
-  loader, not a separate decision — §13.7, exactly as the item-type and skill tables are routed in
+  loader, not a separate decision, exactly as the item-type and skill tables are routed in
   §4.9/§7.9).
 - **A battle is a transform over a location's occupants.** It reads the per-location character list
   (the §6.6 ordered arrival list already pinned in the snapshot constraints in
@@ -1548,7 +1548,7 @@ consequence routes to a home those chapters already populated:
   cost, shelter) is loaded immutably alongside the map (§2.1), item-type table (§4.2), and skill table
   (§7.2) — the **same open authored-data artifact-and-loader concern** as the "Map artifact format"
   row and the planned `MapSource` port in [`docs/adr/`](docs/adr/README.md) (a sibling loader, not a
-  separate decision — §13.7, exactly as the item-type and skill tables are routed in §4.9/§7.9).
+  separate decision, exactly as the item-type and skill tables are routed in §4.9/§7.9).
   Resolution reads these stats, never mutates them. The descriptive ship-type model belongs in
   `reference/model/` with the deferred page (see the note below).
 - **A ship is a mobile container entity.** Its identity is an entity number (§3.2), but the location
@@ -2247,113 +2247,3 @@ body cross-refs reference its anchor). Each consequence routes to a home that al
 > the **own-vs-foreign unit detail depth** (§12.2), the **versioned JSON schema** (§12.6), the **report-store
 > placement** against the open State-storage decision (§12.7/§12.9), and the deferred **SQLite export** (§12.6).
 > With §12 settled to here, §11's decided facts are now unblocked for joint promotion (§11.9's note).
-
-## 13. Open decisions carried from AGENTS.md 🟡
-
-§13 is the **reconciliation register** — it introduces no new mechanics. For each row of AGENTS.md's
-"Open architectural decisions" table it records where the design work in §1–§12 now leaves the decision:
-**decided**, **constrained but open**, or **untouched**. AGENTS.md remains the authoritative table; this
-section is the design layer's verdict feeding back into it, and where a row is **decided** here the
-ADR-style note belongs in AGENTS.md itself (per its own "Add a short ADR-style note … when each is
-settled"). The §X.9 "Architectural implications" notes throughout this file are the raw material; §13
-collates them against the six table rows and lists the decisions the design **surfaced** that the table
-does not yet carry. Cross-refs are to the sections that did the deciding; nothing here overrides them.
-
-### 13.1 State storage 🟡 (contents fixed, backend open)
-
-SQLite **vs.** a directory of versioned JSON/YAML per turn — **still open**. The design has not chosen a
-backend, but it has fully pinned what the backend must hold:
-
-- The unit of persistence is the **per-turn snapshot**, and the snapshot is the **source of truth** the
-  report is a reproducible projection of (§12.1/§12.7). It must round-trip: **RNG state** (§11.7), each
-  unit's **in-flight command progress** for carry-over (§11.5/§11.9), the full set of **timer/countdown
-  state** (decomposition & noble-return §4.9, relic/realm & pillage-recovery §5.9, opium/mine timers §6.8,
-  loyalty-bond decay §3.8), and the **per-location arrival-order list** the scheduler tiebreak and "Seen
-  here" block share (§6.8/§12.4). ✅ (what it must contain)
-- Idempotency rides on top, not in the store: `ProcessTurn` hashes `(prior snapshot, validated orders)` and
-  the **`TurnLedger`** keyed `(gameID, turn, inputHash)` is a **distinct** persistence concern (§11.8).
-  Alongside sit two more stores the design surfaced — the **report store** keyed `(gameID, turn, playerID,
-  format)` (§12.7/§13.7) and the authored **map artifact** read through `MapSource` (§2.1/§13.7). ✅ (the
-  separate stores)
-- The git-diffable, human-inspectable audit appeal cited for the authored map (§2.1) is the same appeal the
-  per-turn-directory option carries, but **nothing in the rules forces it**; both backends can satisfy the
-  contract above. The decision is genuinely open — the design constrains the **contents**, not the engine. 🟡
-
-### 13.2 PDF library 🟡 (constrained, open)
-
-`gofpdf` / `gopdf` **vs.** `typst` CLI **vs.** `chromedp` — **open**, an infra choice fully contained behind
-`ReportRenderer` (§12.6). One design-side constraint has emerged: §12.7 stores reports and lets the GM
-**regenerate** them, so reproducible, deterministic byte output (same snapshot + same code → same bytes) is
-desirable — a point favoring a pure-Go, version-stable library over an external binary or headless browser
-whose output can drift with environment. Not decisive, not decided. 🟡
-
-### 13.3 Order file format ✅ (format) / 🟡 (spec)
-
-**Decided** by §10.1 toward the rulebook's **custom line-oriented DSL** — not YAML, not a structured-field
-email schema. The envelope (`begin <player> [password]` … `unit <number>` blocks … a single `end`), the
-forgiving grammar (case- and whitespace-insensitive, `#` comments, quoted multi-word args), **`UNIT`-replaces-not-appends**,
-and the 250-order-per-unit cap are fixed (§10.1). What remains 🟡 is the **exact tokenizer/grammar spec**
-(quoting edge cases, numeric-vs-entity-code argument forms), pinned when the `internal/infra/orderfile/`
-adapter is built. This is distinct from §13.4 — the DSL is the body, mail transport is its carrier. **→ ADR
-note due in AGENTS.md.** ✅
-
-### 13.4 Mail transport 🟡 (open)
-
-Direct SMTP **vs.** SES / SendGrid **vs.** drop-EML-to-`/outbox` — **open**. It is the transport behind two
-ports, not one: outbound through **`ReportDispatcher`** (§12.8) and inbound as the over-the-wire arrival of
-order files feeding **`OrderSource`** (email/scp/dropbox, §10.2). The constraint is containment: the choice
-must stay entirely inside those adapters, and `DispatchReports` **idempotency** (no double-send on rerun,
-§12.8) lives in the **app** layer above transport, so it holds regardless of which transport lands. 🟡
-
-### 13.5 CLI framework ✅ (design-neutral — defer freely)
-
-stdlib `flag` **vs.** `cobra` — **carries no game-design stake.** The four pipeline stages are use cases
-(`IngestOrders → ProcessTurn → RenderReports → DispatchReports`) and the CLI is a thin `internal/delivery/cli`
-layer over them (CLAUDE.md); the framework choice touches neither domain nor app. The only design-side
-requirement is structural and satisfied by either: **each stage invocable as its own subcommand**, plus a
-`pipeline` subcommand running all four (CLAUDE.md/AGENTS.md). Decide at implementation time. ✅ (nothing here
-blocks it)
-
-### 13.6 Concurrency model ✅ (confirmed)
-
-"Turns processed serially per game; multiple games in parallel" — **confirmed by the §11 determinism
-contract**, not merely accepted:
-
-- `ProcessTurn` is a **pure sequential transform** imposing a deterministic total order (§11.3), and turn
-  N's resolved snapshot **is** turn N+1's input — so two turns of one game **cannot** overlap. ✅
-- Distinct games share no state, so they may resolve **in parallel** with no coordination. ✅
-- The **RNG substream `Split()`** (per game / stage / player, §11.7) gives order-independent reproducibility,
-  so any future within-turn fan-out would stay deterministic — but a single turn's resolution adds **no
-  goroutines** today; AGENTS.md's "confirm before adding goroutines" is answered: not inside a turn. **→
-  confirm in AGENTS.md.** ✅
-
-### 13.7 Decisions the design surfaced — to add to the table 🟡
-
-§1–§12 raised infra decisions the AGENTS.md table does not yet list; they belong in it:
-
-- **Map artifact format + `MapSource` port** (§2.1/§2.9) — the authored province graph is loaded by an infra
-  adapter as immutable domain input; the on-disk format (JSON/YAML/custom) is undecided. 🟡
-- **Report-store port + format** (§12.7/§12.9) — persist / retrieve / remove rendered artifacts keyed
-  `(gameID, turn, playerID, format)`; placement interacts with §13.1 (its own store, or alongside the
-  snapshots). 🟡
-- **JSON results schema** (§12.6) — a **versioned** projection of `domain.PlayerReport`, so format changes do
-  not silently break scripted consumers; the deferred SQLite export must not warp it. 🟡
-
-The largest **mechanics** still open — the **intra-turn tick model** (day-by-day vs. event-merge, §11.3) and
-the **Close-phase money/upkeep slot** (§6.1/§6.2/§11.6) — are tracked in their owning sections, **not** this
-infra table; they gate the §6.1/§6.2/§8.2/§6.6 interleavings but are not technology choices.
-
-### 13.8 Already resolved out of the table (for the record) ✅
-
-- **Randomness source** — closed. Stochastic draws go through the **`RNG` port** (`app/ports.go`) realized by
-  the **`internal/infra/prng`** PCG adapter, mirroring `Clock`; RNG state round-trips with the snapshot via
-  `GameStateStore` (§2.9/§11.7/§11.9). Removed from the open table and promoted to AGENTS.md's **Ports** list.
-  This section newly adds **§13.3 (order file format)** and **§13.6 (concurrency)** to the resolved set.
-
-> **AGENTS.md sync pending.** §13 records the verdicts; the table itself still shows every row as open. To
-> finish the loop, AGENTS.md wants: an ADR note marking **Order file format** decided (custom DSL, §10.1) and
-> **Concurrency** confirmed (serial-per-game, §11), three **new rows** for the surfaced decisions (§13.7:
-> map-artifact format / report-store / JSON schema), and the **PDF-library** and **Mail-transport** rows
-> annotated with the constraints §13.2/§13.4 add. Until then this section is the single place that reconciles
-> the design against the table; promotion of §1–§12 to the `reference/model/` and how-to docs can proceed in
-> parallel, since none of these open infra choices changes a domain rule.

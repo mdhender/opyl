@@ -42,14 +42,14 @@ built and constrained_, not how it is used.
   consequences. As the log grows, entries graduate to numbered files (`0001-…md`) and this README
   becomes the index.
 
-The design layer's reasoning behind these verdicts lives in [`GAME-DESIGN.md`](../../GAME-DESIGN.md)
-§13 (the reconciliation register) and the §X.9 "Architectural implications" notes; this directory
-is where those verdicts become binding for the build.
+The design-layer reasoning behind these verdicts lives in the game-design chapters of
+[`GAME-DESIGN.md`](../../GAME-DESIGN.md) (each chapter closes with a §X.9 note that points back
+here); this directory is where those verdicts become binding for the build.
 
 ## Open-decisions register
 
 Decide each explicitly before substantial implementation begins; add a decision record below when
-one settles. Status is reconciled against the design work in GAME-DESIGN §13.
+one settles. Status is reconciled against the design work in [`GAME-DESIGN.md`](../../GAME-DESIGN.md).
 
 | Decision             | Status        | Options / resolution                                                                                                                                                                                                                                                                                   |
 | -------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -59,30 +59,30 @@ one settles. Status is reconciled against the design work in GAME-DESIGN §13.
 | Mail transport       | open          | Direct SMTP **vs.** SES / SendGrid API **vs.** "drop EML files in `/outbox` for an external mailer"                                                                                                                                                                                                    |
 | CLI framework        | open          | stdlib `flag` (matches Diacous) **vs.** `cobra` (matches GemGem) — design-neutral, decide at implementation time                                                                                                                                                                                       |
 | Concurrency model    | **confirmed** | Turns serial per game; games in parallel; **no goroutines inside a single turn's resolution**. See ADR 0002.                                                                                                                                                                                           |
-| Map artifact format  | open          | On-disk format (JSON/YAML/custom) for the authored province graph behind the planned `MapSource` port (GAME-DESIGN §2.1/§13.7)                                                                                                                                                                         |
-| Report store format  | open          | Where/how rendered reports persist behind the planned `ReportStore` port; interacts with State storage (GAME-DESIGN §12.7/§13.7)                                                                                                                                                                       |
-| JSON results schema  | open          | Versioned projection of `domain.PlayerReport` emailed as machine-readable results; a future SQLite export of results is deferred / out of scope, so the schema must not be over-fitted to email (GAME-DESIGN §12.6/§13.7)                                                                                                                                                                                            |
+| Map artifact format  | open          | On-disk format (JSON/YAML/custom) for the authored province graph behind the planned `MapSource` port (GAME-DESIGN §2.1/§2.9)                                                                                                                                                                         |
+| Report store format  | open          | Where/how rendered reports persist behind the planned `ReportStore` port; interacts with State storage (GAME-DESIGN §12.7/§12.9)                                                                                                                                                                       |
+| JSON results schema  | open          | Versioned projection of `domain.PlayerReport` emailed as machine-readable results; a future SQLite export of results is deferred / out of scope, so the schema must not be over-fitted to email (GAME-DESIGN §12.6)                                                                                                                                                                                            |
 | `OrderSource` output | open          | One `[]OrderBundle` channel **vs.** the bundle **plus** a separate account-directives struct — `begin`/`unit`/`end`, account/report-format settings, and immediate-effect directives (`resend`/`lore`/`players`/`public`) are account/scan-level, not per-turn unit commands (GAME-DESIGN §10.6/§10.8) |
 
 Whichever choices land, each should affect **only** the relevant `internal/infra/<adapter>/`
 package. If a decision starts requiring changes outside its infra package, that is a signal the
 port boundary is wrong — stop and fix the port first.
 
-**Constraints the design work has pinned on still-open rows (GAME-DESIGN §13):**
+**Constraints the design work has pinned on still-open rows:**
 
 - **State storage** — backend open, but the per-turn snapshot's _contents_ are pinned: it must
   round-trip RNG state, per-unit in-flight command progress, all timer/countdown state, the
-  per-location arrival-order list (GAME-DESIGN §13.1), the **entity-number allocation counter** (so
+  per-location arrival-order list (GAME-DESIGN §12.4), the **entity-number allocation counter** (so
   numbers minted at `FORM`/item creation are a pure function of recorded state, advanced inside
   resolution — GAME-DESIGN §3.8), and **dead-body items with their death turn** (so the 12-turn
   decomposition decay and Noble-Point return resolve deterministically — GAME-DESIGN §3.6/§3.8).
   `TurnLedger`, the report store, and `MapSource` are separate stores, not part of this one.
 - **PDF library** — reports are stored and GM-regenerable (GAME-DESIGN §12.7), so deterministic,
   version-stable byte output (same snapshot + code → same bytes) favors a pure-Go library over an
-  external binary or headless browser (GAME-DESIGN §13.2).
+  external binary or headless browser (GAME-DESIGN §12.7).
 - **Mail transport** — sits behind _two_ ports: `ReportDispatcher` (outbound) and `OrderSource`
   (inbound order files). `DispatchReports` idempotency lives in app, above transport
-  (GAME-DESIGN §13.4).
+  (GAME-DESIGN §10.2/§12.8).
 
 ## Decision records
 
@@ -94,14 +94,14 @@ args), `UNIT`-replaces-not-appends semantics, 250 orders/unit cap. It is **not**
 structured email-field schema. Parsed only in `internal/infra/orderfile/`, the untrusted-input
 boundary. The exact tokenizer/grammar spec (quoting edge cases, numeric-vs-entity-code argument
 forms) is pinned when that adapter is built. Distinct from the Mail-transport row: the DSL is the
-body, mail transport is its carrier. (GAME-DESIGN §10.1/§13.3.)
+body, mail transport is its carrier. (GAME-DESIGN §10.1.)
 
 ### ADR 0002 — Concurrency model (confirmed)
 
 `ProcessTurn` is a pure sequential transform — turn N's snapshot is turn N+1's input, so turns of
 one game cannot overlap; distinct games share no state and may resolve in parallel. A single turn's
 resolution adds **no goroutines**; RNG substream `Split()` keeps any future within-turn fan-out
-deterministic. (GAME-DESIGN §11/§13.6.)
+deterministic. (GAME-DESIGN §11.)
 
 ### ADR 0003 — Randomness source (resolved)
 

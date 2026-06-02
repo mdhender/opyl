@@ -2200,29 +2200,42 @@ A modern departure from re-rendering on demand:
 
 ### 12.9 Architectural implications
 
-These follow from §12 and join §2.9 / §3.8 / … / §11.9 in AGENTS.md's "Open architectural decisions" table:
+The architectural consequences of §12 have moved to their correct homes per the routing rule in
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (§11.9's sibling list and the §12.1/§12.7
+body cross-refs reference its anchor). Each consequence routes to a home that already holds it:
 
-- **Visibility is a domain rule, not a renderer responsibility.** Building the per-player `domain.PlayerReport`
-  — fog of war (§12.2), prisoner opacity (§8.7), per-faction hidden-route disclosure (§2.6) — is a **pure
-  domain projection** of the resolved snapshot. A `ReportRenderer` receives an **already-filtered**
-  `PlayerReport` and only formats it; it must never hold "is this secret?" logic. If a formatter ever needs to
-  decide what a player may see, the filter is in the wrong layer.
-- **A new report-store port is needed** (§12.7). The current ports — `ReportRenderer`, `ReportDispatcher` —
-  cover *make bytes* and *send bytes*, not *durably keep bytes*. Add a small port in `app/ports.go` (working
-  name **`ReportStore`**: persist, retrieve, and remove rendered artifacts keyed by `(gameID, turn, playerID,
-  format)`) before implementing an adapter. Whether stored reports live with the per-turn snapshots
-  (`GameStateStore`) or in their own store interacts with the open **State storage** decision (SQLite vs.
-  per-turn directory).
-- **JSON is a third `ReportRenderer` format, not a new pipeline.** It plugs in behind the existing port
-  (bytes + `application/json`); the render/dispatch split (§12.8) and the always-store path (§12.7) apply
-  unchanged. The deferred SQLite export (§12.6) is a *different* capability and must not warp the JSON schema.
+- **Visibility is a domain rule, not a renderer responsibility.** Building the per-player
+  `domain.PlayerReport` — fog of war (§12.2), prisoner opacity (§8.7), per-faction hidden-route disclosure
+  (§2.6) — is a **pure domain projection** of the resolved snapshot; a `ReportRenderer` receives an
+  **already-filtered** report and only formats it, never holding "is this secret?" logic. This is the SOUSA
+  layering discipline applied to rendering — decide in the inner layer, keep the adapter dumb — recorded in
+  [explanation/sousa-in-opyl.md](docs/content/explanation/sousa-in-opyl.md) and
+  [explanation/use-cases.md](docs/content/explanation/use-cases.md). The descriptive
+  `PlayerReport`-vs-`ReportRenderer` split awaits joint promotion to a `reference/model/` page (see the note
+  below).
+- **A new report-store port is needed** (§12.7). Persisting rendered artifacts is a capability the current
+  ports (`ReportRenderer`, `ReportDispatcher`) do not cover — they *make bytes* and *send bytes*, not
+  *durably keep bytes*. This is the **Report store format** open row in [`docs/adr/`](docs/adr/README.md) and
+  the planned **`ReportStore`** port already listed in [AGENTS.md](AGENTS.md) (persist / retrieve / remove,
+  keyed `(gameID, turn, playerID, format)`); whether stored reports live with the per-turn snapshots
+  (`GameStateStore`) or in their own store interacts with the open **State storage** decision, as that row
+  records.
+- **JSON is a third `ReportRenderer` format, not a new pipeline** (§12.6). It plugs in behind the existing
+  port (bytes + `application/json`); the render/dispatch split (§12.8) and the always-store path (§12.7)
+  apply unchanged. The concrete versioned schema is the **JSON results schema** open row in
+  [`docs/adr/`](docs/adr/README.md), which also pins the deferred SQLite export as out of scope so the schema
+  is not over-fitted to email.
 - **Location order is single-sourced and feeds two consumers** (§12.4): the §11.3 scheduler tiebreak and the
-  report's "Seen here" block read the **same** recorded ordering. It must be derived from recorded
-  arrival/unstack events in domain, never recomputed independently in the renderer — or the precedence a
-  player reads could drift from the precedence the engine ran.
+  report's "Seen here" block read the **same** recorded ordering, derived from recorded arrival/unstack
+  events in domain and never recomputed independently in the renderer — or the precedence a player reads
+  could drift from the precedence the engine ran. The snapshot constraint that carries it — **the
+  per-location arrival-order list** — is already pinned among the State-storage snapshot contents in
+  [`docs/adr/`](docs/adr/README.md).
 - **The order template closes the orders loop** (§12.3): the bottom-of-report template is the editable
   successor to this turn's queue (§10.5) including carried-over in-flight commands (§11.5), so the snapshot's
-  per-unit pending-queue and in-flight state (§11.9) must be projectable back into the report.
+  per-unit pending queue and **in-flight command progress** (§11.9) must be projectable back into the report
+  — the latter is already pinned among the State-storage snapshot contents in
+  [`docs/adr/`](docs/adr/README.md).
 
 > **Not yet distilled.** §12's decided facts (rendering as a pure projection of the resolved snapshot; the
 > domain `PlayerReport` vs. infra `ReportRenderer` split; the per-faction visibility, prisoner-opacity and

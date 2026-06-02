@@ -1,0 +1,23 @@
+{
+"tiles": {
+  "Classic/Flat Desert Rocky":           {"code": "d", "kind": "desert"  },
+  "Classic/Flat Desert Sandy":           {"code": "d", "kind": "desert"  },
+  "Classic/Flat Farmland":               {"code": "p", "kind": "plains"  },
+  "Classic/Flat Forest Deciduous Heavy": {"code": "f", "kind": "forest"  },
+  "Classic/Flat Forest Deciduous":       {"code": "f", "kind": "forest"  },
+  "Classic/Flat Forest Jungle Heavy":    {"code": "f", "kind": "forest"  },
+  "Classic/Flat Forest Jungle":          {"code": "f", "kind": "forest"  },
+  "Classic/Flat Grassland":              {"code": "p", "kind": "plains"  },
+  "Classic/Flat Swamp":                  {"code": "s", "kind": "swamp"   },
+  "Classic/Hills Forest Deciduous":      {"code": "f", "kind": "forest"  },
+  "Classic/Hills Forest Jungle":         {"code": "f", "kind": "forest"  },
+  "Classic/Hills":                       {"code": "p", "kind": "plains"  },
+  "Classic/Mountain Snowcapped":         {"code": "m", "kind": "mountain"},
+  "Classic/Mountain":                    {"code": "m", "kind": "mountain"},
+  "Classic/Mountains Forest Deciduous":  {"code": "m", "kind": "mountain"},
+  "Classic/Mountains Forest Jungle":     {"code": "m", "kind": "mountain"},
+  "Classic/Mountains":                   {"code": "m", "kind": "mountain"},
+  "Classic/Other Badlands":              {"code": "d", "kind": "desert"  },
+  "Classic/Water Ocean":                 {"code": "o", "kind": "ocean"   },
+  "Blank":                               {"code": "#", "kind": "hole"    }}
+}

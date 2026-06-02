@@ -1,0 +1,15 @@
+size: 100 x 100
+seed: 328236
+
+terrain:
+  land: 30
+    mountain: 30
+    vegetation: 35
+    desert: 25
+    forest -> swamp: 5
+      swamp continues: 40
+
+land forms: continents & small islands
+
+cluster: 70
+  allow drift: true

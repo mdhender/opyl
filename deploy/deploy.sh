@@ -32,6 +32,7 @@ echo ">> Updating checkout in $REPO_DIR"
 git pull --ff-only
 
 echo ">> Rebuilding public/"
+cd docs
 hugo --gc --minify
 
 echo ">> Done"

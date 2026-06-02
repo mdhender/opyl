@@ -109,4 +109,13 @@ Stochastic draws go through the **`RNG` port** (`internal/app/ports.go`), mirror
 realized by the **`internal/infra/prng`** PCG adapter. RNG state round-trips with the per-turn
 snapshot via `GameStateStore` — randomness stays a pure function of recorded state, and no
 component imports an entropy source. This closes the former _Randomness source_ open row; the port
-is now listed among AGENTS.md's declared ports. (GAME-DESIGN §11.7/§11.9.)
+is now listed among AGENTS.md's declared ports, and its descriptive signature lives in
+[`reference/ports.md`](../content/reference/ports.md). (GAME-DESIGN §11.7/§11.9.)
+
+**Open follow-ups under the now-decided port** (GAME-DESIGN §11.7/§11.9): the **seed-derivation
+rule** and the **substream-assignment scheme** (per game / stage / player, so a battle's stream
+does not shift because an unrelated unit rolled earlier) are still open; and for domain-resident
+math — the combat exchange (GAME-DESIGN §8.2) — it is open whether the **use case rolls and feeds
+outcomes into the domain transform** or a **narrow domain-defined interface is injected**.
+Substream `Split()` stays a Runtime wiring-time operation on the concrete adapter until a use case
+demonstrably needs mid-turn fan-out, at which point it is promoted to the port.

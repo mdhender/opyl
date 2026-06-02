@@ -77,3 +77,19 @@ type Clock interface {
 ```
 
 Abstracts time so use cases stay deterministic in tests.
+
+## `RNG`
+
+```go
+type RNG interface {
+    Roll(low, high int) int
+    RollDice(n, sides int) int
+}
+```
+
+A deterministic random source for use cases that involve dice or
+stochastic decisions. `Roll` returns a uniform integer in `[low, high]`;
+`RollDice` returns the sum of `n` dice each having the given number of
+sides. Implementations live in `internal/infra/prng`. RNG state
+round-trips with the per-turn snapshot through `GameStateStore`, not
+through `TurnLedger`.

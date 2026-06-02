@@ -1972,36 +1972,49 @@ TODO: The note above is questionable. Seeds may live in the GameStateStore, but 
 
 ### 11.9 Architectural implications
 
-These follow from §11 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 / §7.9 / §8.10 / §9.8 / §10.8 in AGENTS.md's
-"Open architectural decisions" table:
+The architectural consequences of §11 have moved to their correct homes per the routing rule in
+[AGENTS.md](AGENTS.md); this section remains only as a pointer (§8.10/§9.8/§12.9's sibling lists and
+several body cross-refs reference its anchor). §11 carries the determinism and idempotency seams the
+whole engine turns on, but earlier passes already settled them, so every consequence routes to a home
+that already holds it:
 
-- **Turn resolution is the core of the `process` stage and must stay a pure transform.** `ProcessTurn`
-  takes `(prior snapshot, []OrderBundle, seed)` and returns the next snapshot; it reads the world only
-  through `GameStateStore`, consults `TurnLedger` for idempotency, and touches no renderer, mailer, or
-  clock. If resolution ever "needs" `time.Now`, live entropy, or a concrete store, the boundary moved to
-  the wrong layer.
-- **Randomness is a port, like time — decided.** The question §2.9 left open (where the seeded PRNG lives
-  without tripping the domain-import check) is **settled**: `app/ports.go` declares an **`RNG` port**
-  (`Roll`/`RollDice`) and the seeded-PCG adapter lives in **`internal/infra/prng`**, exactly mirroring
-  `Clock`. Use cases draw through the port; the domain imports no concrete RNG, so the conformance command
-  (`go list -deps ./internal/domain/... | … | grep -v /domain`) passes with **no relocation and no
-  domain-side `Roller` interface**. RNG state round-trips with the snapshot via `GameStateStore`. The
-  remaining 🟡 is *where the draw happens for domain-resident math* (the combat exchange §8.2) — whether
-  the use case rolls and feeds outcomes into the domain transform, or a narrow domain-defined interface is
-  injected — plus the seed-derivation and substream-assignment policy.
-- **The intra-turn tick model is the largest undecided mechanic** (§11.3): day-by-day loop vs. event-merge.
-  It gates the still-open interleavings of §6.1 (money-flow slot), §6.2 (upkeep slot), §8.2 (battle
-  placement), and §6.6 (market clearing) — none of those can be fully pinned until the tick model is.
+- **`ProcessTurn` is the `process` stage and must stay a pure transform.** It takes the prior snapshot
+  and the turn's `[]OrderBundle` and returns the next snapshot; it reads the world only through
+  `GameStateStore`, consults `TurnLedger` for idempotency, and touches no renderer, mailer, or clock —
+  if resolution ever "needs" `time.Now`, live entropy, or a concrete store, the boundary moved to the
+  wrong layer. That it is a pure sequential transform (turn N's snapshot is turn N+1's input) is the
+  concurrency decision in [ADR 0002](docs/adr/README.md); the use-case shape and its ports-not-adapters
+  discipline are described in [explanation/use-cases.md](docs/content/explanation/use-cases.md).
+- **Randomness is a port, like time — decided.** `app/ports.go` declares the **`RNG` port**
+  (`Roll`/`RollDice`), realized by the **`internal/infra/prng`** seeded-PCG adapter, exactly mirroring
+  `Clock`; the domain imports no concrete RNG, so the domain-import conformance command passes with no
+  relocation and no domain-side `Roller` interface. This is [ADR 0003](docs/adr/README.md), and the
+  port's descriptive signature now lives in [reference/ports.md](docs/content/reference/ports.md). The
+  residual open points — the seed-derivation rule, the substream-assignment scheme, and whether
+  domain-resident combat math (§8.2) rolls in the use case or through an injected domain interface — are
+  recorded with [ADR 0003](docs/adr/README.md).
+- **RNG state lives in the snapshot, so the idempotency hash captures it for free** (§11.7/§11.8):
+  because `GameStateStore` round-trips RNG state as part of game state (an
+  [ADR 0003](docs/adr/README.md) consequence, pinned among the State-storage snapshot constraints in
+  [`docs/adr/`](docs/adr/README.md)), hashing `(prior state, orders)` already pins the random stream —
+  there is no separate seed field to forget, and a re-run from the same prior state reproduces the same
+  draws. The `(state, orders)` input-hash rationale is in
+  [explanation/idempotency.md](docs/content/explanation/idempotency.md).
 - **In-flight command progress is persisted turn state** (§11.5 carry-over): the per-turn snapshot must
-  carry each unit's *remaining days on the running command*, not just its pending queue — otherwise a turn
-  cannot resume a multi-day order, and the snapshot is not a faithful save point.
-- **RNG state lives in the snapshot, so the idempotency hash captures it for free** (§11.7/§11.8): because
-  `GameStateStore` round-trips RNG state as part of game state, hashing `(prior state, orders)` already
-  pins the random stream — there is no separate seed field to forget, and a re-run from the same prior
-  state reproduces the same combat/skill draws. (This refines §2.9's earlier "seed in the `TurnLedger`.")
-- **Money-flow and upkeep slot placement (§6.1/§6.2) is the last turn-timing decision** feeding the Close
-  phase, and it "matters for idempotency" exactly as those sections warned — the same recorded state must
-  always debit and pay in the same order.
+  carry each unit's *remaining days on the running command*, not just its pending queue, or a turn
+  cannot resume a multi-day order. This is **already pinned** among the State-storage snapshot
+  constraints in [`docs/adr/`](docs/adr/README.md) ("per-unit in-flight command progress").
+
+The remaining items §11 surfaced are **game-design timing questions, not engine-architecture
+decisions**, so they stay tracked in this chapter's body rather than moving to `docs/adr/`:
+
+- **The intra-turn tick model** — day-by-day loop vs. event-merge (§11.3) — is the largest undecided
+  mechanic; it gates how movement, combat (§8.2), market clearing (§6.6), and the money-flow/upkeep
+  slots (§6.1/§6.2) interleave mid-month. It is a game-time modeling choice, not an infra-adapter
+  choice, so it remains a 🟡 in §11.3.
+- **Money-flow and upkeep slot placement** in the Close phase (§11.6, with §6.1/§6.2) is the last
+  turn-timing decision; the same recorded state must always debit and pay in the same order. It remains
+  a 🟡 carried with those sections.
 
 > **Not yet distilled.** §11's decided facts (the 30-day clock, the open→execute→close phase frame, the
 > ascending-priority/location-order scheduler, parallel time-accrual with zero-time failures, the `STOP`
@@ -2011,7 +2024,8 @@ These follow from §11 and join §2.9 / §3.8 / §4.9 / §5.9 / §6.8 / §7.9 / 
 > "seen here" / location-ordering rules the scheduler's tiebreak depends on are co-owned with §12. Still
 > 🟡 and carried forward: the **intra-turn tick granularity** (§11.3), the **exact Close-phase slot** of
 > money-flow vs. upkeep (§11.6, with §6.1/§6.2), the **PRNG seed-derivation and substream scheme** plus its
-> **package location** (§11.7/§11.9), and the §2.4/§9.4 cost-functions the accrual reads (§11.4).
+> **package location** (§11.7/§11.9, recorded with ADR 0003), and the §2.4/§9.4 cost-functions the accrual
+> reads (§11.4).
 
 ## 12. Turn reports 🟡
 

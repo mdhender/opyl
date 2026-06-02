@@ -301,74 +301,85 @@ func run(args []string) error {
 				t.Terrain = domain.TerrForest
 				t.Color = 19
 				t.IsSafeHaven = true
-				fmt.Println(`n = create_a_city(row, col, "Drassa", true`)
-				fmt.Println(`subloc[n].IsSafeHaven = true`)
-				fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
+				fmt.Println(`todo: implement create a city here`)
+				//fmt.Println(`n = create_a_city(row, col, "Drassa", true`)
+				//fmt.Println(`subloc[n].IsSafeHaven = true`)
+				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
 			case "2":
 				t.Terrain = domain.TerrForest
 				t.Color = 19
 				t.IsSafeHaven = true
-				fmt.Println(`n = create_a_city(row, col, "Rimmon", true)`)
-				fmt.Println(`subloc[n].IsSafeHaven = true`)
-				fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
+				fmt.Println(`todo: implement create a city here`)
+				//fmt.Println(`n = create_a_city(row, col, "Rimmon", true)`)
+				//fmt.Println(`subloc[n].IsSafeHaven = true`)
+				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
 			case "3":
 				t.Terrain = domain.TerrForest
 				t.Color = 19
 				t.IsSafeHaven = true
-				fmt.Println(`n = create_a_city(row, col, "Harn", true)`)
-				fmt.Println(`subloc[n].IsSafeHaven = true`)
-				fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
+				fmt.Println(`todo: implement create a city here`)
+				//fmt.Println(`n = create_a_city(row, col, "Harn", true)`)
+				//fmt.Println(`subloc[n].IsSafeHaven = true`)
+				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
 			case "4":
 				t.Terrain = domain.TerrForest
 				t.Color = 19
 				t.IsSafeHaven = true
-				fmt.Println(`n = create_a_city(row, col, "Imperial City", true)`)
-				fmt.Println(`subloc[n].IsSafeHaven = true`)
-				fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
+				fmt.Println(`todo: implement create a city here`)
+				//fmt.Println(`n = create_a_city(row, col, "Imperial City", true)`)
+				//fmt.Println(`subloc[n].IsSafeHaven = true`)
+				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
 			case "5":
 				t.Terrain = domain.TerrForest
 				t.Color = 19
 				t.IsSafeHaven = true
-				fmt.Println(`n = create_a_city(row, col, "Port Aurnos", true)`)
-				fmt.Println(`subloc[n].IsSafeHaven = true`)
-				fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
+				fmt.Println(`todo: implement create a city here`)
+				//fmt.Println(`n = create_a_city(row, col, "Port Aurnos", true)`)
+				//fmt.Println(`subloc[n].IsSafeHaven = true`)
+				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
 			case "6":
 				t.Terrain = domain.TerrForest
 				t.Color = 19
 				t.IsSafeHaven = true
-				fmt.Println(`n = create_a_city(row, col, "Greyfell", true)`)
-				fmt.Println(`subloc[n].IsSafeHaven = true`)
-				fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
+				fmt.Println(`todo: implement create a city here`)
+				//fmt.Println(`n = create_a_city(row, col, "Greyfell", true)`)
+				//fmt.Println(`subloc[n].IsSafeHaven = true`)
+				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
 			case "7":
 				t.Terrain = domain.TerrForest
 				t.Color = 19
 				t.IsSafeHaven = true
-				fmt.Println(`n = create_a_city(row, col, "Yellowleaf", true)`)
-				fmt.Println(`subloc[n].IsSafeHaven = true`)
-				fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
+				fmt.Println(`todo: implement create a city here`)
+				//fmt.Println(`n = create_a_city(row, col, "Yellowleaf", true)`)
+				//fmt.Println(`subloc[n].IsSafeHaven = true`)
+				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
 			case "8":
 				t.Terrain = domain.TerrForest
 				t.Color = 19
-				fmt.Println(`n = create_a_city(row, col, "Golden City", true)`)
-				fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
+				fmt.Println(`todo: implement create a city here`)
+				//fmt.Println(`n = create_a_city(row, col, "Golden City", true)`)
+				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
 
 				// starting city with a random name
 			case "9", "0":
 				t.Terrain = domain.TerrForest
 				t.Color = 19
 				t.IsSafeHaven = true
-				fmt.Println(`n = create_a_city(row, col, NULL, true)`)
-				fmt.Println(`subloc[n].IsSafeHaven = true`)
-				fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
+				fmt.Println(`todo: implement create a city here`)
+				//fmt.Println(`n = create_a_city(row, col, NULL, true)`)
+				//fmt.Println(`subloc[n].IsSafeHaven = true`)
+				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
 
 			case "*":
 				t.Terrain = domain.TerrLand
-				fmt.Println(`create_a_city(row, col, NULL, true)`)
+				fmt.Println(`todo: implement create a city here`)
+				//fmt.Println(`create_a_city(row, col, NULL, true)`)
 				break
 
 			case "%":
 				t.Terrain = domain.TerrLand
-				fmt.Println(`create_a_city(row, col, NULL, true)`)
+				fmt.Println(`todo: implement create a city here`)
+				//fmt.Println(`create_a_city(row, col, NULL, true)`)
 				break
 
 			default:

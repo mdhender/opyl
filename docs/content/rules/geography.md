@@ -11,24 +11,26 @@ Olympia's map is a large grid of locations called provinces. Groups of provinces
 A province's description will include a list of the directions in which a character may travel:
 
 ```report
-Plain [ae48], plain, in region Tollus
-  Routes leaving Plain [ae48]:
-    North, to Plain [ad48], 7 days
-    East, to Plain [ae49], 7 days
-    South, to Ocean [af48], Tymaerian Sea, 1 day
-    West, to Ocean [ae47], Tymaerian Sea, 1 day
+Plain [8,-5], plain, in region Tollus
+  Routes leaving Plain [8,-5]:
+    North, to Plain [8,-6], 7 days
+    Northeast, to Plain [9,-6], 7 days
+    Southeast, to Ocean [9,-5], Tymaerian Sea, 1 day
+    South, to Ocean [8,-4], Tymaerian Sea, 1 day
 ```
 
-This is a non-descript province in the Tollus region.
+This is a non-descript province in the Tollus region. It lists four of its six
+possible neighbours; the other two directions have no route (see *Holes in the
+Map*, below).
 
-From this province, a character may travel north or east on foot or by horse, or may sail by ship to the south or west.
+From this province, a character may travel north or northeast on foot or by horse, or may sail by ship to the southeast or south.
 
 ```
-move north # OR move n OR move ad48
-move east  # OR move e OR move ae49
+move north      # OR move n OR move [8,-6]
+move northeast  # OR move ne OR move [9,-6]
 
-sail south # OR sail s OR sail af48
-sail west  # OR sail w OR sail ae47
+sail southeast  # OR sail se OR sail [9,-5]
+sail south      # OR sail s OR sail [8,-4]
 ```
 
 Land movement will automatically use the fastest available mode. For example, if a character has enough horses for all of the members in the party to ride, then the travelers will go on horseback.
@@ -45,10 +47,10 @@ A province may contain sub-locations within its borders. Sub-locations may usual
 
 ```report
 Inner locations:
-  Carim [em28], city, 1 day
+  Carim [2845], city, 1 day
 ```
 
-The city Carim may be entered with the `MOVE em28` order. Travel into a city requires one day.
+The city Carim may be entered with the `MOVE 2845` order. Travel into a city requires one day.
 
 **Note**: _`MOVE IN` may be used to enter a sub-location, although this order may be ambiguous if the location contains more than one sub-location. In such a case, the first sub-location in the Inner locations list will be entered. Using `MOVE IN` is not recommended if the entity number of the sub-location is known._
 
@@ -57,22 +59,22 @@ Characters in a sub-location will receive a report for the surrounding province.
 ### Inside a City
 
 ```report
-Carim [em28], city, in province Plain [ae48]
-  Routes leaving Carim [em28]:
-    Out, to Plain [ae48], 1 day
+Carim [2845], city, in province Plain [8,-5]
+  Routes leaving Carim [2845]:
+    Out, to Plain [8,-5], 1 day
 
 Inner locations:
-  Hooting Own Inn [ep76], inn
+  Hooting Own Inn [3102], inn
 ```
 
-Characters in the city Carim may move out (or `MOVE ae48`) to the surrounding province. They may also attempt to enter the inn, which is a sub-location of the city. Notice that no travel time rating is listed for the inn; entering it takes no time (zero days).
+Characters in the city Carim may move out (or `MOVE [8,-5]`) to the surrounding province. They may also attempt to enter the inn, which is a sub-location of the city. Notice that no travel time rating is listed for the inn; entering it takes no time (zero days).
 
 ```orders
-move out # OR move ae48
-move ep76
+move out # OR move [8,-5]
+move 3102
 ```
 
-A character in Carim will receive a location report both for the city as well as the surrounding province Plain [ae48]. Characters in the Hooting Own Inn will receive a location report for the inn and one for Carim, but will not get a report for Plain [ae48]. A character in the city may not see inside the inn without entering.
+A character in Carim will receive a location report both for the city as well as the surrounding province Plain [8,-5]. Characters in the Hooting Own Inn will receive a location report for the inn and one for Carim, but will not get a report for Plain [8,-5]. A character in the city may not see inside the inn without entering.
 
 Characters in a sub-location receive a report for the immediate surrounding location.
 
@@ -100,46 +102,39 @@ However, a character in a sub-location may not interact with characters in the s
 
 ### More about geography
 
-Olympian provinces are arranged in a square grid. Travel is possible in the four main compass points. Thus, to move diagonally, two move orders are required. To move northwest, for instance, one would first need to `MOVE n`, then `MOVE w`.
+Olympian provinces are hexagons, and each province borders up to six others. Travel is possible in six directions — north, northeast, southeast, south, southwest, and northwest. There is no due east or west, and there are no diagonals: every move crosses a single hex edge into a neighbouring province, and no direction costs more than another simply for being that direction.
 
-A province's map coordinate can be read from its bracketed code. The leading letters give the row; the trailing number gives the column. The northwest corner of the grid is [a1], with rows increasing to the south and columns increasing to the east. So `Plain [ad48]` lies directly north of `Plain [ae48]`, and `[ae49]` directly east of it.
-
-```
-      1    2    3   ...
-    +---------------------
- a  |  a1   a2   a3
- b  |  b1   b2   b3
- c  |  c1   c2   c3
- .  |
- z  |  z1   z2   z3
- aa |  aa1  aa2  aa3
- ab |  ab1  ab2  ab3
-```
-
-Rows are lettered with a sequence that skips the letters most easily confused with digits — `i`, `j`, `l`, and `o` are left out:
+A province's map coordinate is printed in its bracketed code as a `[q,r]` pair. The world is laid out around a central origin `[0,0]`, chosen by the game master, so coordinates count outward in every direction and may be negative. The six neighbours of `[8,-5]` read as follows:
 
 ```
-a b c d e f g h k m n p q r s t u v w x y z
+            [8,-6]            north
+    [7,-5]        [9,-6]      northwest / northeast
+            [8,-5]            this province
+    [7,-4]        [9,-5]      southwest / southeast
+            [8,-4]            south
 ```
 
-Columns are plain numbers. Neither part is padded with leading zeros, so the corner is `a1`, not `a01` or `aa01`. After the single letter `z` — the 22nd row — rows continue with two letters, `aa`, `ab`, and so on, so the map has no fixed size limit.
+Both numbers are plain integers, written with a leading minus sign when negative and never padded with zeros. Because counting starts at the centre and runs both ways, the world has no fixed size limit — it can grow in any direction without renumbering the provinces already on the map.
 
 Entity numbers for sub-locations do not correspond to any coordinate system.
 
-The edges of the map are not passable, so for example it is not possible to travel either north or west from [a1].
+The authored world has a boundary. Where it ends, a province simply has no route in that direction, so you cannot travel into unmapped space — this looks just like a hole in the map (below).
 
 ### Holes in the Map
 
 The map may have some holes, representing impassable provinces. Routes into some provinces may also be hidden.
 
 ```report
-Plain [cd21], plain, in region Tollus Routes leaving Plain [cd21]:
-  North, to Plain [cc21], 7 days
-  East, to Plain [cd22], 7 days
-  West, to Plain [cd20], 7 days
+Plain [12,3], plain, in region Tollus
+  Routes leaving Plain [12,3]:
+    North, to Plain [12,2], 7 days
+    Northeast, to Plain [13,2], 7 days
+    Southeast, to Plain [13,3], 7 days
+    Southwest, to Forest [11,4], 10 days
+    Northwest, to Mountain [11,3], 14 days
 ```
 
-Notice the lack of a southern exit. This means that there is no known southern route from Plain [cd21], into what should be Plain [ce21]. Exploration may find a southern route, but it is possible that none may ever be found, and the terrain to the south is completely impassable.
+Notice the lack of a southern exit. This means that there is no known southern route from Plain [12,3], into what should be Plain [12,4]. Exploration may find a southern route, but it is possible that none may ever be found, and the terrain to the south is completely impassable.
 
 ### Hidden routes
 
@@ -148,21 +143,23 @@ If exploration finds a hidden route, any noble in the player's faction will be a
 ```report
 > explore
   A hidden route has been found!
-  South, to Plain [ce21], 7 days
+  South, to Plain [12,4], 7 days
 ```
 
 The location description for this place will now include the hidden route:
 
 ```report
-Plain [cd21], plain, in region Tollus
-  Routes leaving Plain [cd21]:
-    North, to Plain [cc21], 7 days
-    South, to Plain [ce21], 7 days, hidden
-    East, to Plain [cd22], 7 days
-    West, to Plain [cd20], 7 days
+Plain [12,3], plain, in region Tollus
+  Routes leaving Plain [12,3]:
+    North, to Plain [12,2], 7 days
+    Northeast, to Plain [13,2], 7 days
+    Southeast, to Plain [13,3], 7 days
+    South, to Plain [12,4], 7 days, hidden
+    Southwest, to Forest [11,4], 10 days
+    Northwest, to Mountain [11,3], 14 days
 ```
 
-However, units from other factions, even if they know that the hidden route's entity number is [ce21], will not be able to travel across it.
+However, units from other factions, even if they know that the hidden route leads to [12,4], will not be able to travel across it.
 
 All factions with units in a stack traveling across a hidden route, with the exception of units being held prisoner, will learn of its existence. Nobles from factions wanting to learn how to use the hidden route can stack with a noble about to move across the route.
 
@@ -171,18 +168,18 @@ All factions with units in a stack traveling across a hidden route, with the exc
 A ship in an ocean province may sail into an adjoining land province.
 
 ```report
-Ocean [cw12], ocean, in South Sea
-  Routes leaving Ocean [cw12]:
-    North, to Ocean [cv12], Atnos Sea, 4 days
-    East, to Mountain [cw13], West Camaris, impassable
-    South, to Plain [cx12], West Camaris, 1 day
-    West, to Ocean [cw11], 4 days
+Ocean [-3,6], ocean, in South Sea
+  Routes leaving Ocean [-3,6]:
+    North, to Ocean [-3,5], Atnos Sea, 4 days
+    Northeast, to Mountain [-2,5], West Camaris, impassable
+    South, to Plain [-3,7], West Camaris, 1 day
+    Northwest, to Ocean [-4,6], 4 days
 
 Inner locations:
-  Island [eb97], island, 1 day
+  Island [5097], island, 1 day
 ```
 
-A ship sailing in this ocean province may dock by sailing to Plain [cx12] or Island [eb97].
+A ship sailing in this ocean province may dock by sailing to Plain [-3,7] or Island [5097].
 
 Ships may not dock in mountain provinces, as the rocky cliffs are too dangerous to approach. Routes between ocean and mountain provinces are marked `impassable`.
 
@@ -191,40 +188,40 @@ Ships may not dock in mountain provinces, as the rocky cliffs are too dangerous 
 A city in a province adjoining an ocean will have been founded on the best spot for an ocean port. The ocean will only be accessible through the port city in this case, and not through the surrounding region.
 
 ```report
-Plain [ae48], plain, in region Tollus
-  Routes leaving Plain [ae48]:
-    West, to Ocean [ae47], Tymaerian Sea, impassable
+Plain [8,-5], plain, in region Tollus
+  Routes leaving Plain [8,-5]:
+    Southwest, to Ocean [7,-4], Tymaerian Sea, impassable
 
 Inner locations:
-  Carim [em28], port city, 1 day
+  Carim [2845], port city, 1 day
 ```
 
 Note that from the province surrounding the port city, access to the ocean is not possible.
 
 ```report
-Carim [em28], port city, in province Plain [ae48]
-  Routes leaving Carim [em28]:
-    West, to Ocean [ae47], Tymaerian Sea, 1 day
-    Out, to Plain [ae48], 1 day
+Carim [2845], port city, in province Plain [8,-5]
+  Routes leaving Carim [2845]:
+    Southwest, to Ocean [7,-4], Tymaerian Sea, 1 day
+    Out, to Plain [8,-5], 1 day
 ```
 
 However, ships may sail into and out of the port city itself. From the Tymaerian Sea, this looks like:
 
 ```report
-Ocean [af48], ocean, in Tymaerian
-  Sea Routes leaving Ocean [af48]:
-    North, city, to Carim [em28], Tollus, 1 day
-    South, to Ocean [ag48], 3 days
+Ocean [7,-4], ocean, in Tymaerian Sea
+  Routes leaving Ocean [7,-4]:
+    Northeast, city, to Carim [2845], Tollus, 1 day
+    South, to Ocean [7,-3], 3 days
 ```
 
 #### An example city description
 
 ```report
-Drassa [ew66], port city, in province Forest [cu26], safe haven
-  Routes leaving Drassa [ew66]:
-    East, to Ocean [cu27], Atnos Sea, 1 day
-    South, to Ocean [cv26], Atnos Sea, 1 day
-    Out, to Forest [cu26], 1 day
+Drassa [4470], port city, in province Forest [5,2], safe haven
+  Routes leaving Drassa [4470]:
+    Southeast, to Ocean [6,2], Atnos Sea, 1 day
+    South, to Ocean [5,3], Atnos Sea, 1 day
+    Out, to Forest [5,2], 1 day
   Skills taught here:
     Shipcraft [600]
     Combat [610]
@@ -235,7 +232,7 @@ Drassa [ew66], port city, in province Forest [cu26], safe haven
     Law Netexus [2020], prisoner
     Alion Krysaka [2785], prisoner
   Ships docked at port:
-    HMS Pinafore [ib18], galley, owner:
+    HMS Pinafore [1818], galley, owner:
     Captain McCook [2019], with five workers
   Market report:
     No goods offered for trade.
@@ -246,9 +243,9 @@ Drassa [ew66], port city, in province Forest [cu26], safe haven
 Every province has a civilization level. Provinces with no civilization (a level of zero) are considered wilderness. Civilization levels for provinces are shown in the turn report:
 
 ```report
-Mountain [cq24], mountain, in Lesser Atnos, civ-1
+Mountain [14,-2], mountain, in Lesser Atnos, civ-1
 
-Forest [ac35], forest, in Torba Bacor, wilderness
+Forest [-6,9], forest, in Torba Bacor, wilderness
 ```
 
 The civilization level of a province is determined by the presence of cities and buildings, or half of the maximum civilization level of its surrounding provinces, whichever is higher.
@@ -288,4 +285,3 @@ The Cloudlands is a small region which floats over Mt. Olympus and the Imperial 
 ### The Map
 
     TODO: insert ASCII image of map here
-

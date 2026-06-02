@@ -116,7 +116,7 @@ If a fighter's missile rating is zero, it can not attack from the rear. In this 
 Structures which may aid fighters in battle are rated for their defensive bonus.
 
 ```report
-Castle Imperius [gx56], castle, defense 25
+Castle Imperius [9156], castle, defense 25
 ```
 
 During battle, the fortification rating is added to the defense number for the men who fit inside the structure.
@@ -152,10 +152,10 @@ For example, suppose Osswid had the following items:
 
 | item                      | bonus       |
 | ------------------------- | ----------- |
-| Shield of Achilles [fx78] | +25 defense |
-| Sword of Death [gl23]     | +10 attack  |
-| Mithril Axe [wt29]        | +15 attack  |
-| Magic javelin [ht02]      | +5 missile  |
+| Shield of Achilles [7521] | +25 defense |
+| Sword of Death [7522]     | +10 attack  |
+| Mithril Axe [7523]        | +15 attack  |
+| Magic javelin [7524]      | +5 missile  |
 
 Osswid would wield the javelin and axe, and wear the shield. He would not use the Sword of Death.
 

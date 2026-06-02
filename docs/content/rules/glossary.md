@@ -233,8 +233,9 @@ the section where the term is described in full.
   starvation. See [Loyalty, Stacking & Upkeep](../logistics/).
 
 **Map coordinates**
-: A province's position, read from its [entity number](#e): the leading letters give
-  the row and the trailing number the column, with `[a1]` at the northwest corner. See
+: A province's position, printed in its bracketed code as an axial `[q,r]` pair — for
+  example `[8,-5]`. The provinces are flat-topped hexagons with six neighbours; `[0,0]` is
+  the centre of the map and coordinates may be negative. See
   [Geography & Movement](../geography/).
 
 **Market**

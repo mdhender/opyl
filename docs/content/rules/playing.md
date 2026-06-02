@@ -130,16 +130,17 @@ The Olympia web site also includes back issues of The Olympia Times, articles ab
 
 #### Entity, Unit:
 
-_Nobles, items, locations, and skills_
+_Nobles, items, sub-locations, and skills_
 
-Everything in the Olympian world has a unique code. referenced with an "entity number". The code is shown in brackets after the name. Some examples:
+Almost everything in the Olympian world is referenced by an **entity number** — a unique integer shown in brackets after the name. Provinces are the exception: they are identified by their map coordinates, such as `[8,-5]`, not by entity numbers. Some examples:
 
 - a player: Rich Skrenta [501]
 - a character: Osswid the Destroyer [5499]
 - a skill: Shipcraft [600]
-- a place: City of the Lost [gx14]
+- a sub-location: City of the Lost [8814]
 - an item: Gold [1]
-- an item: Scroll [yq12]
+- an item: Scroll [7612]
+- a province: Plain [8,-5]
 
 #### Noble, Character
 

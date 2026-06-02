@@ -59,7 +59,7 @@ one settles. Status is reconciled against the design work in [`GAME-DESIGN.md`](
 | Mail transport       | open          | Direct SMTP **vs.** SES / SendGrid API **vs.** "drop EML files in `/outbox` for an external mailer"                                                                                                                                                                                                    |
 | CLI framework        | open          | stdlib `flag` (matches Diacous) **vs.** `cobra` (matches GemGem) — design-neutral, decide at implementation time                                                                                                                                                                                       |
 | Concurrency model    | **confirmed** | Turns serial per game; games in parallel; **no goroutines inside a single turn's resolution**. See ADR 0002.                                                                                                                                                                                           |
-| Map artifact format  | open          | On-disk format (JSON/YAML/custom) for the authored province graph behind the planned `MapSource` port (GAME-DESIGN §2.1/§2.9)                                                                                                                                                                         |
+| Map artifact format  | **decided**   | Single versioned JSON document emitted by `cmd/woly` from a Worldographer `.wxx`; arrays-only, integers-only, deterministic full-rebuild. See ADR 0004.                                                                                                                                               |
 | Report store format  | open          | Where/how rendered reports persist behind the planned `ReportStore` port; interacts with State storage (GAME-DESIGN §12.7/§12.9)                                                                                                                                                                       |
 | JSON results schema  | open          | Versioned projection of `domain.PlayerReport` emailed as machine-readable results; a future SQLite export of results is deferred / out of scope, so the schema must not be over-fitted to email (GAME-DESIGN §12.6)                                                                                                                                                                                            |
 | `OrderSource` output | open          | One `[]OrderBundle` channel **vs.** the bundle **plus** a separate account-directives struct — `begin`/`unit`/`end`, account/report-format settings, and immediate-effect directives (`resend`/`lore`/`players`/`public`) are account/scan-level, not per-turn unit commands (GAME-DESIGN §10.6/§10.8) |
@@ -119,3 +119,47 @@ math — the combat exchange (GAME-DESIGN §8.2) — it is open whether the **us
 outcomes into the domain transform** or a **narrow domain-defined interface is injected**.
 Substream `Split()` stays a Runtime wiring-time operation on the concrete adapter until a use case
 demonstrably needs mid-turn fan-out, at which point it is promoted to the port.
+
+### ADR 0004 — Map artifact format (decided)
+
+The authored province graph behind the planned `MapSource` port is a **single versioned JSON
+document**, emitted by **`cmd/woly`** from a Worldographer (`.wxx`) source. The choices:
+
+- **Arrays-only, integers-only, versioned.** Every collection is a **sorted slice, never a map**,
+  so the document is byte-stable and git-diffable independent of Go's marshaling. All numerics are
+  `int` (`q`, `r`, `days`, `entryDays`, `id`, `civSeed`, `nextEntityId`); the one fractional civ
+  term (`1.5 + improvement/4`) is **computed at civ time from an integer improvement level, never
+  stored**. A top-level `schemaVersion` gates shape changes — the shape will be iterated as more
+  authored elements are discovered.
+- **Provinces are the only coordinate-addressed entities.** Each province carries axial `(q, r)`,
+  terrain, region, optional `civSeed`, its outgoing `routes` (per-edge `days` / `impassable` /
+  `hidden` / optional `waterName`), and a recursive nesting of authored sub-locations. Everything
+  that is not a province — sub-locations, nobles, items, ships — is an integer **entity number**
+  (GAME-DESIGN §3.2). Only **static** sub-locations (city, town, inn, port-city, island, tower,
+  temple, mine, castle) appear in the artifact.
+- **`woly` mints entity numbers; the source carries UUIDs.** Worldographer identifies
+  sub-locations by **UUID**; `woly` deterministically mints a **contiguous block of integer
+  entity numbers** (stable sort: containing `(q, r)`, then nesting order, then UUID as tiebreak)
+  and records each source UUID as provenance. The artifact records **`nextEntityId`** — the
+  high-water mark — so the engine's runtime minter (`FORM`, ship-build, item creation) continues
+  past the authored block without collision. This ties into the State-storage entity-number
+  allocation counter pinned above.
+- **Import is a pure full-rebuild.** `woly` always produces a **complete** artifact from the
+  source; it never reads, updates, or extends a prior artifact. Same source → byte-identical
+  output. Consequence: entity numbers are stable **within** an import but may renumber if the
+  source is edited and re-imported, so a map is **frozen before a game begins**.
+- **Offset→axial is fixed: odd-q, vertical layout, flat-top.** `q = col`,
+  `r = row − (col − (col & 1)) / 2`. The GM pins one Worldographer hex to one axial coordinate via
+  `woly --x-y X,Y --q-r Q,R`; re-centering is done **in axial space** (convert both hexes, subtract),
+  because `r` depends nonlinearly on `col`.
+- **Mobility lives in state, not the map.** The artifact is immutable. "Where is entity X *now*"
+  (a ship sailing province→province, a noble entering a city) is a **containment pointer**
+  (`in: province[q,r]` *or* `in: entity[id]`) in the per-turn snapshot (GAME-DESIGN §9.2). The
+  engine loads the static authored tree and **normalizes it into that same containment relation**,
+  so static and mobile location share one mechanism internally.
+
+This closes the **Map artifact format** open row. The descriptive schema is promoted to
+[`reference/model/map-artifact.md`](../content/reference/model/map-artifact.md); the `MapSource`
+port stays *planned* in AGENTS.md until the adapter is built under `internal/infra/`. `woly` is its
+own composition root (`cmd/woly`), reusing the `internal/domain` hex types so coordinate math has a
+single source of truth. (GAME-DESIGN §2.1/§2.9, §3.2, §9.2.)

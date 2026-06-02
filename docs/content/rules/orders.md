@@ -472,10 +472,10 @@ Seen here:
   Candide [1269]
 
 Inner locations:
-  Hooting Own Inn [ep76], inn
+  Hooting Own Inn [3102], inn
 ```
 
-Both Osswid and Candid issue `move ep76` as their first order on day 1 of the month. What happens?
+Both Osswid and Candid issue `move 3102` as their first order on day 1 of the month. What happens?
 
 Osswid's command begins before Candide's, since Osswid appears before Candid in the location list. Therefore, Osswid will enter the inn first.
 

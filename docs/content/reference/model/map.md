@@ -4,7 +4,8 @@ weight: 1
 prev: /reference/model
 ---
 
-The world is a square grid of **provinces**. Each province has a terrain type, a
+The world is a grid of flat-topped **hexagonal provinces** — each adjacent to up
+to six others, one across each edge. Each province has a terrain type, a
 civilization level, the **region** it belongs to, a set of outgoing routes, and
 zero or more inner sub-locations.
 
@@ -26,23 +27,24 @@ zero or more inner sub-locations.
 
 ## Province identity and coordinates
 
-- A province's identity is a **one-based `(row, col)` integer pair**. `(1, 1)` is
-  the top-left (northwest) corner; rows increase **south**, columns increase
-  **east**, out to `(n, n)`.
-- The bracketed **display code** (e.g. `a1`, `ae48`) is presentation only. No
-  rule depends on it; the province *is* its `(row, col)` pair.
-- A display code is the **row letters followed by the column number**,
-  compressed: no fixed width, no leading zeros.
-  - The **row** is a bijective base-22 numeral over the alphabet
-    `a b c d e f g h k m n p q r s t u v w x y z` (the Latin alphabet without
-    `i`, `j`, `l`, `o`). `a` = 1 … `z` = 22, `aa` = 23, `ab` = 24, …. There is no
-    zero digit and no upper bound.
-  - The **column** is a plain decimal ordinal.
-  - `(1, 1)` renders as `a1`.
-- Sub-location codes are arbitrary and carry **no** coordinate meaning.
+- A province's identity is its **axial coordinate `(q, r)`** — a pair of signed
+  integers (Red Blob Games flat-top axial convention). The implied third cube
+  axis is `s = −q − r`.
+- The **origin `(0, 0)`** is a hex near the centre of the authored world (the
+  GM's choice). Coordinates run negative and positive in every direction; the
+  world can extend outward without renumbering.
+- The bracketed **display code** *is* the coordinate, printed as `[q,r]` (e.g.
+  `[8,-5]`, `[0,0]`). No rule depends on a separate encoding; the province *is*
+  its `(q, r)` pair.
+  - **Emit strict:** the canonical form has no spaces, no leading `+`, and `-0`
+    normalised to `0`.
+  - **Accept lenient:** order-file parsing tolerates interior whitespace
+    (`[ 8 , -5 ]`) and normalises to canonical.
+- Sub-location codes are **entity numbers** (see the entity model), not
+  coordinates, and carry **no** spatial meaning.
 
-For the encode/decode procedure and the reasoning behind the scheme, see
-[Map coordinate compression]({{< relref "/explanation/map-coordinates" >}}).
+For the reasoning behind axial hex coordinates and the central origin, see
+[Map coordinates]({{< relref "/explanation/map-coordinates" >}}).
 
 ## Terrain
 
@@ -55,8 +57,23 @@ defense, sighting) are not specified in this reference.
 
 ## Routes and movement
 
-- Provinces are adjacent in the **four orthogonal directions** (north, east,
-  south, west). Diagonal travel costs two moves. Map edges are impassable.
+- Each province has **up to six edges**, in the directions **North, Northeast,
+  Southeast, South, Southwest, Northwest**. There is no due east or west and no
+  diagonal travel: a step crosses exactly one edge, and the six edges are
+  structurally equal — none costs extra for its direction. The axial direction
+  vectors are:
+
+  | Direction | Abbr | Δ(q, r) |
+  | --------- | ---- | ------- |
+  | North     | N    | (0, −1) |
+  | Northeast | NE   | (+1, −1) |
+  | Southeast | SE   | (+1, 0)  |
+  | South     | S    | (0, +1)  |
+  | Southwest | SW   | (−1, +1) |
+  | Northwest | NW   | (−1, 0)  |
+
+  Where the authored world ends, a province simply has no route in that
+  direction (a hole).
 - Each route carries a **nominal cost in whole days**, authored per route.
 - Land travel auto-selects the **fastest available mode**: horseback when the
   whole party can be mounted, otherwise on foot; rough terrain may negate the
@@ -117,9 +134,9 @@ civ(p) = max( buildings(p), floor( maxNeighborCiv / 2 ) )
   | Inn        | 1                             |
   | Mine       | 1                             |
 
-- **`maxNeighborCiv`** is the maximum civ level among the four orthogonal
-  neighbors, **read from the previous turn's values**. Off-map and hole
-  neighbors count as `0`. The computation is a single pass with no fixpoint, so
+- **`maxNeighborCiv`** is the maximum civ level among the **six hex-adjacent
+  neighbours**, **read from the previous turn's values**. Missing and hole
+  neighbours count as `0`. The computation is a single pass with no fixpoint, so
   civilization spreads at most one hop per turn.
 - At turn zero, civ comes from the authored map; absent an authored value, the
   first computation uses `buildings(p)` only.
@@ -128,5 +145,7 @@ civ(p) = max( buildings(p), floor( maxNeighborCiv / 2 ) )
 
 - [Geography & Movement]({{< relref "/rules/geography" >}}) — the player-facing
   rulebook these facts are distilled from.
-- [Map coordinate compression]({{< relref "/explanation/map-coordinates" >}}) —
-  why identity and display code are kept separate.
+- [Map artifact format]({{< relref "/reference/model/map-artifact" >}}) — the
+  JSON the `MapSource` port loads these facts from.
+- [Map coordinates]({{< relref "/explanation/map-coordinates" >}}) — why axial
+  hex coordinates and a central origin.

@@ -24,8 +24,8 @@ Status legend: ✅ decided · 🟡 partially specified · ❓ open question, und
 
 ## 2. The map 🟡
 
-The world is a square grid of **provinces** grouped into named **regions**. Provinces may
-contain **inner locations** (cities, inns, ports, …). This section records the decisions
+The world is a grid of flat-topped hexagonal **provinces** grouped into named **regions**.
+Provinces may contain **inner locations** (cities, inns, ports, …). This section records the decisions
 that turn the [Geography & Movement](docs/content/rules/geography.md) rulebook draft into a
 buildable model. Spatial flavor (terrain *yields*, special realms) is deferred where noted. §2
 is **geometry only**: a province's non-spatial attributes — tax base, ownership, buildings,
@@ -59,30 +59,42 @@ garrisons, rank — are political/economic and live in §5 (Provinces & territor
 
 ### 2.2 Coordinates & addressing ✅
 
-- A province's identity is **numeric, one-based `(row, col)`**. The bracketed code (`[a1]`,
-  `[aa1]`) is **cosmetic display formatting**, not the identity.
-- The coordinate space runs from `(1, 1)` in the **top-left (NW) corner** to `(n, n)`; rows
-  increase **south**, columns increase **east**. Map dimensions are the GM's choice (§2.1).
-- **Display code = row letters + column number**, "compressed" — no fixed width, no leading
-  zeros. The top-left province `(1, 1)` renders as **`a1`**, *not* the rulebook's `aa00`
-  (which is dropped).
-  - **Row** is a **bijective base-22** numeral over the alphabet
-    `a b c d e f g h k m n p q r s t u v w x y z` (a–z minus `i`, `j`, `l`, `o`, which read as
-    `1`/`0`). So `a`=1 … `z`=22, then `aa`=23, `ab`=24, …; **two-letter rows begin at row 23**
-    (bijective numbering has no zero digit). No hard cap — the code simply grows a letter
-    (`aaa`=507) for very large maps.
-  - **Column** is a plain decimal ordinal (`1`, `2`, …), written without leading zeros.
-- **GM convention:** the world origin is the GM's choice, but maps are typically laid out with
-  **`aa1` at the upper-left = `(row 23, col 1)`**, leaving rows 1–22 (`a`–`z`) as northern
-  margin. The engine stores only `(row, col)` and is indifferent to the convention.
-- Map edges are impassable. Sub-location codes are arbitrary and carry **no** coordinate
-  meaning.
+- The map is a grid of **flat-topped hexagons**. Each province has **up to six neighbours**,
+  one across each edge: **North, Northeast, Southeast, South, Southwest, Northwest**. There is
+  no due east or west and **no diagonal movement** — every step crosses exactly one edge.
+- A province's identity is its **axial coordinate `(q, r)`** (Red Blob Games convention:
+  flat-top, axial). `q` and `r` are signed integers; the implied third cube axis is
+  `s = −q − r`. The bracketed code in reports **is** that pair, printed as `[q,r]`
+  (e.g. `[8,-5]`) — there is no separate cosmetic encoding layer.
+- The **origin `(0, 0)` is a hex near the centre of the authored world**, chosen by the GM.
+  Coordinates therefore run **negative and positive in every direction**, and the world can
+  extend indefinitely outward without renumbering. Map dimensions are a property of the
+  authored map (§2.1).
+- **Direction vectors** (screen-true for flat-top — North is straight up on the GM's map):
 
-> **Rulebook reconciled ✅:** the coordinate prose, ASCII grid, row sequence, and edge example
-> in `geography.md`, plus the *Map coordinates* glossary entry, have been regenerated against
-> this one-based, compressed scheme — `a1` origin, variable width, no leading zeros, and the
-> `abcdefghkmnpqrstuvwxyz` row letters. The earlier `sail south` typo fix in `geography.md`
-> (was `sail e`) landed in the same pass.
+  | Direction | Abbr | Δ(q, r) |
+  | --------- | ---- | ------- |
+  | North     | N    | (0, −1) |
+  | Northeast | NE   | (+1, −1) |
+  | Southeast | SE   | (+1, 0)  |
+  | South     | S    | (0, +1)  |
+  | Southwest | SW   | (−1, +1) |
+  | Northwest | NW   | (−1, 0)  |
+
+- **Display grammar — emit strict, accept lenient.** The engine *emits* the canonical form
+  `[q,r]`: no spaces, no leading `+`, `-0` normalised to `0` (e.g. `[8,-5]`, `[0,0]`).
+  Order-file parsing *accepts* lenient input — interior whitespace tolerated (`[ 8 , -5 ]`) —
+  and normalises to canonical. Province references in orders use this bracketed form, copied
+  straight from the report's route list.
+- There are **no "off-map edges"** in the old finite-grid sense: where the authored world ends,
+  a province simply has no route in that direction (a hole, §2.6). Sub-location codes are
+  **entity numbers** (§3.2), not coordinates, and carry no spatial meaning.
+
+> **Rulebook reconciled ✅:** the square-grid model is retired. `geography.md`,
+> `reference/model/map.md`, the *Map coordinates* glossary entry, and the `map-coordinates`
+> explanation have been regenerated for flat-top hexes with axial `[q,r]` identity, a central
+> `[0,0]` origin, six structurally-equal edges, and the screen-true direction vectors above.
+> The earlier one-based `(row, col)` / bijective base-22 `[ae48]` scheme is gone.
 
 ### 2.3 Terrain ✅ / 🟡
 
@@ -92,9 +104,12 @@ garrisons, rank — are political/economic and live in §5 (Provinces & territor
 
 ### 2.4 Movement & travel time 🟡
 
-- Movement is in the **four orthogonal directions**; diagonals cost two `MOVE`s. Land travel
-  auto-selects the **fastest available mode** (horseback when the whole party can be mounted;
-  rough terrain may negate the horse benefit). Ocean travel requires a ship. ✅
+- Movement crosses **hex edges in the six directions** (N, NE, SE, S, SW, NW; §2.2). There are
+  no diagonals: each step crosses exactly one edge, and the six edges are **structurally
+  equal** — none costs extra by virtue of its direction (an edge may, however, be impassable
+  or hidden, §2.6, and its authored day cost varies with terrain). Land travel auto-selects the
+  **fastest available mode** (horseback when the whole party can be mounted; rough terrain may
+  negate the horse benefit). Ocean travel requires a ship. ✅
 - Each route carries a **nominal cost in days** (authored per route). ✅
 - Actual cost = nominal, modified by transport mode, terrain, and **weather**. Per the
   travel-time decision, this variance is **deterministic given the recorded RNG state in the
@@ -127,10 +142,10 @@ garrisons, rank — are political/economic and live in §5 (Provinces & territor
   - `buildings(p)` sums the contribution table (Safe Haven 2; Castle 1.5 + improvement/4;
     City / Tower / Temple / Inn / Mine each 1), counting only the **first of each type**,
     fractions dropped after summing;
-  - `maxNeighborCiv` is the max civ among the **four orthogonal neighbors** (off-map and hole
-    neighbors count as 0), **read from the previous turn's values** — a **single pass, no
+  - `maxNeighborCiv` is the max civ among the **six hex-adjacent neighbours** (missing and hole
+    neighbours count as 0), **read from the previous turn's values** — a **single pass, no
     fixpoint**. Civilization therefore spreads **one hop per turn**.
-- "Surrounding provinces" is pinned to the 4 orthogonal neighbors (consistent with movement);
+- "Surrounding provinces" is pinned to the six hex neighbours (consistent with movement);
   this was unspecified in the rulebook. 🟡 confirm the gradual one-hop spread is desired.
 - Initialization: turn-zero civ comes from the authored map; absent an authored value, the
   first computation uses `buildings(p)` only.
@@ -200,10 +215,10 @@ vocabulary.
 - **Noble** and **Character** are synonyms; the domain's canonical term is **noble**. ✅ A noble is
   the only **unit that accepts orders** — every player order is addressed to a noble. ✅
 - A noble's **identity is its entity number** — an opaque integer shown in brackets after its name
-  (`Osswid the Destroyer [5499]`). Unlike a **province**, whose identity is its `(row, col)` and
-  whose bracketed code is merely cosmetic (§2.2), **for a noble the number *is* the identity**.
+  (`Osswid the Destroyer [5499]`). Unlike a **province**, whose identity is its axial `(q, r)`
+  coordinate printed directly as `[q,r]` (§2.2), **for a noble the number *is* the identity**.
 - **Namespace split (decided):** addressable entities fall into **two** identity spaces —
-  - **provinces** → spatial `(row, col)` (§2.2);
+  - **provinces** → spatial axial `(q, r)` (§2.2);
   - **everything else** (nobles, items, skills, sub-locations) → a single **entity-number**
     namespace.
 
@@ -364,7 +379,7 @@ and §3.4 (which calls items *possessions, not entities*). Items take **two repr
   three entities). This is the **same mechanism** as typed-count men (§3.4) — men are simply rows in
   the same table that happen to fight.
 - **Unique items** — each a distinct entity with its own **minted entity number** (a scroll
-  `[yq12]`, a magical weapon, a relic, a `Body`). They carry **per-instance state** and never combine.
+  `[7612]`, a magical weapon, a relic, a `Body`). They carry **per-instance state** and never combine.
 
 - **Reconciliation (decided):** the number on a fungible item (`gold [1]`) is its **type** code,
   shared by every holder — *not* a per-instance identity. So fungible items are "possessions modeled
@@ -1447,7 +1462,7 @@ construction), §7 (Shipcraft mechanics, storm magic), §8 (combat at sea), §10
 ### 9.2 Ships as entities: ownership, occupants & cargo ✅ (model) / 🟡 (capacity accounting)
 
 - A ship is an **entity** in the entity-number space (§3.2), minted a fresh number when built — **not**
-  a province `(row, col)` and **not** a static sub-location. Yet functionally it **acts as a location**:
+  a province `(q, r)` and **not** a static sub-location. Yet functionally it **acts as a location**:
   nobles (with their men and items) stack *inside* it, and when it sails the whole contents move with
   it. The map model (§2) must therefore represent "inside ship `[n]`" as a **containment edge keyed by
   entity number**, distinct from province coordinates and authored sub-location codes. ✅
@@ -2106,7 +2121,7 @@ top-level **roster and ordering is 🟡**. The working structure:
    §11.4) consumed no time. Own-unit detail includes **Inventory** and **skills** listings in the rulebook's
    tabular form (§7, [skills-magic.md](docs/content/rules/skills-magic.md)). ✅
 3. **Per-location reports** — one block per location the faction can see (§12.2), each in the
-   [geography.md](docs/content/rules/geography.md) shape: the location line (`Plain [ae48], plain, in region
+   [geography.md](docs/content/rules/geography.md) shape: the location line (`Plain [8,-5], plain, in region
    Tollus, civ-1`), **Routes leaving** (with hidden routes per §2.6), **Inner locations**, **Skills taught
    here** (§7.x), **Seen here** (§12.4), **Ships docked at port** (§9), and the **Market report** (§6.6). A
    block omits sub-sections that are empty. ✅
@@ -2146,7 +2161,7 @@ domain concern. Standardized for opyl:
   2-space indent unit** for every nesting level (routes under a location, stacked units under their parent,
   listings under their heading). ✅
 - **Entity codes in brackets** trail every name (`Osswid the Destroyer [5499]`, `Gold [1]`, `City of the
-  Lost [gx14]`), per [playing.md](docs/content/rules/playing.md). ✅
+  Lost [8814]`), per [playing.md](docs/content/rules/playing.md). ✅
 - The **PDF** product is a typeset rendering of the same `PlayerReport` and is **not** column-bound; the
   **JSON** product (§12.6) is structured data and carries no layout at all. The 80-column / 2-space contract
   binds the **text renderer only**. ✅

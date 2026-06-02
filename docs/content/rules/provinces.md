@@ -45,7 +45,7 @@ Visitors to a province are informed of the castle to which the garrison is bound
 
 ```report
 Province controlled by Amber Keep [0909], castle, in Forest
-  [cj12]
+  [3,7]
 Ruled by Erekosse [5210], baron
 ...
 Seen here:
@@ -120,7 +120,7 @@ Visitors to this province would see:
 
 ```
 Province controlled by Amber Keep [0909], castle, in Forest
-  [cj12]
+  [3,7]
 Ruled by Erekosse [5210], baron
 ```
 

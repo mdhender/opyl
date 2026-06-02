@@ -183,8 +183,10 @@ go test ./...
 For SOUSA conformance, also spot-check imports:
 
 ```sh
-# Domain must not import outward.
-go list -deps ./internal/domain/... | grep mdhender/opyl/internal/ | grep -v /domain
+# Domain must not import outward. cerr is part of the innermost layer
+# (sentinel errors are a Domain concern), so domain may import it; the
+# check excludes both domain and cerr and flags any other internal import.
+go list -deps ./internal/domain/... | grep mdhender/opyl/internal/ | grep -vE '/(domain|cerr)'
 # (should print nothing)
 
 # App must not import infra, delivery, or runtime.

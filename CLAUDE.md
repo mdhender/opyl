@@ -25,8 +25,10 @@ go test ./internal/app/ -run TestProcessTurn   # single package / test
 (cd docs && hugo --quiet)        # production build
 (cd docs && hugo server -D)      # local preview at http://localhost:1313
 
-# SOUSA import conformance — both must print nothing
-go list -deps ./internal/domain/... | grep mdhender/opyl/internal/ | grep -v /domain
+# SOUSA import conformance — both must print nothing.
+# domain and cerr are both the innermost layer, so domain may import cerr;
+# the check excludes both and flags any other internal import.
+go list -deps ./internal/domain/... | grep mdhender/opyl/internal/ | grep -vE '/(domain|cerr)'
 go list -deps ./internal/app/... | grep -E 'mdhender/opyl/internal/(infra|delivery)'
 ```
 

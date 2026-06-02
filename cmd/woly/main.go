@@ -154,16 +154,23 @@ func run(args []string) error {
 	rnd := prng.NewFromSeed(42, 43)
 
 	// iterate through all the Worldographer terrain tiles
-	for r, row := range w.Tiles.Tiles {
-		if row == nil {
+	for _, cells := range w.Tiles.Tiles {
+		if cells == nil {
 			continue
 		}
-		for c, col := range row {
-			if col == nil {
+		for _, cell := range cells {
+			if cell == nil {
 				continue
 			}
-			index, label := col.Terrain, indexToLabel[col.Terrain]
-			fmt.Printf("(%4d,%4d) => (%4d,%4d) %2d %q\n", r, c, col.Row, col.Column, index, label)
+
+			index, label := cell.Terrain, indexToLabel[cell.Terrain]
+
+			// convert Worldographer coordinates to axial
+			xCell, yCell := cell.Column, cell.Row
+			axial := (domain.Offset{Col: xCell, Row: yCell}).ToAxial().Add(delta)
+			qCell, rCell := axial.Q, axial.R
+
+			fmt.Printf("(%4d,%4d) => (%4d,%4d) %2d %q\n", xCell, yCell, qCell, rCell, index, label)
 
 			keyTile := wxxKeys.Tiles[label]
 			keyTile.Count++

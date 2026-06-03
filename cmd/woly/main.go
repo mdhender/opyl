@@ -49,9 +49,19 @@ func run(args []string) error {
 		source = fs.StringLong("source", "", "path to the Worldographer .wxx source (required)")
 		key    = fs.StringLong("key", "", "path to the opyl-key.json file (required)")
 		out    = fs.StringLong("out", "", "path to write the map artifact JSON (default: stdout)")
-		xy     = fs.StringLong("x-y", "", "Worldographer hex to pin, as X,Y (e.g. 5,8)")
-		qr     = fs.StringLong("q-r", "", "axial coordinate to pin the hex to, as Q,R (e.g. 0,0)")
+		xy     coordPair
+		qr     coordPair
 	)
+	// pinFlag registers a coordPair flag with an explicit placeholder; like
+	// ff's typed definers, a static misconfiguration here is a programming bug,
+	// so panic rather than thread an error through run.
+	pinFlag := func(long, placeholder, usage string, v *coordPair) {
+		if _, err := fs.AddFlag(ff.FlagConfig{LongName: long, Value: v, Placeholder: placeholder, Usage: usage}); err != nil {
+			panic(err)
+		}
+	}
+	pinFlag("x-y", "X,Y", "Worldographer hex to pin (e.g. 5,8)", &xy)
+	pinFlag("q-r", "Q,R", "axial coordinate to pin the hex to (e.g. 0,0)", &qr)
 	if err := ff.Parse(fs, args); err != nil {
 		if errors.Is(err, ff.ErrHelp) {
 			usage(os.Stderr, fs)
@@ -73,20 +83,12 @@ func run(args []string) error {
 	// every hex by their difference. Raw offset subtraction is wrong because
 	// r depends nonlinearly on the column (map-artifact.md).
 	delta := domain.Coord{Q: 0, R: 0}
-	if (*xy == "") != (*qr == "") {
-		return fmt.Errorf("-x-y and -q-r must be given together")
+	if xy.set != qr.set {
+		return fmt.Errorf("--x-y and --q-r must be given together")
 	}
-	if *xy != "" {
-		x, y, err := parsePair(*xy)
-		if err != nil {
-			return fmt.Errorf("-x-y: %w", err)
-		}
-		q, r, err := parsePair(*qr)
-		if err != nil {
-			return fmt.Errorf("-q-r: %w", err)
-		}
-		pinHex := domain.Offset{Col: x, Row: y}
-		pinTo := domain.Coord{Q: q, R: r}
+	if xy.set {
+		pinHex := domain.Offset{Col: xy.a, Row: xy.b}
+		pinTo := domain.Coord{Q: qr.a, R: qr.b}
 		delta = pinTo.Sub(pinHex.ToAxial())
 	}
 
@@ -406,6 +408,32 @@ func run(args []string) error {
 	}
 
 	return fmt.Errorf("Worldographer .wxx import is not yet implemented")
+}
+
+// coordPair is the flag.Value behind the pin flags --x-y and --q-r. It parses
+// an "A,B" pair of integers and records whether the flag was set, so run can
+// enforce that the two pin flags are supplied together. The pair is coordinate
+// system agnostic: run reads it as a Worldographer offset for --x-y and as an
+// axial coordinate for --q-r.
+type coordPair struct {
+	a, b int
+	set  bool
+}
+
+func (c *coordPair) Set(s string) error {
+	a, b, err := parsePair(s)
+	if err != nil {
+		return err
+	}
+	c.a, c.b, c.set = a, b, true
+	return nil
+}
+
+func (c *coordPair) String() string {
+	if c == nil || !c.set {
+		return ""
+	}
+	return fmt.Sprintf("%d,%d", c.a, c.b)
 }
 
 // parsePair parses an "A,B" pair of integers, tolerating surrounding

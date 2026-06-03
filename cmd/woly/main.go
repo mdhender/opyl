@@ -11,13 +11,16 @@
 // The full importer is not built yet. This scaffold parses the pin flags,
 // resolves them through the domain hex types, and reports what it would do.
 //
+// Flags are parsed with peterbourgon/ff: long names take a double dash
+// (--source), matching the invocation forms shown in the reference docs.
+//
 // See docs/content/reference/model/map-artifact.md for the artifact shape
 // and the offset→axial conversion woly performs.
 package main
 
 import (
 	"encoding/json"
-	"flag"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -29,6 +32,8 @@ import (
 	"github.com/maloquacious/wxx/xmlio"
 	"github.com/mdhender/opyl/internal/domain"
 	"github.com/mdhender/opyl/internal/infra/prng"
+	"github.com/peterbourgon/ff/v4"
+	"github.com/peterbourgon/ff/v4/ffhelp"
 )
 
 func main() {
@@ -39,25 +44,28 @@ func main() {
 }
 
 func run(args []string) error {
-	fs := flag.NewFlagSet("woly", flag.ContinueOnError)
-	fs.Usage = func() { usage(fs.Output()) }
+	fs := ff.NewFlagSet("woly")
 	var (
-		source = fs.String("source", "", "path to the Worldographer .wxx source (required)")
-		key    = fs.String("key", "", "path to the opyl-key.json file (required)")
-		out    = fs.String("out", "", "path to write the map artifact JSON (default: stdout)")
-		xy     = fs.String("x-y", "", "Worldographer hex to pin, as X,Y (e.g. 5,8)")
-		qr     = fs.String("q-r", "", "axial coordinate to pin the hex to, as Q,R (e.g. 0,0)")
+		source = fs.StringLong("source", "", "path to the Worldographer .wxx source (required)")
+		key    = fs.StringLong("key", "", "path to the opyl-key.json file (required)")
+		out    = fs.StringLong("out", "", "path to write the map artifact JSON (default: stdout)")
+		xy     = fs.StringLong("x-y", "", "Worldographer hex to pin, as X,Y (e.g. 5,8)")
+		qr     = fs.StringLong("q-r", "", "axial coordinate to pin the hex to, as Q,R (e.g. 0,0)")
 	)
-	if err := fs.Parse(args); err != nil {
+	if err := ff.Parse(fs, args); err != nil {
+		if errors.Is(err, ff.ErrHelp) {
+			usage(os.Stderr, fs)
+			return nil
+		}
 		return err
 	}
 	if *source == "" {
-		fs.Usage()
-		return fmt.Errorf("missing required -source")
+		usage(os.Stderr, fs)
+		return fmt.Errorf("missing required --source")
 	}
 	if *key == "" {
-		fs.Usage()
-		return fmt.Errorf("missing required -key")
+		usage(os.Stderr, fs)
+		return fmt.Errorf("missing required --key")
 	}
 
 	// The pin re-centres the world in axial space: convert both the pinned
@@ -381,13 +389,11 @@ func run(args []string) error {
 				t.Terrain = domain.TerrLand
 				fmt.Println(`todo: implement create a city here`)
 				//fmt.Println(`create_a_city(row, col, NULL, true)`)
-				break
 
 			case "%":
 				t.Terrain = domain.TerrLand
 				fmt.Println(`todo: implement create a city here`)
 				//fmt.Println(`create_a_city(row, col, NULL, true)`)
-				break
 
 			default:
 				panic(fmt.Sprintf("unknown terrain %q", t.Glyph))
@@ -420,19 +426,15 @@ func parsePair(s string) (int, int, error) {
 	return ai, bi, nil
 }
 
-func usage(w io.Writer) {
+// usage writes the command banner followed by the ff-rendered flag list, so
+// the flag help stays in sync with the definitions in run automatically.
+func usage(w io.Writer, fs *ff.FlagSet) {
 	_, _ = fmt.Fprintln(w, `woly — build the opyl map artifact from a Worldographer source
 
 Usage:
-  woly -source MAP.wxx [-out ARTIFACT.json] [-x-y X,Y -q-r Q,R]
-
-Flags:
-  -source   path to the Worldographer .wxx source (required)
-  -out      path to write the map artifact JSON (default: stdout)
-  -x-y      Worldographer hex to pin, as X,Y (e.g. 5,8)
-  -q-r      axial coordinate to pin the hex to, as Q,R (e.g. 0,0)
-
-woly emits a complete, deterministic artifact from the source; it never
+  woly --source MAP.wxx --key KEY.json [--out ARTIFACT.json] [--x-y X,Y --q-r Q,R]`)
+	_, _ = fmt.Fprintf(w, "\n%s\n", ffhelp.Flags(fs))
+	_, _ = fmt.Fprintln(w, `woly emits a complete, deterministic artifact from the source; it never
 reads or extends a prior one. See docs/content/reference/model/map-artifact.md
 and docs/adr ADR 0004.`)
 }

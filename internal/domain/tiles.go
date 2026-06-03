@@ -3,6 +3,7 @@
 package domain
 
 type Tile struct {
+	Q, R    int    // axial coordiates
 	Glyph   string // original Worldographer map glyph
 	Region  string
 	Name    string

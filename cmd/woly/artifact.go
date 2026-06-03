@@ -55,7 +55,9 @@ type AxialQR struct {
 
 // Region is a named collection of provinces.
 type Region struct {
-	ID   string `json:"id"`   // stable slug; referenced by Province.Region
+	ID   string `json:"id"` // stable slug; referenced by Province.Region
+	Q    int    `json:"q"`  // axial coordinate; the region's identity
+	R    int    `json:"r"`
 	Name string `json:"name"` // display name
 	Kind string `json:"kind"` // normal · hades · faery · cloudlands
 }

@@ -78,6 +78,10 @@ func run(args []string) error {
 		return fmt.Errorf("missing required --key")
 	}
 
+	artifact := Artifact{
+		SchemaVersion: CurrentSchemaVersion,
+	}
+
 	// The pin re-centres the world in axial space: convert both the pinned
 	// Worldographer hex and the target coordinate to axial, then translate
 	// every hex by their difference. Raw offset subtraction is wrong because
@@ -91,6 +95,10 @@ func run(args []string) error {
 		pinTo := domain.Coord{Q: qr.a, R: qr.b}
 		delta = pinTo.Sub(pinHex.ToAxial())
 	}
+	artifact.Origin = Origin{
+		WXY: OffsetXY{X: xy.a, Y: xy.b},
+		QR:  AxialQR{Q: qr.a, R: qr.b},
+	}
 
 	dest := "stdout"
 	if *out != "" {
@@ -99,24 +107,44 @@ func run(args []string) error {
 	_, _ = fmt.Fprintf(os.Stderr, "woly: source %s . %s; axial pin offset %s\n", *source, dest, delta)
 
 	// load the key file
-	type tile struct {
-		Code  string
-		Kind  string
-		Count int
-	}
-	wxxKeys := struct {
-		TerrainNames []string // wxx terrain names, sorted
-		Tiles        map[string]*tile
-	}{
-		Tiles: map[string]*tile{},
+	mapKeys := MapKey{
+		Regions:  map[string]*MapRegion{},
+		Terrains: map[string]*TerrainData{},
 	}
 	if data, err := os.ReadFile(*key); err != nil {
 		fmt.Printf("\t%v\n", err)
 		return err
-	} else if err = json.Unmarshal(data, &wxxKeys); err != nil {
+	} else if err = json.Unmarshal(data, &mapKeys); err != nil {
 		fmt.Printf("\t%v\n", err)
 		return err
+	} else { // normalize
+		for k, v := range mapKeys.Regions {
+			v.Name = k
+		}
+		for k, v := range mapKeys.Terrains {
+			v.Label = k
+		}
 	}
+
+	for _, v := range mapKeys.Regions {
+		axial := (domain.Offset{Col: v.Coords.X, Row: v.Coords.Y}).ToAxial().Add(delta)
+		artifact.Regions = append(artifact.Regions, Region{
+			ID:   fmt.Sprintf("%d,%d", axial.Q, axial.R),
+			Q:    axial.Q,
+			R:    axial.R,
+			Name: v.Name,
+			Kind: "normal",
+		})
+	}
+	sort.Slice(artifact.Regions, func(i, j int) bool {
+		if artifact.Regions[i].Q < artifact.Regions[j].Q {
+			return true
+		}
+		if artifact.Regions[i].Q == artifact.Regions[j].Q {
+			return artifact.Regions[i].R < artifact.Regions[j].R
+		}
+		return false
+	})
 
 	// TODO: parse the .wxx source behind an internal/infra adapter, apply
 	// `delta` to every province's axial coordinate, mint entity numbers for
@@ -145,25 +173,28 @@ func run(args []string) error {
 	fmt.Printf("\t%8d terrain tiles defined\n", len(w.TerrainMap.List))
 
 	// verify the map the Worldographer terrain to opyl terrain
-	indexToLabel := map[int]string{}
 	unknownTiles := 0
+	mapKeys.Indexes = make([]string, len(w.TerrainMap.List), len(w.TerrainMap.List))
 	for _, terrain := range w.TerrainMap.List {
-		if _, ok := wxxKeys.Tiles[terrain.Label]; !ok {
+		key, ok := mapKeys.Terrains[terrain.Label]
+		if !ok {
 			fmt.Printf("\tterrain %-55q not defined in opyl\n", terrain.Label)
 			unknownTiles++
 			continue
 		}
-		wxxKeys.TerrainNames = append(wxxKeys.TerrainNames, terrain.Label)
-		indexToLabel[terrain.Index] = terrain.Label
+		key.Label, key.Index = terrain.Label, terrain.Index
+		mapKeys.Labels = append(mapKeys.Labels, key.Label)
+		mapKeys.Indexes[key.Index] = key.Label
 	}
 	if unknownTiles != 0 {
 		return fmt.Errorf(".wxx file contains unknown terrain")
 	}
-	sort.Strings(wxxKeys.TerrainNames)
+	sort.Strings(mapKeys.Labels)
 
+	// force a seed; later the GM will be able to specify it.
 	rnd := prng.NewFromSeed(42, 43)
 
-	// iterate through all the Worldographer terrain tiles
+	mapTiles := map[AxialQR]*domain.Tile{}
 	for _, cells := range w.Tiles.Tiles {
 		if cells == nil {
 			continue
@@ -173,19 +204,16 @@ func run(args []string) error {
 				continue
 			}
 
-			index, label := cell.Terrain, indexToLabel[cell.Terrain]
+			label := mapKeys.Indexes[cell.Terrain]
 
 			// convert Worldographer coordinates to axial
 			xCell, yCell := cell.Column, cell.Row
 			axial := (domain.Offset{Col: xCell, Row: yCell}).ToAxial().Add(delta)
-			qCell, rCell := axial.Q, axial.R
 
-			fmt.Printf("(%4d,%4d) => (%4d,%4d) %2d %q\n", xCell, yCell, qCell, rCell, index, label)
+			tileData := mapKeys.Terrains[label]
+			tileData.Count++
 
-			keyTile := wxxKeys.Tiles[label]
-			keyTile.Count++
-
-			t := domain.Tile{Glyph: keyTile.Code}
+			t := &domain.Tile{Q: axial.Q, R: axial.R, Glyph: tileData.Glyph}
 			switch t.Glyph {
 			case ";":
 				t.Terrain = domain.TerrOcean
@@ -400,11 +428,41 @@ func run(args []string) error {
 			default:
 				panic(fmt.Sprintf("unknown terrain %q", t.Glyph))
 			}
+
+			mapTiles[AxialQR{Q: t.Q, R: t.R}] = t
 		}
 	}
-	for _, terrainName := range wxxKeys.TerrainNames {
-		tileKey, _ := wxxKeys.Tiles[terrainName]
-		fmt.Printf("\tterrain %6d %-55q maps to %q\n", tileKey.Count, terrainName, tileKey.Kind)
+
+	for _, label := range mapKeys.Labels {
+		tileData, _ := mapKeys.Terrains[label]
+		fmt.Printf("\tterrain %6d %-55q maps to %q\n", tileData.Count, label, tileData.Kind)
+	}
+
+	// convert the map tile data to artifact provinces
+	for _, mapTile := range mapTiles {
+		province := Province{
+			Q:       mapTile.Q,
+			R:       mapTile.R,
+			Terrain: mapTile.Terrain.String(),
+		}
+		artifact.Provinces = append(artifact.Provinces, province)
+	}
+	sort.Slice(artifact.Provinces, func(i, j int) bool {
+		if artifact.Provinces[i].Q < artifact.Provinces[j].Q {
+			return true
+		}
+		if artifact.Provinces[i].Q == artifact.Provinces[j].Q {
+			return artifact.Provinces[i].R < artifact.Provinces[j].R
+		}
+		return false
+	})
+
+	if buf, err := json.MarshalIndent(artifact, "", "  "); err != nil {
+		return err
+	} else if *out == "" {
+		fmt.Printf("%s\n", buf)
+	} else if err = os.WriteFile(*out, buf, 0644); err != nil {
+		return err
 	}
 
 	return fmt.Errorf("Worldographer .wxx import is not yet implemented")

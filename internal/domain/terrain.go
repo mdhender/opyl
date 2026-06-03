@@ -2,6 +2,8 @@
 
 package domain
 
+import "fmt"
+
 type TerrainCode int
 
 const (
@@ -37,3 +39,71 @@ const (
 	TerrTemple                  = 29
 	TerrLair                    = 30 // dragon lair
 )
+
+func (tc TerrainCode) String() string {
+	switch tc {
+	case TerrBlank:
+		return ""
+	case TerrLand:
+		return "land"
+	case TerrOcean:
+		return "ocean"
+	case TerrForest:
+		return "forest"
+	case TerrSwamp:
+		return "swamp"
+	case TerrMountain:
+		return "mountain"
+	case TerrPlain:
+		return "plain"
+	case TerrDesert:
+		return "desert"
+	case TerrWater:
+		return "water"
+	case TerrIsland:
+		return "island"
+	case TerrStoneCir:
+		return "stonecir"
+	case TerrGrove:
+		return "grove"
+	case TerrBog:
+		return "bog"
+	case TerrCave:
+		return "cave"
+	case TerrCity:
+		return "city"
+	case TerrGuild:
+		return "guild"
+	case TerrGrave:
+		return "grave"
+	case TerrRuins:
+		return "ruins"
+	case TerrBattlefield:
+		return "battlefield"
+	case TerrEnchFor:
+		return "enchfor"
+	case TerrRockyHill:
+		return "rockyhill"
+	case TerrTreeCir:
+		return "treecir"
+	case TerrPits:
+		return "pits"
+	case TerrPasture:
+		return "pasture"
+	case TerrOasis:
+		return "oasis"
+	case TerrYewGrove:
+		return "yewgrove"
+	case TerrSandPit:
+		return "sandpit"
+	case TerrSacGrove:
+		return "sacgrove"
+	case TerrPopField:
+		return "popfield"
+	case TerrTemple:
+		return "temple"
+	case TerrLair:
+		return "lair"
+	}
+	return fmt.Sprintf("terrain(%d)", tc)
+}

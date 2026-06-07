@@ -1,5 +1,7 @@
 package mapgen
 
+import "github.com/mdhender/ottomap/hex"
+
 // Map dimensions and entity-numbering constants, ported verbatim from the
 // legacy C map generator (mapgen.c).
 const (
@@ -135,6 +137,7 @@ type Tile struct {
 	Inside   int
 	Color    int // map coloring
 	Row, Col int
+	Coords   hex.Axial
 	Depth    int
 
 	SafeHaven        int
@@ -151,4 +154,12 @@ type Tile struct {
 	GatesKey  []int // gate keys
 
 	Roads []*Road
+}
+
+// Origin records the pin that maps the Worldographer hex xy to
+// axial qr. It is provenance only; the engine does not need it.
+type Origin struct {
+	XY    OffsetXY `json:"x-y"`
+	QR    AxialQR  `json:"q-r"`
+	Delta AxialQR  `json:"delta"`
 }

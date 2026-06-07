@@ -3,34 +3,53 @@ package mapgen
 import (
 	"bufio"
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/mdhender/opyl/internal/infra/prng"
+	"github.com/mdhender/ottomap"
+	"github.com/mdhender/ottomap/hex"
+	"github.com/mdhender/ottomap/wog"
 )
 
 // Options configures a Generator.
 type Options struct {
 	// InputDir is the directory containing the input files
 	// (Map, Regions, Land, Cities, randseed). Defaults to ".".
-	InputDir string
+	InputDir      string
+	InputMap      string // Defaults to "olympia-g3-source.wxx".
+	InputRandSeed string // Defaults to "randseed".
 	// OutputDir is the directory the output files (loc, gate, road,
 	// randseed) are written to. Defaults to ".".
-	OutputDir string
+	OutputDir      string
+	OutputMap      string // Defaults to "olympia-g3-map.wxx".
+	OutputRandSeed string // Defaults to "randseed".
 	// Log receives the diagnostic output the C program writes to stderr.
 	// Defaults to os.Stderr. Use io.Discard to silence it.
 	Log io.Writer
+	// Origin holds the x,y from the input map and the q,r from the translated map
+	Origin Origin
 }
 
 // Generator holds the entire state of a single map-generation run. It is the
 // direct analogue of the global state in the legacy C program.
 type Generator struct {
-	RNG *RNG
+	RNG  *RNG
+	PRNG *prng.PRNG
 
-	InputDir  string
-	OutputDir string
-	Log       io.Writer
+	InputDir       string
+	InputMap       string
+	InputRandSeed  string
+	OutputDir      string
+	OutputMap      string
+	OutputRandSeed string
+	Log            io.Writer
+
+	Origin Origin
 
 	allocFlag [MaxBox]bool
 	dirVector [MaxDir]int
@@ -45,11 +64,13 @@ type Generator struct {
 	MaxColUsed int
 	MaxRowUsed int
 
-	WaterCount int
-	LandCount  int
-	NumIslands int
+	WaterCount   int
+	LandCount    int
+	UnknownCount int
+	NumIslands   int
 
-	Map [MaxRow][MaxCol]*Tile
+	Map    [MaxRow][MaxCol]*Tile
+	HexMap map[hex.Axial]*Tile
 
 	Subloc    []*Tile // 1-indexed; index 0 unused
 	TopSubloc int
@@ -63,6 +84,7 @@ type Generator struct {
 	citiesReader *bufio.Reader
 	citiesOpened bool
 	citiesFailed bool
+	cityNames    *CityNameGenerator
 
 	// bridge_corner_sup / bridge_map_hole_sup road name counters
 	cornerRoadNameCnt int
@@ -72,17 +94,34 @@ type Generator struct {
 // New returns a Generator configured with opts.
 func New(opts Options) *Generator {
 	g := &Generator{
-		RNG:       NewRNG(),
-		InputDir:  opts.InputDir,
-		OutputDir: opts.OutputDir,
-		Log:       opts.Log,
-		Subloc:    make([]*Tile, MaxSubloc),
+		RNG:            NewRNG(),
+		InputDir:       opts.InputDir,
+		InputMap:       opts.InputMap,
+		InputRandSeed:  opts.InputRandSeed,
+		OutputDir:      opts.OutputDir,
+		OutputMap:      opts.OutputMap,
+		OutputRandSeed: opts.OutputRandSeed,
+		Log:            opts.Log,
+		Subloc:         make([]*Tile, MaxSubloc),
+		HexMap:         map[hex.Axial]*Tile{},
 	}
 	if g.InputDir == "" {
 		g.InputDir = "."
 	}
+	if g.InputMap == "" {
+		g.InputMap = "olympia-g3-source.wxx"
+	}
+	if g.InputRandSeed == "" {
+		g.InputRandSeed = "randseed"
+	}
 	if g.OutputDir == "" {
 		g.OutputDir = "."
+	}
+	if g.OutputMap == "" {
+		g.OutputMap = "olympia-g3-map.wxx"
+	}
+	if g.OutputRandSeed == "" {
+		g.OutputRandSeed = "randseed"
 	}
 	if g.Log == nil {
 		g.Log = os.Stderr
@@ -104,8 +143,8 @@ func (g *Generator) outPath(name string) string { return filepath.Join(g.OutputD
 func (g *Generator) Run() error {
 	g.dirAssert()
 
-	if err := g.RNG.LoadSeed(g.inPath("randseed")); err != nil {
-		g.logf("%s could not be opened.\n", g.inPath("randseed"))
+	if err := g.RNG.LoadSeed(g.inPath(g.InputRandSeed)); err != nil {
+		g.logf("%s could not be opened.\n", g.inPath(g.InputRandSeed))
 	}
 
 	if err := g.readMap(); err != nil {
@@ -148,7 +187,32 @@ func (g *Generator) Run() error {
 	g.countTiles()
 	g.logf("\nhighest province = %d\n\n", g.Map[g.MaxRowUsed][g.MaxColUsed].Region)
 
-	return g.RNG.SaveSeed(g.outPath("randseed"))
+	return g.RNG.SaveSeed(g.outPath(g.OutputRandSeed))
+}
+
+// RunHex executes the full map-generation pipeline and writes the loc, gate,
+// road, and randseed output files. It mirrors the C main() function.
+func (g *Generator) RunHex() error {
+	g.LandCount, g.WaterCount, g.UnknownCount = 0, 0, 0
+
+	g.dirAssert()
+
+	if err := g.RNG.LoadSeed(g.inPath(g.InputRandSeed)); err != nil {
+		g.logf("%s could not be opened.\n", g.inPath(g.InputRandSeed))
+	}
+
+	// use the 16 bytes to seed our PRNG
+	seed1 := binary.LittleEndian.Uint64(g.RNG.Digest[0:8])
+	seed2 := binary.LittleEndian.Uint64(g.RNG.Digest[8:16])
+	g.PRNG = prng.NewFromSeed(seed1, seed2)
+	g.cityNames = NewCityNameGenerator(g.PRNG)
+
+	if err := g.readHexMap(); err != nil {
+		return err
+	}
+	g.logf("\nland / water / unknown = %6d / %d6 / %6d (%6d)\n\n", g.LandCount, g.WaterCount, g.UnknownCount, g.LandCount+g.WaterCount+g.UnknownCount)
+
+	return nil
 }
 
 func (g *Generator) writeFile(name string, data []byte) error {
@@ -422,12 +486,286 @@ func (g *Generator) createAGraveyard(row, col int) {
 // map reading
 // ---------------------------------------------------------------------------
 
+func (g *Generator) readHexMap() error {
+	// use ottomap to load the map file
+	fmt.Printf("ottomap: %s\n", ottomap.Version().Short())
+	fmt.Printf("  input: %s\n", g.inPath(g.InputMap))
+	fp, err := os.Open(g.inPath(g.InputMap))
+	if err != nil {
+		return fmt.Errorf("can't open %s: %w", g.InputMap, err)
+	}
+	defer func() {
+		_ = fp.Close()
+	}()
+	om, ov, err := wog.Read(fp)
+	if err != nil {
+		fmt.Printf("\t%v\n", err)
+		return err
+	}
+	fmt.Printf("ottomap: %s\n", ov.String())
+	amin, amax, explicit := om.Bounds()
+	fmt.Printf("bounds: %v..%v (explicit=%v)\n", amin, amax, explicit)
+	omin, omax, explicit := om.BoundsOffset()
+	cols := omax.Col - omin.Col + 1
+	rows := omax.Row - omin.Row + 1
+	fmt.Printf("%q %dx%d\n", om.Layout(), cols, rows)
+	fmt.Printf("\t%8d tiles high\n", rows)
+	fmt.Printf("\t%8d tiles wide\n", cols)
+
+	// range over the tiles in the source map
+	for coord, tile := range om.Tiles() {
+		if tile.Terrain == "Blank" {
+			// hole in the map
+			continue
+		}
+
+		rc := coord.ToOffset(hex.OddQ)
+		t := &Tile{
+			Coords: coord,
+			Row:    rc.Row,
+			Col:    rc.Col,
+			Region: rcToRegion(rc.Row, rc.Col),
+			Depth:  2,
+		}
+		g.HexMap[coord] = t
+
+		color := 0
+		terrain := 0
+
+		// map the Worldographer terrain to a map glyph
+		var glyph byte
+		switch tile.Terrain {
+		case "Classic/Water Ocean Deep":
+			glyph = ';'
+			t.SeaLane = 1
+			terrain = TerrOcean
+			color = 1
+			g.WaterCount++
+		case "Classic/Water Ocean":
+			glyph = ','
+			terrain = TerrOcean
+			color = 1
+			g.WaterCount++
+		case "Classic/Water Sea Deep":
+			glyph = ':'
+			t.SeaLane = 1
+			terrain = TerrOcean
+			color = 2
+			g.WaterCount++
+		case "Classic/Water Sea":
+			glyph = '.'
+			terrain = TerrOcean
+			color = 2
+			g.WaterCount++
+		case "Classic/Water Kelp":
+			glyph = '~'
+			t.SeaLane = 1
+			terrain = TerrOcean
+			color = 3
+			g.WaterCount++
+		case "Classic/Water Kelp Heavy":
+			glyph = ' '
+			terrain = TerrOcean
+			color = 3
+			g.WaterCount++
+		case "Classic/Water Shoals":
+			glyph = '"'
+			t.SeaLane = 1
+			terrain = TerrOcean
+			color = 4
+			g.WaterCount++
+		case "Classic/Water Reef":
+			glyph = '\''
+			terrain = TerrOcean
+			color = 4
+			g.WaterCount++
+		case "Classic/Flat Grassland":
+			glyph = 'p'
+			color = 5
+			terrain = TerrPlain
+			g.LandCount++
+		case "Classic/Hills":
+			glyph = 'P'
+			color = 6
+			terrain = TerrPlain
+			g.LandCount++
+		case "Classic/Flat Desert Rocky":
+			glyph = 'd'
+			color = 7
+			terrain = TerrDesert
+			g.LandCount++
+		case "Classic/Flat Desert Sandy":
+			glyph = 'D'
+			color = 8
+			terrain = TerrDesert
+			g.LandCount++
+		case "Classic/Mountain":
+			glyph = 'm'
+			color = 9
+			terrain = TerrMountain
+			g.LandCount++
+		case "Classic/Mountains":
+			glyph = 'M'
+			color = 10
+			terrain = TerrMountain
+			g.LandCount++
+		case "Classic/Flat Swamp":
+			glyph = 's'
+			color = 11
+			terrain = TerrSwamp
+			g.LandCount++
+		case "Classic/Flat Wetlands Jungle":
+			glyph = 'S'
+			color = 12
+			terrain = TerrSwamp
+			g.LandCount++
+		case "Classic/Flat Forest Deciduous":
+			glyph = 'f'
+			color = 13
+			terrain = TerrForest
+			g.LandCount++
+		case "Classic/Flat Forest Deciduous Heavy":
+			glyph = 'F'
+			color = 14
+			terrain = TerrForest
+			g.LandCount++
+		case "Classic/Underdark Open":
+			glyph = 'o'
+			switch g.PRNG.Roll(1, 10) {
+			case 1, 2, 3:
+				terrain = TerrForest
+				g.LandCount++
+			case 4, 5, 6:
+				terrain = TerrPlain
+				g.LandCount++
+			case 7, 8:
+				terrain = TerrMountain
+				g.LandCount++
+			case 9:
+				terrain = TerrSwamp
+				g.LandCount++
+			case 10:
+				terrain = TerrDesert
+				g.LandCount++
+			}
+			color = -1
+		case "Classic/Mountains Forest Jungle":
+			glyph = '^'
+			color = 9
+			terrain = TerrMountain
+			t.UldimFlag = 1
+			t.RegionBoundary = 1
+			g.LandCount++
+		case "Classic/Mountains Forest Dead":
+			glyph = 'v'
+			color = 9
+			terrain = TerrMountain
+			t.UldimFlag = 2
+			t.RegionBoundary = 1
+			g.LandCount++
+		case "Classic/Mountains Forest Deciduous":
+			glyph = '{'
+			color = 16
+			terrain = TerrMountain
+			t.UldimFlag = 3
+			t.Name = "Uldim pass"
+			t.RegionBoundary = 1
+			g.LandCount++
+		case "Classic/Mountains Forest Evergreen":
+			glyph = '}'
+			color = 16
+			terrain = TerrMountain
+			t.UldimFlag = 4
+			t.Name = "Uldim pass"
+			t.RegionBoundary = 1
+			g.LandCount++
+		case "Classic/Flat Marsh":
+			glyph = ']'
+			terrain = TerrSwamp
+			t.SummerbridgeFlag = 1
+			t.Name = "Summerbridge"
+			t.RegionBoundary = 1
+			g.LandCount++
+		case "Classic/Flat Moor":
+			glyph = '['
+			terrain = TerrSwamp
+			t.SummerbridgeFlag = 2
+			t.Name = "Summerbridge"
+			t.RegionBoundary = 1
+			g.LandCount++
+		case "Classic/Mountain Snowcapped":
+			glyph = '0'
+			terrain = TerrMountain
+			color = -1
+			t.Name = "Mt. Olympus"
+			g.LandCount++
+
+		case "Classic/Flat Farmland":
+			g.UnknownCount++
+		case "Classic/Flat Forest Jungle":
+			g.UnknownCount++
+		case "Classic/Flat Forest Jungle Heavy":
+			g.UnknownCount++
+		case "Classic/Hills Forest Deciduous":
+			g.UnknownCount++
+		case "Classic/Hills Forest Jungle":
+			g.UnknownCount++
+		case "Classic/Other Badlands":
+			g.UnknownCount++
+		case "Classic/Natural Volcano Dormant":
+			g.UnknownCount++
+
+		default:
+			g.logf("unknown terrain %q\n", tile.Terrain)
+			panic("readHexMap: unknown terrain")
+		}
+
+		t.SaveChar = glyph
+		t.Terrain = terrain
+		t.Color = color
+	}
+
+	// range over the features in the source map
+	for _, v := range om.Features() {
+		t, ok := g.HexMap[v.Location]
+		if !ok {
+			panic(fmt.Sprintf("assert(city.location == %q)", v.Location))
+		}
+
+		isSafeHaven, isMajorCity := false, false
+		switch v.Kind {
+		case "Classic/Building Cathedral":
+			t.SafeHaven = 1
+			isSafeHaven, isMajorCity = true, true
+		case "Classic/Military Castle":
+			isSafeHaven, isMajorCity = false, true
+		case "Classic/Building Church":
+			t.SafeHaven = 1
+			isSafeHaven, isMajorCity = true, false
+		case "Classic/Military Camp":
+			isSafeHaven, isMajorCity = false, false
+		default:
+			panic(fmt.Sprintf("assert(kind != %q)", v.Kind))
+		}
+		cityName := v.Label
+		if cityName == "" { // randomly assign a name
+			cityName = g.cityNames.Name()
+		}
+
+		fmt.Printf("%-30s, %-65q safe %-8v major %-8v (%03d.%03d) %v\n", cityName, v.Kind, isSafeHaven, isMajorCity, t.Col, t.Row, t.Coords)
+	}
+
+	return nil
+}
+
 func (g *Generator) readMap() error {
 	f, err := os.Open(g.inPath("Map"))
 	if err != nil {
 		return fmt.Errorf("can't open Map: %w", err)
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	r := bufio.NewReader(f)
 	row := 0

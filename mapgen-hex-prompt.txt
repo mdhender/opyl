@@ -1,0 +1,94 @@
+Here's a ready-to-paste prompt for the coding agent. It's grounded in how this package actually works so the agent's review is accurate.
+
+CONTEXT
+
+You are working in a Go package (originally `gomg/mapgen`, package `mapgen`, plus
+`cmd/mapgen`) that has been copied into this project; the import paths have been
+updated to match. It is a faithful Go port of the legacy Olympia "G3" map
+generator. It reads ascii input files (Map, Regions, Land, Cities, randseed) and
+writes an Olympia location database (loc, gate, road) plus an updated randseed.
+
+The current map model is a rectangular X,Y grid:
+
+  - Tiles are stored in `Map [MaxRow][MaxCol]*Tile` with MaxRow = MaxCol = 100.
+  - Each `Tile` carries integer `Row, Col`.
+  - The grid is cylindrical: columns wrap around, rows do not.
+
+GOAL
+
+Review the code with the goal of converting it from the X,Y (row/col) grid to a
+HEX grid using axial (Q, R) coordinates with 6 neighbors per tile. In this first
+pass, DO NOT rewrite the generator. Produce a written assessment and a concrete
+conversion plan, and flag every decision that needs my input before coding.
+
+WHAT TO EXAMINE (and report findings for each)
+
+1. Coordinate model and storage
+   - `Tile.Row/Col`, the `Map [MaxRow][MaxCol]*Tile` backing store, and the
+     `MaxRow/MaxCol` constants. Propose the axial (Q, R) replacement and a
+     storage scheme (offset-into-2D-array vs. map keyed by (Q,R)), including how
+     wrapping should work on a hex grid (which axis wraps, if any).
+
+2. Directions and adjacency  (this is the core of the change)
+   - The 8-way compass enum (DirN..DirNW, MaxDir) in types.go.
+   - `adjacentTileSup(row, col, dir)` — the per-direction row/col deltas and the
+     cylindrical column wrap.
+   - `provDest(t, dir)` — returns the neighbor region for the 4 CARDINAL
+     directions only; its output is the `pd` line written to `loc`.
+   - `randomizeDirVector` / `dirVector` — shuffles the 8 directions; consumed by
+     `adjacentTileWater` and `adjacentTileTerr`.
+   - `isPortCity` — uses the 4 cardinals.
+   - Flood fills that iterate dir 1..MaxDir (include diagonals): `floodLandInside`,
+     `floodWaterInside`, `floodLandClumps`.
+   - The road/corner bridging code that hardcodes diagonal pairs and an 8-neighbor
+     loop: `bridgeMapHoleSup`, `bridgeCornerSup` (the n-s / e-w / ne-sw / nw-se
+     pairings and the per-neighbor rnd loop).
+   Define the 6 hex directions, the axial neighbor deltas, and decide how the
+   "diagonal pairing" road logic maps onto a hex topology (it may have no direct
+   analogue — call that out).
+
+3. Entity-number encoding  (likely the hardest constraint)
+   - `rcToRegion(row,col) = 10000 + row*100 + col`, with `regionRow`/`regionCol`
+     as the inverse, and `dirAssert`. This encodes coordinates into Olympia
+     location entity numbers and caps the world at 100x100. Determine how to encode
+     (Q, R) into this numbering range while staying compatible with the Olympia
+     database format, and what new size limits result. Identify everything keyed
+     off this (e.g. region/inside numbering, the `pd` consumers downstream).
+
+4. Output format impact
+   - The `pd` line in `output.go` currently emits exactly 4 destinations
+     (N E S W). A hex grid has 6 neighbors. Determine whether the Olympia loc
+     format can represent 6 exits, what the line should become, and whether
+     downstream consumers (the game engine that reads `loc`) must change too.
+     This is an open question for me to resolve — surface it explicitly.
+
+5. Determinism and tests
+   - The generator's output is deterministic and currently validated
+     byte-for-byte against C-produced golden files in `golden_test.go`
+     (`../tests/golden`). Changing the neighbor count and the direction-shuffle
+     length WILL change the RNG draw sequence, so the existing golden files cannot
+     be preserved. Propose a new validation strategy (e.g. regenerate golden from
+     the new hex generator and assert stability/round-trip + structural
+     invariants), and identify which tests/fixtures must change.
+
+DELIVERABLES
+
+  A) An assessment: an inventory of every file/function/constant that bakes in
+     the 8-way X,Y assumption, grouped by the areas above, with file+symbol refs.
+  B) A proposed hex design: axial coordinate type, the 6-direction enum and
+     deltas, the storage/wrapping scheme, and the entity-number encoding.
+  C) A migration plan: ordered, reviewable steps to implement the conversion.
+  D) A risks / open-questions list, especially anything that changes the on-disk
+     loc/gate/road format or requires a downstream engine change, and the test
+     strategy that replaces the byte-for-byte golden comparison.
+
+CONSTRAINTS
+
+  - Keep all exported types/fields public (this is a reusable API for other
+    Olympia tools).
+  - Preserve determinism: same seed + inputs => identical output.
+  - Do not implement the conversion in this pass; plan first and wait for my
+    answers on the open questions (notably the loc `pd`/exit format and the
+    (Q, R) entity-number encoding).
+
+Key things I baked in so the agent doesn't go astray: the entity-number scheme 10000 + row*100 + col hard-caps the world at 100×100 and encodes coordinates into the on-disk format; the pd output line emits exactly 4 cardinal exits; and the direction-shuffle length feeds the RNG, so converting to 6 neighbors necessarily breaks byte-for-byte golden parity (hence the explicit "new test strategy" ask).

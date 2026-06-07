@@ -1,7 +1,11 @@
 *~
+*-autosave.wxx
 *.swp
 
 go.work
 go.work.sum
 
 .idea/
+
+g3wxx
+!g3wxx/

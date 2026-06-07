@@ -28,10 +28,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/maloquacious/wxx"
-	"github.com/maloquacious/wxx/xmlio"
 	"github.com/mdhender/opyl/internal/domain"
 	"github.com/mdhender/opyl/internal/infra/prng"
+	"github.com/mdhender/ottomap"
+	"github.com/mdhender/ottomap/hex"
+	"github.com/mdhender/ottomap/wog"
 	"github.com/peterbourgon/ff/v4"
 	"github.com/peterbourgon/ff/v4/ffhelp"
 )
@@ -46,11 +47,12 @@ func main() {
 func run(args []string) error {
 	fs := ff.NewFlagSet("woly")
 	var (
-		source = fs.StringLong("source", "", "path to the Worldographer .wxx source (required)")
-		key    = fs.StringLong("key", "", "path to the opyl-key.json file (required)")
-		out    = fs.StringLong("out", "", "path to write the map artifact JSON (default: stdout)")
-		xy     coordPair
-		qr     coordPair
+		source        = fs.StringLong("source", "", "path to the Worldographer .wxx source (required)")
+		key           = fs.StringLong("key", "", "path to the opyl-key.json file (required)")
+		out           = fs.StringLong("out", "", "path to write the map artifact JSON (default: stdout)")
+		showHistogram = fs.BoolLong("show-histogram", "show histogram of terrain names")
+		xy            coordPair
+		qr            coordPair
 	)
 	// pinFlag registers a coordPair flag with an explicit placeholder; like
 	// ff's typed definers, a static misconfiguration here is a programming bug,
@@ -108,7 +110,7 @@ func run(args []string) error {
 
 	// load the key file
 	mapKeys := MapKey{
-		Regions:  map[string]*MapRegion{},
+		Regions:  map[string]*RegionData{},
 		Terrains: map[string]*TerrainData{},
 	}
 	if data, err := os.ReadFile(*key); err != nil {
@@ -120,10 +122,18 @@ func run(args []string) error {
 	} else { // normalize
 		for k, v := range mapKeys.Regions {
 			v.Name = k
+			mapKeys.RegionList = append(mapKeys.RegionList, v)
 		}
+		sort.Slice(mapKeys.RegionList, func(i, j int) bool {
+			return mapKeys.RegionList[i].Name < mapKeys.RegionList[j].Name
+		})
 		for k, v := range mapKeys.Terrains {
-			v.Label = k
+			v.Name = k
+			mapKeys.TerrainList = append(mapKeys.TerrainList, v)
 		}
+		sort.Slice(mapKeys.TerrainList, func(i, j int) bool {
+			return mapKeys.TerrainList[i].Name < mapKeys.TerrainList[j].Name
+		})
 	}
 
 	for _, v := range mapKeys.Regions {
@@ -151,299 +161,82 @@ func run(args []string) error {
 	// sub-locations, and emit the deterministic artifact to dest.
 
 	fmt.Printf("info:\t%s\n", *source)
+
+	// use ottomap to load the map file
+	fmt.Printf("ottomap: %s\n", ottomap.Version().Short())
 	fp, err := os.Open(*source)
+	om, ov, err := wog.Read(fp)
 	if err != nil {
 		fmt.Printf("\t%v\n", err)
 		return err
 	}
-	defer fp.Close()
-
-	fmt.Printf("info: wxx version %s\n", wxx.Version().Core())
-
-	var decoderDiagnostics xmlio.DecoderDiagnostics
-	decoder := xmlio.NewDecoder(xmlio.WithDecoderDiagnostics(&decoderDiagnostics))
-	w, err := decoder.Decode(fp)
-	if err != nil {
-		fmt.Printf("\t%v\n", err)
-		return err
-	}
-	fmt.Printf("\t%8s schema version %q\n", decoderDiagnostics.Schema, w.MetaData.DataVersion.String())
-	fmt.Printf("\t%8d tiles high\n", w.Tiles.TilesHigh)
-	fmt.Printf("\t%8d tiles wide\n", w.Tiles.TilesWide)
-	fmt.Printf("\t%8d terrain tiles defined\n", len(w.TerrainMap.List))
-
-	// verify the map the Worldographer terrain to opyl terrain
-	unknownTiles := 0
-	mapKeys.Indexes = make([]string, len(w.TerrainMap.List), len(w.TerrainMap.List))
-	for _, terrain := range w.TerrainMap.List {
-		key, ok := mapKeys.Terrains[terrain.Label]
-		if !ok {
-			fmt.Printf("\tterrain %-55q not defined in opyl\n", terrain.Label)
-			unknownTiles++
-			continue
-		}
-		key.Label, key.Index = terrain.Label, terrain.Index
-		mapKeys.Labels = append(mapKeys.Labels, key.Label)
-		mapKeys.Indexes[key.Index] = key.Label
-	}
-	if unknownTiles != 0 {
-		return fmt.Errorf(".wxx file contains unknown terrain")
-	}
-	sort.Strings(mapKeys.Labels)
+	fmt.Printf("ottomap: %s\n", ov.String())
+	amin, amax, explicit := om.Bounds()
+	fmt.Printf("bounds: %v..%v (explicit=%v)\n", amin, amax, explicit)
+	omin, omax, explicit := om.BoundsOffset()
+	cols := omax.Col - omin.Col + 1
+	rows := omax.Row - omin.Row + 1
+	fmt.Printf("%q %dx%d\n", om.Layout(), cols, rows)
+	fmt.Printf("\t%8d tiles high\n", rows)
+	fmt.Printf("\t%8d tiles wide\n", cols)
 
 	// force a seed; later the GM will be able to specify it.
 	rnd := prng.NewFromSeed(42, 43)
 
-	mapTiles := map[AxialQR]*domain.Tile{}
-	for _, cells := range w.Tiles.Tiles {
-		if cells == nil {
-			continue
+	// create a histogram for the terrain types in the source
+	terrainHistogram := map[string]int{}
+
+	// create provinces from the map data
+	provinces := map[hex.Axial]*InputProvince{}
+	for coord, tile := range om.Tiles() {
+		terrainHistogram[string(tile.Terrain)]++
+		tileData := mapKeys.Terrains[string(tile.Terrain)]
+		tileData.Count++
+		provinces[coord] = DecodeTile(tile, coord, tileData.Glyph, rnd)
+	}
+
+	// flood fill regions.
+	landCount, waterCount := 0, 0
+	for _, v := range mapKeys.RegionList {
+		// find the province at the center of the region
+		pr, ok := provinces[v.ID]
+		if !ok {
+			// region has no tile on the map!
+			fmt.Printf("error: region %q: tile %q: does not exist\n", v.Name, v.ID)
+			panic("region: missing tile")
 		}
-		for _, cell := range cells {
-			if cell == nil {
-				continue
-			}
-
-			label := mapKeys.Indexes[cell.Terrain]
-
-			// convert Worldographer coordinates to axial
-			xCell, yCell := cell.Column, cell.Row
-			axial := (domain.Offset{Col: xCell, Row: yCell}).ToAxial().Add(delta)
-
-			tileData := mapKeys.Terrains[label]
-			tileData.Count++
-
-			t := &domain.Tile{Q: axial.Q, R: axial.R, Glyph: tileData.Glyph}
-			switch t.Glyph {
-			case ";":
-				t.Terrain = domain.TerrOcean
-				t.Color = 1
-				t.IsSeaLane = true
-			case ",":
-				t.Terrain = domain.TerrOcean
-				t.Color = 1
-
-			case ":":
-				t.Terrain = domain.TerrOcean
-				t.Color = 2
-				t.IsSeaLane = true
-			case ".":
-				t.Terrain = domain.TerrOcean
-				t.Color = 2
-
-			case "~":
-				t.Terrain = domain.TerrOcean
-				t.Color = 3
-				t.IsSeaLane = true
-			case " ":
-				t.Terrain = domain.TerrOcean
-				t.Color = 3
-
-			case "\"":
-				t.Terrain = domain.TerrOcean
-				t.Color = 4
-				t.IsSeaLane = true
-			case "'":
-				t.Terrain = domain.TerrOcean
-				t.Color = 4
-
-			case "p":
-				t.Terrain = domain.TerrPlain
-				t.Color = 5
-			case "P":
-				t.Terrain = domain.TerrPlain
-				t.Color = 6
-
-			case "d":
-				t.Terrain = domain.TerrDesert
-				t.Color = 7
-			case "D":
-				t.Terrain = domain.TerrDesert
-				t.Color = 8
-
-			case "m":
-				t.Terrain = domain.TerrMountain
-				t.Color = 9
-			case "M":
-				t.Terrain = domain.TerrMountain
-				t.Color = 10
-
-			case "s":
-				t.Terrain = domain.TerrSwamp
-				t.Color = 11
-			case "S":
-				t.Terrain = domain.TerrSwamp
-				t.Color = 12
-
-			case "f":
-				t.Terrain = domain.TerrForest
-				t.Color = 13
-			case "F":
-				t.Terrain = domain.TerrForest
-				t.Color = 14
-
-			case "o":
-				switch rnd.Roll(1, 10) {
-				case 1, 2, 3:
-					t.Terrain = domain.TerrForest
-				case 4, 5, 6:
-					t.Terrain = domain.TerrPlain
-				case 7, 8:
-					t.Terrain = domain.TerrMountain
-				case 9:
-					t.Terrain = domain.TerrSwamp
-				case 10:
-					t.Terrain = domain.TerrDesert
-				}
-				t.Color = -1
-
-			case "?":
-				t.IsHidden = true
-				t.Terrain = domain.TerrLand
-
-				// Special stuff
-
-			case "^":
-				t.Terrain = domain.TerrMountain
-				t.Color = 9 // was 15, unique
-				t.UldimFlag = domain.UldimFlag1
-				t.IsRegionBoundary = true
-			case "v":
-				t.Terrain = domain.TerrMountain
-				t.Color = 9 // was 15, unique
-				t.UldimFlag = domain.UldimFlag2
-				t.IsRegionBoundary = true
-			case "{":
-				t.Name = "Uldim pass"
-				t.Terrain = domain.TerrMountain
-				t.Color = 16
-				t.UldimFlag = domain.UldimFlag3
-				t.IsRegionBoundary = true
-			case "}":
-				t.Name = "Uldim pass"
-				t.Terrain = domain.TerrMountain
-				t.Color = 16
-				t.UldimFlag = domain.UldimFlag4
-				t.IsRegionBoundary = true
-
-			case "]":
-				t.Name = "Summerbridge"
-				t.Terrain = domain.TerrSwamp
-				t.SummerbridgeFlag = domain.SummerbridgeFlag1
-				t.IsRegionBoundary = true
-			case "[":
-				t.Name = "Summerbridge"
-				t.Terrain = domain.TerrSwamp
-				t.SummerbridgeFlag = domain.SummerbridgeFlag2
-				t.IsRegionBoundary = true
-
-			case "O":
-				t.Name = "Mt. Olympus"
-				t.Terrain = domain.TerrMountain
-				t.Color = -1
-
-			case "1":
-				t.Terrain = domain.TerrForest
-				t.Color = 19
-				t.IsSafeHaven = true
-				fmt.Println(`todo: implement create a city here`)
-				//fmt.Println(`n = create_a_city(row, col, "Drassa", true`)
-				//fmt.Println(`subloc[n].IsSafeHaven = true`)
-				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
-			case "2":
-				t.Terrain = domain.TerrForest
-				t.Color = 19
-				t.IsSafeHaven = true
-				fmt.Println(`todo: implement create a city here`)
-				//fmt.Println(`n = create_a_city(row, col, "Rimmon", true)`)
-				//fmt.Println(`subloc[n].IsSafeHaven = true`)
-				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
-			case "3":
-				t.Terrain = domain.TerrForest
-				t.Color = 19
-				t.IsSafeHaven = true
-				fmt.Println(`todo: implement create a city here`)
-				//fmt.Println(`n = create_a_city(row, col, "Harn", true)`)
-				//fmt.Println(`subloc[n].IsSafeHaven = true`)
-				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
-			case "4":
-				t.Terrain = domain.TerrForest
-				t.Color = 19
-				t.IsSafeHaven = true
-				fmt.Println(`todo: implement create a city here`)
-				//fmt.Println(`n = create_a_city(row, col, "Imperial City", true)`)
-				//fmt.Println(`subloc[n].IsSafeHaven = true`)
-				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
-			case "5":
-				t.Terrain = domain.TerrForest
-				t.Color = 19
-				t.IsSafeHaven = true
-				fmt.Println(`todo: implement create a city here`)
-				//fmt.Println(`n = create_a_city(row, col, "Port Aurnos", true)`)
-				//fmt.Println(`subloc[n].IsSafeHaven = true`)
-				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
-			case "6":
-				t.Terrain = domain.TerrForest
-				t.Color = 19
-				t.IsSafeHaven = true
-				fmt.Println(`todo: implement create a city here`)
-				//fmt.Println(`n = create_a_city(row, col, "Greyfell", true)`)
-				//fmt.Println(`subloc[n].IsSafeHaven = true`)
-				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
-			case "7":
-				t.Terrain = domain.TerrForest
-				t.Color = 19
-				t.IsSafeHaven = true
-				fmt.Println(`todo: implement create a city here`)
-				//fmt.Println(`n = create_a_city(row, col, "Yellowleaf", true)`)
-				//fmt.Println(`subloc[n].IsSafeHaven = true`)
-				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
-			case "8":
-				t.Terrain = domain.TerrForest
-				t.Color = 19
-				fmt.Println(`todo: implement create a city here`)
-				//fmt.Println(`n = create_a_city(row, col, "Golden City", true)`)
-				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
-
-				// starting city with a random name
-			case "9", "0":
-				t.Terrain = domain.TerrForest
-				t.Color = 19
-				t.IsSafeHaven = true
-				fmt.Println(`todo: implement create a city here`)
-				//fmt.Println(`n = create_a_city(row, col, NULL, true)`)
-				//fmt.Println(`subloc[n].IsSafeHaven = true`)
-				//fmt.Println(`fmt.Printf("Start city #%c %s at (%d,%d)\n", buf[col], subloc[n].name, row, col)`)
-
-			case "*":
-				t.Terrain = domain.TerrLand
-				fmt.Println(`todo: implement create a city here`)
-				//fmt.Println(`create_a_city(row, col, NULL, true)`)
-
-			case "%":
-				t.Terrain = domain.TerrLand
-				fmt.Println(`todo: implement create a city here`)
-				//fmt.Println(`create_a_city(row, col, NULL, true)`)
-
-			default:
-				panic(fmt.Sprintf("unknown terrain %q", t.Glyph))
-			}
-
-			mapTiles[AxialQR{Q: t.Q, R: t.R}] = t
+		// todo: what is inside supposed to represent?
+		const inside = true
+		if pr.Terrain == domain.TerrOcean {
+			waterCount++
+			floodWaterInside(v.Name, provinces, v.ID, inside)
+		} else {
+			landCount++
+			floodLandInside(v.Name, provinces, v.ID, inside)
 		}
 	}
 
-	for _, label := range mapKeys.Labels {
-		tileData, _ := mapKeys.Terrains[label]
-		fmt.Printf("\tterrain %6d %-55q maps to %q\n", tileData.Count, label, tileData.Kind)
+	// sort the names to get deterministic output
+	terrainNames := make([]string, 0, len(terrainHistogram))
+	for name := range terrainHistogram {
+		terrainNames = append(terrainNames, name)
 	}
+	sort.Strings(terrainNames)
+	// display the histogram
+	if *showHistogram {
+		for _, name := range terrainNames {
+			tileData, _ := mapKeys.Terrains[name]
+			fmt.Printf("%-60s %6d maps to %q\n", name, terrainHistogram[name], tileData.Kind)
+		}
+	}
+	fmt.Printf("\t%8d terrain tiles defined\n", len(terrainNames))
 
-	// convert the map tile data to artifact provinces
-	for _, mapTile := range mapTiles {
+	// convert the provinces to artifact provinces
+	for _, pr := range provinces {
 		province := Province{
-			Q:       mapTile.Q,
-			R:       mapTile.R,
-			Terrain: mapTile.Terrain.String(),
+			Q:       pr.ID.Q,
+			R:       pr.ID.R,
+			Terrain: pr.Terrain.String(),
 		}
 		artifact.Provinces = append(artifact.Provinces, province)
 	}
@@ -523,4 +316,14 @@ Usage:
 	_, _ = fmt.Fprintln(w, `woly emits a complete, deterministic artifact from the source; it never
 reads or extends a prior one. See docs/content/reference/model/map-artifact.md
 and docs/adr ADR 0004.`)
+}
+
+// floodWaterInside until we find a different terrain OR we hit a region boundary
+func floodWaterInside(name string, provinces map[hex.Axial]*InputProvince, coords hex.Axial, inside bool) {
+	// visit all the neighbors of the current hex
+}
+
+// floodLandInside until we find a different terrain OR we hit a region boundary
+func floodLandInside(name string, provinces map[hex.Axial]*InputProvince, coords hex.Axial, inside bool) {
+	// visit all the neighbors of the current hex
 }
